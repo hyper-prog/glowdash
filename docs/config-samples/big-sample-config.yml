@@ -1,0 +1,218 @@
+GlowDash:
+  DashboardTitle: "GlowDash"        #Show in main title line (You can change to your home name)
+  ReadWindInfo: true                #If true: reads some wind informations and show in title line
+  WindInfoPollInterval: 600
+  WeatherSource:
+    Provider: weatherapi.com
+    ApiKey: 1234sample5678
+    Location: Budapest
+  DebugLevel: 0               # 0 - silent, 1,2,3,4...
+  StaticDirectory: "static"   # Location of static glowdash files,js,css, images 
+  UserDirectory: "user"       # Location of user images
+  StateConfigDirectory: "."   # Location where the scheduled tasks file is saved
+  WebUseSSE: 1                # 0: disabled, 1: Make the browsers connect to SSE server
+  WebSSEPort: 5018            # The port of SSE server listen on
+  CommUseSSE: 1               # 0: disabled, 1: Enable the Glowdash notify SSE server
+  CommSSEPort: 5019           # The port of Hasses SSE server control channel listen on
+  Panels:                           # You can define panels here
+    - Id: ppid001                   # Unique id, optional. Required if you would like to add scheduled task on this panel
+      Title: Facade lighting        # Panel title text
+      PanelType: Switch             # Controls a normal relay (For example lamp)
+      DeviceType: Shelly
+      DeviceIp: 192.168.1.101       # Ip address of shelly relay
+      InDeviceId: 0                 # Internal Id in the shelly relay
+      Thumbnail: facadelight.jpg
+    
+    - Title: Living room shading
+      Id: ppidlrshade
+      PanelType: Shading            # Controls a shading (Shelly cover/Dual cover)
+      DeviceType: Shelly
+      DeviceIp: 192.168.1.102
+      InDeviceId: 0
+      Thumbnail: shaderimg.jpg      # Thumbnail image to the panel (Image in user directory)
+
+    - Title: Second room shading
+      Id: ppidsrshade
+      PanelType: Shading
+      DeviceType: Shelly
+      DeviceIp: 192.168.1.102
+      InDeviceId: 1
+      Thumbnail: shaderimg.jpg
+
+    - Id: lralllampoff
+      Title: App lamp off
+      PanelType: Action             # Custom action with script
+      DeviceType: Shelly
+      Thumbnail: bulbs.jpg
+      Commands: |
+        RelatedPanel Switch 192.168.1.101 0
+        RelatedPanel Switch 192.168.1.103 0
+        RelatedPanel Switch 192.168.1.103 1
+        CallHttp http://192.168.1.101/rpc/Switch.Set?id=0&on=false
+        WaitMs 200
+        CallHttp http://192.168.1.103/rpc/Switch.Set?id=0&on=false
+        WaitMs 200
+        CallHttp http://192.168.1.103/rpc/Switch.Set?id=1&on=false
+        WaitMs 200
+
+    - Id: ppidcrlight
+      Title: Christmas lights
+      PanelType: Switch
+      DeviceType: Shelly
+      DeviceIp: 192.168.1.101
+      InDeviceId: 2
+      Thumbnail: lampthread.jpg
+
+    - Id: ppid002
+      Title: Sensors
+      PanelType: Sensors   # Shows the current values of some sensors
+      DeviceType: smtherm  # SMTherm - daemon
+      DeviceIp: 192.168.1.10   
+      Sensors:
+        - Name: Living room     # Display name of the sensor
+          Code: livingroom      # Codename of the sensor in SMTherm
+        - Name: Bathroom
+          Code: bathr
+        - Name: Outside
+          Code: outside
+
+    - Id: ppid003
+      PanelType: ScheduleShortcut  # Shortcut to a scheduled task
+      ScheduleName: "Moring wake up"
+
+    - Id: ppidheaterset
+      Title: Central heating
+      PanelType: Thermostat
+      DeviceType: smtherm
+      DeviceIp: 192.168.1.10
+
+    - Id: ppidheatersetsw
+      Title: Central heating enabled
+      PanelType: ThermostatSwitch
+      DeviceType: smtherm
+      Thumbnail: heaterpanel.jpg
+      DeviceIp: 192.168.1.10
+
+    - Title: Temperature graphs
+      PanelType: Launch
+      Thumbnail: graph.jpg    
+      LaunchTo: graphpage
+
+    - Title: Sensor statistics
+      PanelType: Launch
+      Thumbnail: balance.jpg    
+      LaunchTo: statpage
+   
+    - Title: Pool
+      PanelType: Group
+      Thumbnail: pool.jpg
+      CornerTitle: Group
+      SubPageTo: poolgrp
+
+    - Title: Shedule editor
+      PanelType: Launch
+      Thumbnail: schedules.png
+      LaunchTo: schedpage
+
+    - Title: Both shading up
+      Id: ppidallshadeup
+      PanelType: Action
+      DeviceType: Shelly
+      Thumbnail: shading.jpg
+      Commands: |
+        RelatedPanel Shading 192.168.1.102 0
+        RelatedPanel Shading 192.168.1.102 1
+        CallHttp http://192.168.1.102/rpc/Cover.Open?id=0
+        CallHttp http://192.168.1.102/rpc/Cover.Open?id=1
+        SetFromJsonReq cstate http://192.168.1.102/rpc/Cover.GetStatus?id=0 /state
+        While {{cstate}} nin open,stopped,closed
+            WaitMs 1000
+            SetFromJsonReq cstate http://192.168.1.102/rpc/Cover.GetStatus?id=0 /state
+        EndWhile
+        SetFromJsonReq cstate http://192.168.1.102/rpc/Cover.GetStatus?id=1 /state
+        While {{cstate}} nin open,stopped,closed
+            WaitMs 1000
+            SetFromJsonReq cstate http://192.168.1.102/rpc/Cover.GetStatus?id=1 /state
+        EndWhile
+
+    - Title: Living room 45 degree
+      Id: ppidrlshade45
+      PanelType: Action
+      DeviceType: Shelly
+      Thumbnail: shading.jpg
+      Commands: |
+        LoadVariablesFromPanelId ppidlrshade
+        Run Shading45Degree
+
+  Pages:
+    - PageName: graphpage 
+      PageType: SensorGraph
+      DeviceType: smtherm
+      DeviceIp: 192.168.1.10
+      Sensors:
+        - Name: Living room     # Display name of the sensor
+          Code: livingroom      # Codename of the sensor in SMTherm
+        - Name: Bathroom
+          Code: bathr
+        - Name: Outside
+          Code: outside
+
+    - PageName: statpage
+      PageType: SensorStats
+      DeviceType: smtherm
+      DeviceIp: 192.168.1.10
+      Sensors:
+        - Name: Living room     # Display name of the sensor
+          Code: livingroom      # Codename of the sensor in SMTherm
+        - Name: Bathroom
+          Code: bathr
+        - Name: Outside
+          Code: outside
+
+    - Title: Scheduled tasks
+      PageType: ScheduleEdit    
+      PageName: schedpage
+
+  CommandLibrary:
+    - Name: helloworld
+      Code: |
+        PrintConsole Hello World from {{Panel.Title}}
+
+    - Name: Shading45Degree
+      Code: |
+        Set BackOpenTime 500
+        Run ShadingAngleSet
+
+    - Name: Shading60Degree
+      Code: |
+        Set BackOpenTime 300
+        Run ShadingAngleSet
+
+    - Name: ShadingAngleSet
+      Code: |
+        RelatedPanel Shading {{Panel.DeviceIp}} {{Panel.InDeviceId}}
+        Set DeviceIp {{Panel.DeviceIp}}
+        Set DeviceId {{Panel.InDeviceId}}
+        Set MinDownPos 70
+        SetFromJsonReq CoverPos http://{{DeviceIp}}/rpc/Cover.GetStatus?id={{DeviceId}} /current_pos
+        //PrintConsole CoverPos is {{CoverPos}} % ({{TIME.HOUR}}:{{TIME.MINUTE}})
+        Set MinDownPosPlus2 {{MinDownPos}}
+        AddTo MinDownPosPlus2 2
+        If {{CoverPos}} > {{MinDownPosPlus2}}
+            //Smaller than min%, down to min%.
+            CallHttp http://{{DeviceIp}}/rpc/Cover.GoToPosition?id={{DeviceId}}&pos={{MinDownPos}}
+            Set cstate none
+            While {{cstate}} nin open,stopped,closed
+                WaitMs 1000
+                SetFromJsonReq cstate http://{{DeviceIp}}/rpc/Cover.GetStatus?id={{DeviceId}} /state
+            EndWhile
+        Else
+            CallHttp http://{{DeviceIp}}/rpc/Cover.Close?id={{DeviceId}}
+            WaitMs 2000
+            CallHttp http://{{DeviceIp}}/rpc/Cover.Stop?id={{DeviceId}}
+        EndIf
+        WaitMs 200
+        CallHttp http://{{DeviceIp}}/rpc/Cover.Open?id={{DeviceId}}
+        WaitMs {{BackOpenTime}}
+        CallHttp http://{{DeviceIp}}/rpc/Cover.Stop?id={{DeviceId}}
+

@@ -15,12 +15,12 @@
 .breadcrumb ul li a {
     display: block;
     float: left;
-    height: 40px;
+    height: 34px;
     background: #e4984b; /* e4984b  f4985b*/
     text-align: center;
-    padding: 11px 18px 0 28px;
+    padding: 9px 16px 0 28px;
     position: relative;
-    margin: 0 5px 5px 0;
+    margin: 0 5px 0px 0;
     text-decoration: none;
     color: #fff;
 }
@@ -31,29 +31,29 @@
 
 .breadcrumb ul li a:after {
     content: "";
-    border-top: 20px solid transparent;
-    border-bottom: 20px solid transparent;
-    border-left: 20px solid #e4984b;
-    position: absolute; right: -20px; top: 0;
+    border-top: 17px solid transparent;
+    border-bottom: 17px solid transparent;
+    border-left: 17px solid #e4984b;
+    position: absolute; right: -17px; top: 0;
     z-index: 1;
 }
 
 .breadcrumb ul li:nth-child(even) a:after {
-    border-left: 20px solid #f4985b;
+    border-left: 17px solid #f4985b;
 }
 
 .breadcrumb ul li a:before {
     content: "";
-    border-top: 20px solid transparent;
-    border-bottom: 20px solid transparent;
-    border-left: 20px solid #4d4d4d;
+    border-top: 17px solid transparent;
+    border-bottom: 17px solid transparent;
+    border-left: 17px solid #4d4d4d;
     position: absolute; left: 0; top: 0;
 }
 
 .breadcrumb ul li:first-child a {
     padding-left: 10px;
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
 
 }
 .breadcrumb ul li:first-child a:before {

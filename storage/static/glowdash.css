@@ -243,13 +243,19 @@ body {
   background-color: var(--color-2);
   color: #f0f0f0;
   margin: 0;
-  padding: 0.4em;
+  padding: 0.4em 1em 0.4em 0.4em;
   border: 0;
   border-bottom: 3px solid var(--color-1);
 }
 
 .titleline {
   padding: 0px 0px 6px 0px;  
+}
+
+@media only screen and (min-width: 600px) {
+  .titleline {
+    float: right;
+  }
 }
 
 #mmmpname,
@@ -1100,7 +1106,7 @@ body {
   font-size: 1.8em;
   position: relative;
   left: 3px;
-  top: -4px;
+  top: -5px;
 }
 
 .icon-grid.icon-grid-s {

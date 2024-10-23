@@ -14,7 +14,6 @@ import (
 )
 
 func htmlStart() string {
-	assetVer := "108"
 	return `<!DOCTYPE html>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
@@ -22,9 +21,9 @@ func htmlStart() string {
 	<html>
 	<head>
 		<link rel="icon" type="image/x-icon" href="/static/favicon.ico">` +
-		"<link rel=\"stylesheet\" href=\"/static/glowdash.css?" + assetVer + "\">" +
-		"<link rel=\"stylesheet\" href=\"/static/breadcrumb.css?" + assetVer + "\">" +
-		"<script src=\"/static/glowdash.js?" + assetVer + "\"></script>" +
+		"<link rel=\"stylesheet\" href=\"/static/glowdash.css?" + AssetVer + "\">" +
+		"<link rel=\"stylesheet\" href=\"/static/breadcrumb.css?" + AssetVer + "\">" +
+		"<script src=\"/static/glowdash.js?" + AssetVer + "\"></script>" +
 		"<title>" + DashboardTitle + "</title>" +
 		"</head>" +
 		"<body>" +
@@ -51,11 +50,19 @@ func htmlHeaderLine(sub string) string {
 			LastWindInfo = GetWindInfo()
 		}
 		html += "<div class=\"titleline\">" +
-			fmt.Sprintf("<span id=\"mmmpname\">%s</span> - <span id=\"tlclock\">%02d:%02d</span>,  Wind:%.1fkm/h, Gust: %.1fkm/h (%02d:%02d)", DashboardTitle, now.Hour(), now.Minute(), LastWindInfo.Windspeed, LastWindInfo.GustSpeed, LastWindInfo.RequestTime.Hour(), LastWindInfo.RequestTime.Minute()) +
+			fmt.Sprintf("<span class=\"titleandclock\">"+
+				"<span id=\"mmmpname\">%s</span> - <span id=\"tlclock\">%02d:%02d</span>"+
+				"<span class=\"pluscomma\">, </span></span>  "+
+				"<span class=\"windinfosect\">Wind:%.1fkm/h, Gust: %.1fkm/h (%02d:%02d)</span>",
+				DashboardTitle, now.Hour(), now.Minute(),
+				LastWindInfo.Windspeed, LastWindInfo.GustSpeed,
+				LastWindInfo.RequestTime.Hour(), LastWindInfo.RequestTime.Minute()) +
 			"</div>"
 	} else {
 		html += "<div class=\"titleline\">" +
-			fmt.Sprintf("<span id=\"mmmpname\">%s</span> - <span id=\"tlclock\">%02d:%02d</span>", DashboardTitle, now.Hour(), now.Minute()) +
+			fmt.Sprintf("<span class=\"titleandclock\">"+
+				"<span id=\"mmmpname\">%s</span> - <span id=\"tlclock\">%02d:%02d</span>"+
+				"</span>", DashboardTitle, now.Hour(), now.Minute()) +
 			"</div>"
 	}
 
@@ -74,11 +81,8 @@ func htmlHeaderLine(sub string) string {
 		}
 	}
 
-	html += `	</ul>
-				<div class="clearboth"></div>
-			</div>`
-
-	html += "</div>"
+	html += "</ul><div class=\"clearboth\"></div></div>" // .clearboth .breadcrumb
+	html += "</div>"                                     // .header
 	return html
 }
 

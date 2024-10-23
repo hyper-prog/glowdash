@@ -137,8 +137,9 @@ var WebSSEPort int = 8080
 var CommUseSSE int = 0
 var CommSSEHost string = ""
 var CommSSEPort int = 8085
-var BackgroudDevQueryNetDialerTimeout time.Duration = time.Duration(300) * time.Millisecond
-var BackgroudDevQueryNetKeepaliveTimeout time.Duration = time.Duration(500) * time.Millisecond
+var BackgroudDevQueryNetDialerTimeout time.Duration = time.Duration(1200) * time.Millisecond
+var BackgroudDevQueryNetKeepaliveTimeout time.Duration = time.Duration(1200) * time.Millisecond
+var AssetVer string = "100"
 
 var Panels []PanelInterface
 var Pages []PageInterface
@@ -179,9 +180,10 @@ func readConfig(yamlfile string) bool {
 	WeatherSource.Provider = configYAML.GetStringByPathWithDefault("/GlowDash/WeatherSource/Provider", "")
 	WeatherSource.ApiKey = configYAML.GetStringByPathWithDefault("/GlowDash/WeatherSource/ApiKey", "")
 	WeatherSource.Location = configYAML.GetStringByPathWithDefault("/GlowDash/WeatherSource/Location", "")
+	AssetVer = configYAML.GetStringByPathWithDefault("/GlowDash/AssetVer", AssetVer)
 
-	BackgroudDevQueryNetDialerTimeout = time.Duration(configYAML.GetIntegerByPathWithDefault("/GlowDash/BackDevDialerTimeout", 200)) * time.Millisecond
-	BackgroudDevQueryNetKeepaliveTimeout = time.Duration(configYAML.GetIntegerByPathWithDefault("/GlowDash/BackDevKeepaliveTimeout", 500)) * time.Millisecond
+	BackgroudDevQueryNetDialerTimeout = time.Duration(configYAML.GetIntegerByPathWithDefault("/GlowDash/BackDevDialerTimeout", 1200)) * time.Millisecond
+	BackgroudDevQueryNetKeepaliveTimeout = time.Duration(configYAML.GetIntegerByPathWithDefault("/GlowDash/BackDevKeepaliveTimeout", 1200)) * time.Millisecond
 
 	if !strings.HasSuffix(StaticFilesDirectory, "/") {
 		StaticFilesDirectory += "/"

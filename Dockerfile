@@ -13,6 +13,7 @@ RUN cd /glowdash && GO111MODULE=auto CGO_ENABLED=0 GOOS=linux go build -a -o glo
 FROM alpine AS glowdash
 LABEL maintainer="hyper80@gmail.com" Description="GlowDash - Smart Home Web Dashboard"
 COPY --from=glowdashbuildstage /glowdash/glowdash /usr/local/bin
+COPY --from=glowdashbuildstage /usr/share/zoneinfo /usr/share/zoneinfo
 RUN mkdir /glowdash
 VOLUME ["/glowdash"]
 WORKDIR /glowdash

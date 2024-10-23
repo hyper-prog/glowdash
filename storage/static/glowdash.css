@@ -249,12 +249,26 @@ body {
 }
 
 .titleline {
-  padding: 0px 0px 6px 0px;  
+  padding: 0;
+}
+.titleline .pluscomma {
+  display: inline-block;
+}
+.windinfosect {
+  font-size: 12px;
 }
 
 @media only screen and (min-width: 600px) {
   .titleline {
     float: right;
+  }
+  .titleline .titleandclock,
+  .titleline .windinfosect {
+    display: block;
+    text-align: right;
+  }
+  .titleline .pluscomma {
+    display: none;
   }
 }
 
@@ -2784,6 +2798,10 @@ input:checked + .slider:before {
   font-size: 1.2em;
   cursor: pointer;
   min-width: 2em;
+}
+#schedule-edit-add {
+  margin: 5px 5px 5px 0;
+  font-size: 1.5em;
 }
 .placeholdersp {
   display: block;

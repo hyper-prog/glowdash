@@ -4,7 +4,7 @@ GlowDash - The Smart Home Web Dashboard
 ============================================
 
 GlowDash is web based dasboard to control (mostly) Shelly switches, shanding relays, scripts
-and custom thermostat daemons. **It does not need any could access, it uses the local rpc interface** of
+and custom thermostat daemons. **It does not need any cloud access, it uses the local rpc interface** of
 the Shelly relays to query/set states. It was originally written to allow for more complex control
 over window shading slats as the original shelly application can. 
 Therefore, the program can define unique actions that can accept complex scripting methods.
@@ -65,4 +65,5 @@ but only those capable of communicating via a local network (without cloud).
 Author
 ------
 - Written by Péter Deák (C) hyper80@gmail.com, License GPLv2
+- The author wrote this project entirely as a hobby. Any help is welcome!
 

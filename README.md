@@ -67,3 +67,6 @@ Author
 - Written by Péter Deák (C) hyper80@gmail.com, License GPLv2
 - The author wrote this project entirely as a hobby. Any help is welcome!
 
+------
+
+[![paypal](https://raw.githubusercontent.com/hyper-prog/glowdash/master/docs/images/tipjar.png)](https://www.paypal.com/donate/?business=EM2E9A6BZBK64&no_recurring=0&currency_code=USD) 

@@ -21,6 +21,8 @@ Use the GlowDash If:
 - If you wuold like to monitor and log temperatures and humidity with DHT22 and RaspberriPi. (SMTherm daemon required)
 - IF you want to create scheduled tasks which runs your custom actions or set the termostat. 
 
+The SMTherm daemon is available here: https://github.com/hyper-prog/smtherm
+
 Architecture
 -----------------
 The GlowDash written in Go language and designed to run in Docker container. 

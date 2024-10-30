@@ -159,7 +159,6 @@ func (p PanelScript) DoAction(actionName string, parameters map[string]string) (
 		if actionName == "update" {
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
-
 	}
 	return "ok", updatedIds
 }
@@ -211,8 +210,7 @@ func (p *PanelScript) QueryDevice() []string {
 				} else {
 					state = 0
 				}
-
-				updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredPanels(state, 0)...)
+				updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredScriptPanels(state)...)
 				break
 			}
 		}
@@ -220,23 +218,28 @@ func (p *PanelScript) QueryDevice() []string {
 	return updatedIds
 }
 
-func (p *PanelScript) RefreshHwStatesInRequiredPanels(State int, InputState int) []string {
+func (p *PanelScript) RefreshHwStatesInRequiredScriptPanels(State int) []string {
 	var updatedIds []string = []string{}
 
 	pc := len(Panels)
 	for i := 0; i < pc; i++ {
-		rId := Panels[i].RefreshHwStateIfMatch(p.panelType, p.deviceIp, p.inDeviceId, p.scriptName, State, InputState)
-		if rId != "" {
-			updatedIds = append(updatedIds, rId)
+		if Panels[i].PanelType() == Script {
+			ps, ok := Panels[i].(*PanelScript)
+			if ok {
+				rId := ps.RefreshHwStateIfMatchScriptPanel(p.panelType, p.deviceIp, p.inDeviceId, p.scriptName, State)
+				if rId != "" {
+					updatedIds = append(updatedIds, rId)
+				}
+			}
 		}
 	}
 	return updatedIds
 }
 
-func (p *PanelScript) RefreshHwStateIfMatch(fromPanelType PanelTypes, fromDeviceIp string, fromInDeviceId int, fromScriptName string, State int, InputState int) string {
+func (p *PanelScript) RefreshHwStateIfMatchScriptPanel(fromPanelType PanelTypes, fromDeviceIp string, fromInDeviceId int, fromScriptName string, State int) string {
 	if p.panelType == fromPanelType && p.deviceIp == fromDeviceIp && p.scriptName == fromScriptName {
 		p.state = State
-		p.inputState = InputState
+		p.inputState = 0
 		p.hasValidInfo = true
 		return p.idStr
 	}

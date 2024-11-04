@@ -164,51 +164,6 @@ func (p PageSensorGraph) CollectSensorHistory_smtherm(length int, offset int, te
 	return datablock, datanames, fmt.Sprintf("'%d','%d'", timemin_str, timemax_str), fmt.Sprintf("%d,%d", thmin-1, thmax+1)
 }
 
-func (p PageSensorGraph) CollectHeaterHistory_smtherm() ([]string, []string, []string) {
-	var when []string = []string{}
-	var what []string = []string{}
-	var comm []string = []string{}
-
-	var tm time.Time
-	var lastHasStart bool = false
-	var lastStart time.Time
-
-	j := execJsonTcpQuery(p.hwDeviceIp, p.hwDevicePort, "cmd:qhshis;")
-	if j.Success {
-		arr, _ := j.SmartJSON.GetArrayByPath("$.hswhist")
-		alen := len(arr)
-
-		for mi := 0; mi < alen; mi++ {
-			if subarr, isArray := arr[mi].([]interface{}); isArray {
-				f0, isFloat0 := subarr[0].(float64)
-				f1, isFloat1 := subarr[1].(float64)
-
-				if isFloat0 && isFloat1 {
-					tm = time.Unix(int64(f0),0)
-					when = append(when, tm.Format("2006-01-02 15:04:05"))
-					whatstr := "unknown"
-					commstr := ""
-					if int(f1) == 1 {
-						whatstr = "Start heating"
-						lastHasStart = true
-						lastStart = tm
-					}
-					if int(f1) == 2 {
-						whatstr = "Stop heating"
-						if lastHasStart {
-							commstr = fmt.Sprintf("%d minute", int(tm.Sub(lastStart).Seconds() / 60))
-						}
-					}
-					what = append(what,whatstr)
-					comm = append(comm,commstr)
-				}
-			}
-		}
-	}
-
-	return when,what,comm
-}
-
 func (p PageSensorGraph) PageHtml(withContainer bool, r *http.Request) string {
 
 	datablock := ""
@@ -313,20 +268,6 @@ func (p PageSensorGraph) PageHtml(withContainer bool, r *http.Request) string {
 	         };
 			 Plotly.newPlot("grafplot", data, layout);`
 	html += "</script>"
-
-	if p.deviceType == "smtherm" {
-		when, what, comm := p.CollectHeaterHistory_smtherm()
-
-		html += "<br/>"
-		html += "<table class=\"stattable marginauto\">"
-		html += "<tr><th>Date/Time</th><th>Action</th><th>Comment</th></tr>"
-		l := min(len(when),min(len(what),len(comm)))
-		for i := 0 ; i < l ; i++ {
-			html += "<tr><td>" + when[i] + "</td><td>" + what[i] + "</td><td>" + comm[i]+ "</td></tr>"
-		}
-
-		html += "</table>"
-	}
 
 	if withContainer {
 		return fmt.Sprintf("<div id=\"pc-%s\" class=\"fullpage-content\" tabindex=\"-1\">", p.IdStr()) +

@@ -288,3 +288,10 @@ func sendSSENotify(message string) {
 	}
 	execTcpSend(CommSSEHost, CommSSEPort, message)
 }
+
+func min(a int,b int ) int {
+	if a < b {
+		return a
+	}
+	return b
+}

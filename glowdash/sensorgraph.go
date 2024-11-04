@@ -9,9 +9,9 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/hyper-prog/smartyaml"
 )
@@ -82,13 +82,15 @@ func (p *PageSensorGraph) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig
 	}
 }
 
-func (p PageSensorGraph) PageHtml_smtherm(length int, offset int, temphum string) (string, string, string, string) {
+func (p PageSensorGraph) CollectSensorHistory_smtherm(length int, offset int, temphum string) (string, string, string, string) {
 	datablock := ""
 	datanames := ""
 
 	dsx := ""
 	dsy := ""
 
+	var starttimeunix int64 = 0
+	var starttime time.Time
 	timemin := 0
 	timemax := 0
 	thmin := 999
@@ -98,19 +100,11 @@ func (p PageSensorGraph) PageHtml_smtherm(length int, offset int, temphum string
 		dsy = ""
 		j := execJsonTcpQuery(p.hwDeviceIp, p.hwDevicePort, fmt.Sprintf("cmd:qhis;sn:%s;off:%d;len:%d;", p.sensors[i].codename, offset, length))
 		if j.Success {
+			starttimeunix = int64(j.SmartJSON.GetFloat64ByPathWithDefault("/st", 0))
+			starttime = time.Unix(starttimeunix, 0)
+
 			arr, _ := j.SmartJSON.GetArrayByPath("$.d")
 			alen := len(arr)
-
-			f0_max := 0.0
-			for mi := 0; mi < alen; mi++ {
-				if subarr, isArray := arr[mi].([]interface{}); isArray {
-					if f0, isFloat0 := subarr[0].(float64); isFloat0 {
-						if f0 > f0_max {
-							f0_max = f0
-						}
-					}
-				}
-			}
 
 			for mi := 0; mi < alen; mi++ {
 				if subarr, isArray := arr[mi].([]interface{}); isArray {
@@ -130,8 +124,8 @@ func (p PageSensorGraph) PageHtml_smtherm(length int, offset int, temphum string
 							dsy += ","
 						}
 
-						f0 = math.Floor((f0 - f0_max) / 60)
-						dsx += fmt.Sprintf("%.0f", f0)
+						dsx += "'" + starttime.Add(time.Duration(f0)*time.Second).Format("2006-01-02 15:04:05") + "'"
+
 						if temphum == "temp" {
 							dsy += fmt.Sprintf("%.1f", f1)
 						}
@@ -163,7 +157,56 @@ func (p PageSensorGraph) PageHtml_smtherm(length int, offset int, temphum string
 			datanames += fmt.Sprintf("tr%d", i)
 		}
 	}
-	return datablock, datanames, fmt.Sprintf("%d,%d", timemin, timemax), fmt.Sprintf("%d,%d", thmin-1, thmax+1)
+
+	timemin_str := starttime.Add(time.Duration(timemin) * time.Second).Format("2006-01-02 15:04:05")
+	timemax_str := starttime.Add(time.Duration(timemax) * time.Second).Format("2006-01-02 15:04:05")
+
+	return datablock, datanames, fmt.Sprintf("'%d','%d'", timemin_str, timemax_str), fmt.Sprintf("%d,%d", thmin-1, thmax+1)
+}
+
+func (p PageSensorGraph) CollectHeaterHistory_smtherm() ([]string, []string, []string) {
+	var when []string = []string{}
+	var what []string = []string{}
+	var comm []string = []string{}
+
+	var tm time.Time
+	var lastHasStart bool = false
+	var lastStart time.Time
+
+	j := execJsonTcpQuery(p.hwDeviceIp, p.hwDevicePort, "cmd:qhshis;")
+	if j.Success {
+		arr, _ := j.SmartJSON.GetArrayByPath("$.hswhist")
+		alen := len(arr)
+
+		for mi := 0; mi < alen; mi++ {
+			if subarr, isArray := arr[mi].([]interface{}); isArray {
+				f0, isFloat0 := subarr[0].(float64)
+				f1, isFloat1 := subarr[1].(float64)
+
+				if isFloat0 && isFloat1 {
+					tm = time.Unix(int64(f0),0)
+					when = append(when, tm.Format("2006-01-02 15:04:05"))
+					whatstr := "unknown"
+					commstr := ""
+					if int(f1) == 1 {
+						whatstr = "Start heating"
+						lastHasStart = true
+						lastStart = tm
+					}
+					if int(f1) == 2 {
+						whatstr = "Stop heating"
+						if lastHasStart {
+							commstr = fmt.Sprintf("%d minute", int(tm.Sub(lastStart).Seconds() / 60))
+						}
+					}
+					what = append(what,whatstr)
+					comm = append(comm,commstr)
+				}
+			}
+		}
+	}
+
+	return when,what,comm
 }
 
 func (p PageSensorGraph) PageHtml(withContainer bool, r *http.Request) string {
@@ -190,7 +233,7 @@ func (p PageSensorGraph) PageHtml(withContainer bool, r *http.Request) string {
 	}
 
 	if p.deviceType == "smtherm" {
-		datablock, datanames, rangex, rangey = p.PageHtml_smtherm(length, offset, temphum)
+		datablock, datanames, rangex, rangey = p.CollectSensorHistory_smtherm(length, offset, temphum)
 	}
 
 	ytitle := ""
@@ -248,17 +291,42 @@ func (p PageSensorGraph) PageHtml(withContainer bool, r *http.Request) string {
 
 	html += `var data = [` + datanames + `];
 	         const layout = {
-	             xaxis: {range: [` + rangex + `], title: "Time (min)",color: "white"},
+	             xaxis: {range: [` + rangex + `], title: "Time",color: "white"},
 	             yaxis: {range: [` + rangey + `], title: "` + ytitle + `",color: "white"},
-	             title: "` + p.title + `",
+	             title: {
+					text: "` + p.title + `",
+					font: {
+						color: "white"
+					}
+				 },
 				 automargin: true,
 				 autosize: true,
 	             paper_bgcolor: 'rgba(50, 50, 100, 0.2)',
 	             plot_bgcolor: 'rgba(50, 50, 120, 0.2)',
 				 legend_font_color: 'white',
+				 legend: {
+					font: {
+						color: "white",
+						size: 15
+					}
+				 }
 	         };
 			 Plotly.newPlot("grafplot", data, layout);`
 	html += "</script>"
+
+	if p.deviceType == "smtherm" {
+		when, what, comm := p.CollectHeaterHistory_smtherm()
+
+		html += "<br/>"
+		html += "<table class=\"stattable marginauto\">"
+		html += "<tr><th>Date/Time</th><th>Action</th><th>Comment</th></tr>"
+		l := min(len(when),min(len(what),len(comm)))
+		for i := 0 ; i < l ; i++ {
+			html += "<tr><td>" + when[i] + "</td><td>" + what[i] + "</td><td>" + comm[i]+ "</td></tr>"
+		}
+
+		html += "</table>"
+	}
 
 	if withContainer {
 		return fmt.Sprintf("<div id=\"pc-%s\" class=\"fullpage-content\" tabindex=\"-1\">", p.IdStr()) +

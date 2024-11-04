@@ -2542,11 +2542,13 @@ body {
   color: #383838;
   background-color: #aaaaaa;
   border: 1px solid #b6b8c4;
+  padding: 2px 4px 2px 4px;
 }
 .stattable td{
-  color: #dfdfdf;
+  color: #efefef;
   background-color: #5893bb;
   border: 1px solid #b6b8c4;
+  padding: 2px 4px 2px 4px;
 }
 
 .schedule-edit-page {
@@ -2806,4 +2808,8 @@ input:checked + .slider:before {
 .placeholdersp {
   display: block;
   height: 0.6em;
+}
+
+.marginauto {
+  margin: auto;
 }

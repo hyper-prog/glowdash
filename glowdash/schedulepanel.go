@@ -11,8 +11,8 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"strings"
 	"strconv"
+	"strings"
 
 	"github.com/hyper-prog/smartyaml"
 )
@@ -156,14 +156,15 @@ func (p PanelScheduleShortcut) IsActionIdMatch(aId string) bool {
 	return false
 }
 
-func (p PanelScheduleShortcut)RequiredActionParameters(actionName string) []string {
+func (p PanelScheduleShortcut) RequiredActionParameters(actionName string) []string {
 	if actionName == "updateclock" {
 		return []string{"toclock"}
 	}
 	return []string{}
 }
 
-func (p PanelScheduleShortcut) DoAction(actionName string,parameters map[string]string) (string, []string) {
+func (p PanelScheduleShortcut) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
+	var stateChanged bool = false
 	var updatedIds []string = []string{}
 	if actionName == "toggle" {
 		idx := getScheduleIndex(p.scheduleName)
@@ -171,6 +172,7 @@ func (p PanelScheduleShortcut) DoAction(actionName string,parameters map[string]
 			s := getScheduleByIndex(idx)
 			s.enabled = !s.enabled
 			updateSchedule(idx, s)
+			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 	}
@@ -179,22 +181,23 @@ func (p PanelScheduleShortcut) DoAction(actionName string,parameters map[string]
 		if idx > 0 {
 			s := getScheduleByIndex(idx)
 			if len(parameters["toclock"]) > 3 && parameters["toclock"][0] == 'h' {
-				hmtxt := strings.Split(parameters["toclock"][1:],"m")
+				hmtxt := strings.Split(parameters["toclock"][1:], "m")
 				if len(hmtxt) == 2 {
-					hv,herr := strconv.Atoi(hmtxt[0])
-					mv,merr := strconv.Atoi(hmtxt[1])
+					hv, herr := strconv.Atoi(hmtxt[0])
+					mv, merr := strconv.Atoi(hmtxt[1])
 					if herr == nil && merr == nil {
 						s.hour = hv
 						s.min = mv
 						updateSchedule(idx, s)
+						stateChanged = true
 					}
 				}
 			}
-			
+
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 	}
-	return "ok", updatedIds
+	return "ok", updatedIds, stateChanged
 }
 
 func (p *PanelScheduleShortcut) QueryDevice() []string {

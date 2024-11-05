@@ -70,7 +70,14 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 			html += "<tr>"
 			html += "<td>" + p.sensors[i].name + "</td>"
 			html += "<td>" + fmt.Sprintf("%ds ago", int(j.SmartJSON.GetFloat64ByPathWithDefault("/lastread", 0.0))) + "</td>"
-			html += "<td>" + j.SmartJSON.GetStringByPathWithDefault("/lastok", "N.A.") + "</td>"
+			ls := j.SmartJSON.GetStringByPathWithDefault("/lastok", "N.A.")
+			html += "<td class=\""
+			if ls == "yes" {
+				html += "csgreen"
+			} else {
+				html += "csred"
+			}
+			html += "\">" + ls + "</td>"
 			html += "<td>" + fmt.Sprintf("%.1f C", j.SmartJSON.GetFloat64ByPathWithDefault("/temp", 0.0)) + "</td>"
 			html += "<td>" + fmt.Sprintf("%.0f %%", j.SmartJSON.GetFloat64ByPathWithDefault("/hum", 0.0)) + "</td>"
 			html += "<td>" + fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/okread", 0.0))) + "</td>"
@@ -81,17 +88,45 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 	}
 	html += "</table>"
 
-	when, what, comm := p.CollectHeaterHistory_smtherm()
+	when, what, dura, day := p.CollectHeaterHistory_smtherm()
 	html += "<br/>"
 
-	l := min(len(when),min(len(what),len(comm)))
+	lastday := -1
+	alternate := true
+	l := min(len(when), min(len(what), min(len(dura), len(day))))
 	if l == 0 {
-		html += "<p class=\"whitetext\">There is no heather activity log.</p>"
+		html += "<p class=\"whitetext\">There is no heater activity log.</p>"
 	} else {
 		html += "<table class=\"stattable\">"
-		html += "<tr><th>Date/Time</th><th>Action</th><th>Comment</th></tr>"
-		for i := 0 ; i < l ; i++ {
-			html += "<tr><td>" + when[i] + "</td><td>" + what[i] + "</td><td>" + comm[i]+ "</td></tr>"
+		html += "<tr><th>Date/Time</th><th>Action</th><th>Duration</th></tr>"
+		for i := 0; i < l; i++ {
+			if lastday != day[i] {
+				alternate = !alternate
+			}
+
+			html += "<tr class=\""
+			if alternate {
+				html += "altcolor"
+			} else {
+				html += "normcolor"
+			}
+			html += "\">"
+			html += "<td>" + when[i] + "</td>"
+			html += "<td class=\""
+			if what[i] == "Start heating" {
+				html += "csorange"
+			}
+			if what[i] == "Stop heating" {
+				html += "csdeepblue"
+			}
+			html += "\">" + what[i] + "</td>"
+			html += "<td class=\""
+			if dura[i] != "" {
+				html += "csred"
+			}
+			html += "\">" + dura[i] + "</td>"
+			html += "</tr>"
+			lastday = day[i]
 		}
 		html += "</table>"
 	}
@@ -99,10 +134,11 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 	return html
 }
 
-func (p PageSensorStats) CollectHeaterHistory_smtherm() ([]string, []string, []string) {
+func (p PageSensorStats) CollectHeaterHistory_smtherm() ([]string, []string, []string, []int) {
 	var when []string = []string{}
 	var what []string = []string{}
-	var comm []string = []string{}
+	var dura []string = []string{}
+	var day []int = []int{}
 
 	var tm time.Time
 	var lastHasStart bool = false
@@ -119,10 +155,11 @@ func (p PageSensorStats) CollectHeaterHistory_smtherm() ([]string, []string, []s
 				f1, isFloat1 := subarr[1].(float64)
 
 				if isFloat0 && isFloat1 {
-					tm = time.Unix(int64(f0),0)
+					tm = time.Unix(int64(f0), 0)
 					when = append(when, tm.Format("2006-01-02 15:04:05"))
+
 					whatstr := "unknown"
-					commstr := ""
+					durastr := ""
 					if int(f1) == 1 {
 						whatstr = "Start heating"
 						lastHasStart = true
@@ -131,17 +168,18 @@ func (p PageSensorStats) CollectHeaterHistory_smtherm() ([]string, []string, []s
 					if int(f1) == 2 {
 						whatstr = "Stop heating"
 						if lastHasStart {
-							commstr = fmt.Sprintf("%d minute", int(tm.Sub(lastStart).Seconds() / 60))
+							durastr = fmt.Sprintf("%d minute", int(tm.Sub(lastStart).Seconds()/60))
 						}
 					}
-					what = append(what,whatstr)
-					comm = append(comm,commstr)
+					what = append(what, whatstr)
+					dura = append(dura, durastr)
+					day = append(day, tm.Day())
 				}
 			}
 		}
 	}
 
-	return when,what,comm
+	return when, what, dura, day
 }
 
 func (p PageSensorStats) PageHtml(withContainer bool, r *http.Request) string {

@@ -129,7 +129,7 @@ func (p PanelBase) HandleActionEvent(res *ActionResponse, actionName string, par
 		return
 	}
 
-	str, updIds := Panels[p.Index()].DoAction(actionName, parameters)
+	str, updIds, stateChanged := Panels[p.Index()].DoAction(actionName, parameters)
 	res.setResultString(str)
 	if str == "ok" {
 		var sourceCardUpdated bool = false
@@ -140,7 +140,17 @@ func (p PanelBase) HandleActionEvent(res *ActionResponse, actionName string, par
 			res.addCommandArg2("sethtml", "#pc-"+updIds[ii], GetPanelById(updIds[ii]).PanelHtml(false))
 		}
 		if !sourceCardUpdated {
+			updIds = append(updIds, p.idStr)
 			res.addCommandArg2("sethtml", "#pc-"+p.idStr, GetPanelById(p.idStr).PanelHtml(false))
+		}
+
+		if stateChanged {
+			if len(parameters["otsseid"]) > 0 {
+				go sendSSENotify("panelupd-" + parameters["otsseid"] + "=refreshId(" + strings.Join(updIds, ",") + ")")
+			} else {
+				go sendSSENotify("panelupd=refreshId(" + strings.Join(updIds, ",") + ")")
+			}
+
 		}
 	}
 }

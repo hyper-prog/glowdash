@@ -107,12 +107,12 @@ func (p PanelGroup) PanelHtml(withContainer bool) string {
 	return buffer.String()
 }
 
-func (p PanelGroup) DoAction(actionName string,parameters map[string]string) (string, []string) {
+func (p PanelGroup) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
 	var updatedIds []string = []string{}
 
 	updatedIds = append(updatedIds, p.idStr)
 
-	return "ok", updatedIds
+	return "ok", updatedIds, false
 }
 
 func (p *PanelGroup) QueryDevice() []string {

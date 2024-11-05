@@ -2551,6 +2551,22 @@ body {
   padding: 2px 4px 2px 4px;
 }
 
+.stattable tr.altcolor td{
+  background-color: #4073a0;
+}
+.stattable td.csred {
+  background-color: #aa0000;
+}
+.stattable td.csgreen {
+  background-color: #055a11;
+}
+.stattable td.csorange {
+  background-color: #b47d15;
+}
+.stattable td.csdeepblue {
+  background-color: #3310ce;
+}
+
 .schedule-edit-page {
   color: #cacaca;
 }

@@ -126,7 +126,8 @@ func Contains(strings []string, needle string) bool {
 	return false
 }
 
-func (p PanelAction) DoAction(actionName string, parameters map[string]string) (string, []string) {
+func (p PanelAction) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
+	var stateChanged bool = false
 	var updatedIds []string = []string{}
 
 	p.RelatedPanels = []string{}
@@ -136,8 +137,11 @@ func (p PanelAction) DoAction(actionName string, parameters map[string]string) (
 	initVariables["ActionPanel.Id"] = p.idStr
 	initVariables["ActionPanel.DeviceType"] = p.deviceType
 	ExecuteCommands(p.Commands, initVariables, &(p.RelatedPanels))
+	if len(p.RelatedPanels) > 0 {
+		stateChanged = true
+	}
 	updatedIds = append(updatedIds, p.QueryDevice()...)
-	return "ok", updatedIds
+	return "ok", updatedIds, stateChanged
 }
 
 func (p PanelAction) DoActionFromScheduler(actionName string) []string {

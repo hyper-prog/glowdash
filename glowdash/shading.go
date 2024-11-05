@@ -273,20 +273,24 @@ func (p PanelShading) DoActionCoverStop() {
 	time.Sleep(time.Millisecond * 200) //Wait a little time to let the device do the operation
 }
 
-func (p PanelShading) DoAction(actionName string, parameters map[string]string) (string, []string) {
+func (p PanelShading) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
+	var stateChanged bool = false
 	var updatedIds []string = []string{}
 
 	if p.deviceType == "Shelly" && p.deviceIp != "" {
 		if actionName == "up" {
 			p.DoActionCoverUp()
+			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 		if actionName == "down" {
 			p.DoActionCoverDown()
+			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 		if actionName == "stop" {
 			p.DoActionCoverStop()
+			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 		if actionName == "update" {
@@ -297,7 +301,7 @@ func (p PanelShading) DoAction(actionName string, parameters map[string]string) 
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 	}
-	return "ok", updatedIds
+	return "ok", updatedIds, stateChanged
 }
 
 func (p PanelShading) DoActionFromScheduler(actionName string) []string {

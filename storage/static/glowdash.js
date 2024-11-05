@@ -76,7 +76,7 @@ function thermostatSetTimeoutReach(id)
     let xhr = new XMLHttpRequest();
     xhrRequests.set(id,xhr);
 
-    xhr.open('GET', '/action/b-'+id+"-tts/"+val, true);
+    xhr.open('GET', '/action/b-'+id+"-tts/"+val+"?otsseid="+ot_sse_id, true);
     skip_therm_sse_requests = true;
     xhr.onreadystatechange = function(e) {
         xhrRequests.delete(id);
@@ -155,7 +155,7 @@ function initializeActions() {
 
             let xhr = new XMLHttpRequest();
             xhrRequests.set(id,xhr);
-            xhr.open('GET', '/action/'+id, true);
+            xhr.open('GET', '/action/'+id+"?otsseid="+ot_sse_id, true);
             xhr.onreadystatechange = function(e) {
                 xhrRequests.delete(id);
                 if (xhr.readyState == 4 && xhr.status == 200) {
@@ -180,7 +180,7 @@ function initializeActions() {
 function sendRequestForPanelId(id,reqSuffix,param) {
     let xhr = new XMLHttpRequest();
     xhrRequests.set(id,xhr);
-    let url_to_call = '/action/'+id+"-"+reqSuffix;
+    let url_to_call = '/action/'+id+"-"+reqSuffix+"?otsseid="+ot_sse_id;
     if(param != null && param != "" && param.length > 0 )
         url_to_call += "?" + param;
     xhr.open('GET',url_to_call , true);
@@ -225,7 +225,8 @@ function startSSE() {
     if(conf_use_sse === undefined || conf_use_sse != 1)
         return;
 
-    let sseurl = window.location.protocol + "//" + window.location.hostname + ":" + conf_sse_port + "/sse?subscribe=thermostat-sensors-panelupd";
+    let sseurl = window.location.protocol + "//" + window.location.hostname + ":" +
+                 conf_sse_port + "/sse?id="+ot_sse_id+"&subscribe=thermostat-sensors-panelupd";
     const eventSource = new EventSource(sseurl);
     eventSource.onmessage = function(event) {
         if(event.data == "Hello")

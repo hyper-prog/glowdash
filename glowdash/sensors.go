@@ -168,14 +168,14 @@ func (p PanelSensors) IsActionIdMatch(aId string) bool {
 	return false
 }
 
-func (p PanelSensors) DoAction(actionName string,parameters map[string]string) (string, []string) {
+func (p PanelSensors) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
 	var updatedIds []string = []string{}
 	if p.deviceType == "smtherm" && p.hwDeviceIp != "" {
 		if actionName == "update" {
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 	}
-	return "ok", updatedIds
+	return "ok", updatedIds, false
 }
 
 func (p PanelSensors) QueryDevice() []string {

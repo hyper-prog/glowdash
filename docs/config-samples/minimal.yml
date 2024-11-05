@@ -15,5 +15,5 @@ GlowDash:
 
   Pages:
     - Title: Scheduled tasks
-      PageType: ScheduleEdit    
+      PageType: ScheduleEdit
       PageName: schedpage

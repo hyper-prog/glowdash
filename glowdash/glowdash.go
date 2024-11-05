@@ -76,7 +76,7 @@ type PanelInterface interface {
 	GetActionIdFromUrl(full string) string
 	RequiredActionParameters(string) []string
 	HandleActionEvent(*ActionResponse, string, map[string]string)
-	DoAction(string, map[string]string) (string, []string)
+	DoAction(string, map[string]string) (string, []string, bool)
 	DoActionFromScheduler(string) []string
 	QueryDevice() []string
 	IsHwMatch(PanelTypes, string, int) bool
@@ -139,7 +139,7 @@ var CommSSEHost string = ""
 var CommSSEPort int = 8085
 var BackgroudDevQueryNetDialerTimeout time.Duration = time.Duration(1200) * time.Millisecond
 var BackgroudDevQueryNetKeepaliveTimeout time.Duration = time.Duration(1200) * time.Millisecond
-var AssetVer string = "102"
+var AssetVer string = "104"
 
 var Panels []PanelInterface
 var Pages []PageInterface
@@ -384,6 +384,7 @@ func getAction(w http.ResponseWriter, r *http.Request) {
 		if Panels[i].IsActionIdMatch(aId) {
 			rp := Panels[i].RequiredActionParameters(Panels[i].GetActionIdFromUrl(aId))
 			ps := map[string]string{}
+			ps["otsseid"] = r.Form.Get("otsseid")
 			for _, pname := range rp {
 				ps[pname] = r.Form.Get(pname)
 			}

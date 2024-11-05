@@ -7,13 +7,14 @@ GlowDash:
     ApiKey: 1234sample5678
     Location: Budapest
   DebugLevel: 0               # 0 - silent, 1,2,3,4...
-  StaticDirectory: "static"   # Location of static glowdash files,js,css, images 
+  StaticDirectory: "static"   # Location of static glowdash files,js,css, images
   UserDirectory: "user"       # Location of user images
   StateConfigDirectory: "."   # Location where the scheduled tasks file is saved
   WebUseSSE: 1                # 0: disabled, 1: Make the browsers connect to SSE server
   WebSSEPort: 5018            # The port of SSE server listen on
   CommUseSSE: 1               # 0: disabled, 1: Enable the Glowdash notify SSE server
   CommSSEPort: 5019           # The port of Hasses SSE server control channel listen on
+  CommSSEHost: 192.168.1.99   # The host of Hasses SSE server, Default: 127.0.0.1
   Panels:                           # You can define panels here
     - Id: ppid001                   # Unique id, optional. Required if you would like to add scheduled task on this panel
       Title: Facade lighting        # Panel title text
@@ -22,7 +23,7 @@ GlowDash:
       DeviceIp: 192.168.1.101       # Ip address of shelly relay
       InDeviceId: 0                 # Internal Id in the shelly relay
       Thumbnail: facadelight.jpg
-    
+
     - Title: Living room shading
       Id: ppidlrshade
       PanelType: Shading            # Controls a shading (Shelly cover/Dual cover)
@@ -95,14 +96,14 @@ GlowDash:
 
     - Title: Temperature graphs
       PanelType: Launch
-      Thumbnail: graph.jpg    
+      Thumbnail: graph.jpg
       LaunchTo: graphpage
 
     - Title: Sensor statistics
       PanelType: Launch
-      Thumbnail: balance.jpg    
+      Thumbnail: balance.jpg
       LaunchTo: statpage
-   
+
     - Title: Pool
       PanelType: Group
       Thumbnail: pool.jpg
@@ -170,7 +171,7 @@ GlowDash:
           Code: outside
 
     - Title: Scheduled tasks
-      PageType: ScheduleEdit    
+      PageType: ScheduleEdit
       PageName: schedpage
 
   CommandLibrary:

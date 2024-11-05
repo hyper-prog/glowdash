@@ -9,11 +9,13 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"time"
 )
 
 func htmlStart() string {
+	t := time.Now()
 	return `<!DOCTYPE html>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
@@ -30,6 +32,7 @@ func htmlStart() string {
 		"<script>" +
 		"conf_use_sse=" + fmt.Sprintf("%d", WebUseSSE) + ";\n" +
 		"conf_sse_port='" + fmt.Sprintf("%d", WebSSEPort) + "';\n" +
+		"ot_sse_id='" + fmt.Sprintf("%02d%02d%02d%d", t.Hour(), t.Minute(), t.Second(), rand.Intn(8999)+1000) + "';\n" +
 		"</script>" +
 		"<div id=\"overlay-pholder\"></div>"
 }

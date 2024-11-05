@@ -264,7 +264,8 @@ func (p PanelThermostat) IsActionIdMatch(aId string) bool {
 	return false
 }
 
-func (p PanelThermostat) DoAction(actionName string, parameters map[string]string) (string, []string) {
+func (p PanelThermostat) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
+	var stateChanged bool = false
 	var updatedIds []string = []string{}
 
 	if p.deviceType == "smtherm" && p.hwDeviceIp != "" {
@@ -280,6 +281,7 @@ func (p PanelThermostat) DoAction(actionName string, parameters map[string]strin
 			}
 
 			execTcpQuery(p.hwDeviceIp, p.hwDevicePort, fmt.Sprintf("cmd:stw;work:%s;", actstr))
+			stateChanged = true
 			time.Sleep(time.Millisecond * 500)
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
@@ -288,12 +290,13 @@ func (p PanelThermostat) DoAction(actionName string, parameters map[string]strin
 			fv, err := strconv.ParseFloat(actionName[4:], 32)
 			if err == nil {
 				execTcpQuery(p.hwDeviceIp, p.hwDevicePort, fmt.Sprintf("cmd:stt;ttemp:%.1f;", fv))
+				stateChanged = true
 				time.Sleep(time.Millisecond * 500)
 			}
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 	}
-	return "ok", updatedIds
+	return "ok", updatedIds, stateChanged
 }
 
 func (p PanelThermostat) DoActionFromScheduler(actionName string) []string {

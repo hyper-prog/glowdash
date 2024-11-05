@@ -140,7 +140,8 @@ func (p PanelScript) IsActionIdMatch(aId string) bool {
 	return false
 }
 
-func (p PanelScript) DoAction(actionName string, parameters map[string]string) (string, []string) {
+func (p PanelScript) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
+	var stateChanged bool = false
 	var updatedIds []string = []string{}
 	if p.deviceType == "Shelly" && p.deviceIp != "" && p.scriptName != "" && p.inDeviceId > -1 {
 		if actionName == "switch" {
@@ -153,6 +154,7 @@ func (p PanelScript) DoAction(actionName string, parameters map[string]string) (
 			if !ro.Success {
 				p.InvalidateInfo()
 			}
+			stateChanged = true
 			time.Sleep(time.Millisecond * 500)
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
@@ -160,7 +162,7 @@ func (p PanelScript) DoAction(actionName string, parameters map[string]string) (
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 	}
-	return "ok", updatedIds
+	return "ok", updatedIds, stateChanged
 }
 
 func (p PanelScript) DoActionFromScheduler(actionName string) []string {

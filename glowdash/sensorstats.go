@@ -98,10 +98,13 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 		html += "<p class=\"whitetext\">There is no heater activity log.</p>"
 	} else {
 		html += "<table class=\"stattable\">"
-		html += "<tr><th>Date/Time</th><th>Action</th><th>Duration</th></tr>"
-		for i := 0; i < l; i++ {
+		html += "<tr><th>Num</th><th>Date/Time</th><th>Action</th><th>Duration</th></tr>"
+		na := 1
+		nd := 1
+		for i := l - 1; i >= 0; i-- {
 			if lastday != day[i] {
 				alternate = !alternate
+				nd = 1
 			}
 
 			html += "<tr class=\""
@@ -111,10 +114,12 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 				html += "normcolor"
 			}
 			html += "\">"
+			html += "<td>" + fmt.Sprintf("%d / %d",na,nd) + "</td>"
 			html += "<td>" + when[i] + "</td>"
 			html += "<td class=\""
 			if what[i] == "Start heating" {
 				html += "csorange"
+				nd++
 			}
 			if what[i] == "Stop heating" {
 				html += "csdeepblue"
@@ -127,6 +132,7 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 			html += "\">" + dura[i] + "</td>"
 			html += "</tr>"
 			lastday = day[i]
+			na++
 		}
 		html += "</table>"
 	}

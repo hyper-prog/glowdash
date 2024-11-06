@@ -2554,16 +2554,24 @@ body {
 .stattable tr.altcolor td{
   background-color: #4073a0;
 }
-.stattable td.csred {
+.stattable td.csred,
+.stattable tr.normcolor td.csred,
+.stattable tr.altcolor td.csred {
   background-color: #aa0000;
 }
-.stattable td.csgreen {
+.stattable td.csgreen,
+.stattable tr.normcolor td.csgreen,
+.stattable tr.altcolor td.csgreen {
   background-color: #055a11;
 }
-.stattable td.csorange {
+.stattable td.csorange,
+.stattable tr.normcolor td.csorange,
+.stattable tr.altcolor td.csorange {
   background-color: #b47d15;
 }
-.stattable td.csdeepblue {
+.stattable td.csdeepblue,
+.stattable tr.normcolor td.csdeepblue,
+.stattable tr.altcolor td.csdeepblue {
   background-color: #3310ce;
 }
 

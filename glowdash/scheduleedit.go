@@ -84,7 +84,8 @@ func ProcessScheduleForm(r *http.Request) string {
 
 	formname := r.Form.Get("sdlname")
 	if len(formname) < 1 {
-		formname = "Unnamed schedule"
+		t := time.Now()
+		formname = fmt.Sprintf("Unnamed schedule - %s", t.Format("15:04:05"))
 	}
 	s.name = formname
 	if mode == "n" {
@@ -95,6 +96,12 @@ func ProcessScheduleForm(r *http.Request) string {
 
 	s.enabled = false
 	if r.Form.Get("sdlenabled") == "on" {
+		s.enabled = true
+	}
+
+	s.oneshot = false
+	if r.Form.Get("sdloneshot") == "yes" {
+		s.oneshot = true
 		s.enabled = true
 	}
 
@@ -176,6 +183,7 @@ func (p PageScheduleEdit) PageHtml(withContainer bool, r *http.Request) string {
 	html += "</div>"
 
 	html += "<button id=\"schedule-edit-add\" class=\"jsaction scheduleedit-ctrl-button\"><i class=\"fa fa-add3\"></i></button>"
+	html += "<button id=\"schedule-edit-addoneshot\" class=\"jsaction scheduleedit-ctrl-button\"><i class=\"fa fa-gun\"></i></button>"
 	if formmode != "" {
 		html += "<script>setTimeout(\"window.location = '/page/schedpage';\",200);</script>"
 	}
@@ -191,11 +199,16 @@ func (p PageScheduleEdit) PageHtml(withContainer bool, r *http.Request) string {
 func htmlStaticScheduleBlock(index int, cS int, s Schedule) string {
 	html := "<div class=\"schedule-item-name\">" + s.name + "</div>"
 	html += "<div class=\"schedule-item-datas\">"
-	if s.enabled {
-		html += "<div class=\"schedule-item-ena\"><span class=\"act-show-ena-on\">ON</span></div>"
+	if s.oneshot {
+		html += "<div class=\"schedule-item-ena\"><img src=\"/static/one-shot.png\"/></div>"
 	} else {
-		html += "<div class=\"schedule-item-ena\"><span class=\"act-show-ena-off\">OFF</span></div>"
+		if s.enabled {
+			html += "<div class=\"schedule-item-ena\"><span class=\"act-show-ena-on\">ON</span></div>"
+		} else {
+			html += "<div class=\"schedule-item-ena\"><span class=\"act-show-ena-off\">OFF</span></div>"
+		}
 	}
+
 	html += "<div class=\"schedule-item-time\">" + fmt.Sprintf("%02d:%02d", s.hour, s.min) + "</div>"
 
 	html += htmlScheduleDays(s, "short", true)
@@ -245,12 +258,16 @@ func htmlDeleteConfirmation(index int, s Schedule) string {
 	return html
 }
 
-func htmlScheduleEditor(new bool, s Schedule) string {
+func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 	html := "<div class=\"schedule-item\"><form method=\"post\" enctype=\"application/x-www-form-urlencoded\">"
 
 	current_time := time.Now()
 	if new {
-		html += "<span style=\"font-weight: strong; font-size: larger; padding: 5px;\">New schedule</span>"
+		if oneshotIfNew {
+			html += "<span style=\"font-weight: strong; font-size: larger; padding: 5px;\">New one shot schedule</span>"
+		} else {
+			html += "<span style=\"font-weight: strong; font-size: larger; padding: 5px;\">New schedule</span>"
+		}
 	} else {
 		html += "<span style=\"font-weight: strong; font-size: larger; padding: 5px;\">Edit schedule</span>"
 	}
@@ -300,7 +317,15 @@ func htmlScheduleEditor(new bool, s Schedule) string {
 		html += "  <input type=\"hidden\" name=\"index\" value=\"" + fmt.Sprintf("%d", getScheduleIndex(s.name)) + "\" />"
 	}
 
-	html += htmlOnOffSlider("sdlenabled", new || s.enabled, "") + "<br/>"
+	if (new && oneshotIfNew) || (!new && s.oneshot) {
+		html += "<input type=\"hidden\" name=\"sdlenabled\" value=\"on\" />"
+		html += "<input type=\"hidden\" name=\"sdloneshot\" value=\"yes\" />"
+		html += "<img src=\"/static/one-shot.png\"/><br/>"
+
+	} else {
+		html += "<input type=\"hidden\" name=\"sdloneshot\" value=\"no\" />"
+		html += htmlOnOffSlider("sdlenabled", new || s.enabled, "") + "<br/>"
+	}
 
 	html += "  <input type=\"text\" name=\"sdlname\" value=\"" + name_string + "\"/><br/>"
 	html += "</div>"
@@ -422,6 +447,9 @@ func (p PageScheduleEdit) IsActionIdMatch(aId string) bool {
 	if aId == "schedule-edit-add" {
 		return true
 	}
+	if aId == "schedule-edit-addoneshot" {
+		return true
+	}
 	if strings.HasPrefix(aId, "act-schedule-edit-idx-") {
 		return true
 	}
@@ -446,14 +474,18 @@ func (p PageScheduleEdit) IsActionIdMatch(aId string) bool {
 func (p PageScheduleEdit) HandleActionEvent(res *ActionResponse, actionName string, parameters map[string]string) {
 
 	if actionName == "schedule-edit-add" {
-		res.addCommandArg2("sethtml", "#schedule-add-edit-block", htmlScheduleEditor(true, nullSchedule()))
+		res.addCommandArg2("sethtml", "#schedule-add-edit-block", htmlScheduleEditor(true, false, nullSchedule()))
+		res.setResultString("ok")
+	}
+	if actionName == "schedule-edit-addoneshot" {
+		res.addCommandArg2("sethtml", "#schedule-add-edit-block", htmlScheduleEditor(true, true, nullSchedule()))
 		res.setResultString("ok")
 	}
 	if strings.HasPrefix(actionName, "act-schedule-edit-idx-") {
 		idxstr := actionName[22:]
 		idx, err := strconv.Atoi(idxstr)
 		if err == nil {
-			res.addCommandArg2("sethtml", "#sdl-index-"+idxstr, htmlScheduleEditor(false, getScheduleByIndex(idx)))
+			res.addCommandArg2("sethtml", "#sdl-index-"+idxstr, htmlScheduleEditor(false, false, getScheduleByIndex(idx)))
 		}
 		res.setResultString("ok")
 	}

@@ -22,6 +22,7 @@ import (
 type Schedule struct {
 	name    string
 	enabled bool
+	oneshot bool
 	lastrun string
 
 	hour int
@@ -75,7 +76,7 @@ var schedulesAutosaveState int = 0
 var schedulesAutosaveLimit int = 5
 
 func nullSchedule() Schedule {
-	return Schedule{"", false, "", 0, 0, false, false, false, false, false, false, false, "", "", ""}
+	return Schedule{"", false, false, "", 0, 0, false, false, false, false, false, false, false, "", "", ""}
 }
 
 func countSchedules() int {
@@ -144,13 +145,27 @@ func scheduleMoveDown(index int) {
 	scheduleMutex.Unlock()
 }
 
+func SetScheduleOnOffByName(name string, toState bool) {
+	scheduleMutex.Lock()
+	idx := getScheduleIndex(name)
+	if idx >= 0 && idx < len(schedules) {
+		schedules[idx].enabled = toState
+		schedulesUnsaved = true
+	}
+	scheduleMutex.Unlock()
+}
+
 func removeSchedule(index int) {
 	scheduleMutex.Lock()
+	removeScheduleInLock(index)
+	scheduleMutex.Unlock()
+}
+
+func removeScheduleInLock(index int) {
 	if index >= 0 && index < len(schedules) {
 		schedules = append(schedules[:index], schedules[index+1:]...)
 		schedulesUnsaved = true
 	}
-	scheduleMutex.Unlock()
 }
 
 func FireSchedule(index int) {
@@ -207,8 +222,12 @@ func CheckSchedules() {
 			if schedules[i].hour == current_time.Hour() && schedules[i].min == current_time.Minute() {
 				if CheckScheduleDayEnabled(current_time, schedules[i]) {
 					FireSchedule(i)
-					schedules[i].lastrun = fmt.Sprintf("%d-%d-%d %d:%d", current_time.Year(), current_time.Month(), current_time.Day(),
-						current_time.Hour(), current_time.Minute())
+					if schedules[i].oneshot {
+						removeScheduleInLock(i)
+					} else {
+						schedules[i].lastrun = fmt.Sprintf("%d-%d-%d %d:%d", current_time.Year(), current_time.Month(), current_time.Day(),
+							current_time.Hour(), current_time.Minute())
+					}
 				}
 			}
 		}
@@ -219,9 +238,13 @@ func CheckSchedules() {
 func schedulesGetJson() string {
 	scheduleMutex.Lock()
 	o := "{\"schedules\":["
+	haspre := false
 	for i := 0; i < len(schedules); i++ {
+		if schedules[i].oneshot {
+			continue
+		}
 
-		if i > 0 {
+		if haspre {
 			o += ","
 		}
 		o += "{"
@@ -244,6 +267,7 @@ func schedulesGetJson() string {
 		o += "\"lr\":\"" + schedules[i].lastrun + "\""
 
 		o += "}"
+		haspre = true
 	}
 	o += "]}"
 	scheduleMutex.Unlock()
@@ -261,7 +285,9 @@ func schedulesGetDbStr() string {
 	o := ""
 	scheduleMutex.Lock()
 	for i := 0; i < len(schedules); i++ {
-
+		if schedules[i].oneshot {
+			continue
+		}
 		if schedules[i].enabled {
 			o += "1;"
 		} else {

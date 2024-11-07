@@ -328,6 +328,11 @@ func ExecuteCommands(program string, contextVariables map[string]string, related
 			ip++
 			continue
 		}
+		if strings.HasPrefix(cmd, "SetSchedule ") {
+			Command_SetSchedule(&ctx, cmd[12:])
+			ip++
+			continue
+		}
 		if cmd == "PrintVariablesConsole" {
 			Command_PrintVariablesConsole(ctx)
 			ip++
@@ -583,6 +588,16 @@ func Command_SetFromJsonReq(ctx *RunContext, cmdpart string) {
 				ctx.variables[parts[0]] = "false"
 			}
 		}
+	}
+}
+
+func Command_SetSchedule(ctx *RunContext, cmdpart string) {
+	rc := ResolveVariables(*ctx, cmdpart)
+	if strings.HasPrefix(rc, "on ") {
+		SetScheduleOnOffByName(rc[3:], true)
+	}
+	if strings.HasPrefix(rc, "off ") {
+		SetScheduleOnOffByName(rc[4:], false)
 	}
 }
 

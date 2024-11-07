@@ -788,8 +788,7 @@ body {
   content:"\f324";
   font-size: 140%;
 }
-.fad.fa-action:after,
-.fa-duotone.fa-power-off:after {
+.fad.fa-action:after {
   content:""
 }
 
@@ -797,8 +796,7 @@ body {
   content:"\e165";
   font-size: 120%;
 }
-.fad.fa-script:after,
-.fa-duotone.fa-script:after {
+.fad.fa-script:after {
   content:""
 }
 
@@ -806,56 +804,49 @@ body {
   content:"\f6d1";
   font-size: 160%;
 }
-.fad.fa-launch:after,
-.fa-duotone.fa-launch:after {
+.fad.fa-launch:after {
   content:""
 }
 
 .fa-program:before {
   content:"\f044";
 }
-.fad.fa-program:after,
-.fa-duotone.fa-program:after {
+.fad.fa-program:after {
   content:""
 }
 
 .fa-program2:before {
   content:"\f0fb";
 }
-.fad.fa-program2:after,
-.fa-duotone.fa-program2:after {
+.fad.fa-program2:after {
   content:""
 }
 
 .fa-folder:before {
   content:"\f07c";
 }
-.fad.fa-folder:after,
-.fa-duotone.fa-folder:after {
+.fad.fa-folder:after {
   content:""
 }
 
 .fa-home:before {
   content:"\e00d";
 }
-.fad.fa-home:after,
-.fa-duotone.fa-home:after {
+.fad.fa-home:after {
   content:""
 }
 
 .fa-power-off:before {
   content:""
 }
-.fad.fa-power-off:after,
-.fa-duotone.fa-power-off:after {
+.fad.fa-power-off:after {
   content:""
 }
 
 .fa-microchip:before {
   content:""
 }
-.fad.fa-microchip:after,
-.fa-duotone.fa-microchip:after {
+.fad.fa-microchip:after {
   content:""
 }
 .fa-door-closed:before {
@@ -864,12 +855,10 @@ body {
 .fa-door-open:before {
   content:""
 }
-.fad.fa-door-closed:after,
-.fa-duotone.fa-door-closed:after {
+.fad.fa-door-closed:after {
   content:""
 }
-.fad.fa-door-open:after,
-.fa-duotone.fa-door-open:after {
+.fad.fa-door-open:after {
   content:""
 }
 
@@ -877,16 +866,14 @@ body {
   content:"\23f9";
   font-size: 110%;
 }
-.fad.fa-stop:after,
-.fa-duotone.fa-stop:after {
+.fad.fa-stop:after {
   content:""
 }
 
 .fa-rocket:before {
   content:"\e027";
 }
-.fad.fa-rocket:after,
-.fa-duotone.fa-rocket:after {
+.fad.fa-rocket:after {
   content:""
 }
 
@@ -894,8 +881,7 @@ body {
   content:"\e0e5";
   font-size: 160%;
 }
-.fad.fa-graph:after,
-.fa-duotone.fa-graph:after {
+.fad.fa-graph:after {
   content:""
 }
 
@@ -903,8 +889,7 @@ body {
   content:"\e02a";
   font-size: 160%;
 }
-.fad.fa-heater:after,
-.fa-duotone.fa-heater:after {
+.fad.fa-heater:after {
   content:""
 }
 
@@ -912,8 +897,14 @@ body {
   content:"\f0d8";
   font-size: 2em;
 }
-.fad.fa-up:after,
-.fa-duotone.fa-up:after {
+.fad.fa-up:after {
+  content:""
+}
+
+.fa-gun:before {
+  content:"\e19b";
+  }
+.fad.fa-gun:after {
   content:""
 }
 
@@ -921,32 +912,28 @@ body {
   content:"\f0d7";
   font-size: 2em;
 }
-.fad.fa-down:after,
-.fa-duotone.fa-down:after {
+.fad.fa-down:after {
   content:""
 }
 
 .fa-smallup:before {
   content:"\f0d8";
 }
-.fad.fa-smallup:after,
-.fa-duotone.fa-smallup:after {
+.fad.fa-smallup:after {
   content:""
 }
 
 .fa-smalldown:before {
   content:"\f0d7";
 }
-.fad.fa-smalldown:after,
-.fa-duotone.fa-smalldown:after {
+.fad.fa-smalldown:after {
   content:""
 }
 
 .fa-rightarrow:before {
   content:"\2192";
 }
-.fad.fa-rightarrow:after,
-.fa-duotone.fa-rightarrow:after {
+.fad.fa-rightarrow:after {
   content:""
 }
 
@@ -954,8 +941,7 @@ body {
   content:"\2303";
   font-size: 2em;
 }
-.fad.fa-tup:after,
-.fa-duotone.fa-tup:after {
+.fad.fa-tup:after {
   content:""
 }
 
@@ -963,8 +949,7 @@ body {
   content:"\2304";
   font-size: 2em;
 }
-.fad.fa-tdown:after,
-.fa-duotone.fa-tdown:after {
+.fad.fa-tdown:after {
   content:""
 }
 
@@ -1050,8 +1035,7 @@ body {
   content:"\f0d7";
   font-size: 2em;
 }
-.fad.fa-down:after,
-.fa-duotone.fa-down:after {
+.fad.fa-down:after {
   content:""
 }
 
@@ -1059,8 +1043,7 @@ body {
   content:"\f0d7";
   font-size: 2em;
 }
-.fad.fa-down:after,
-.fa-duotone.fa-down:after {
+.fad.fa-down:after {
   content:""
 }
 
@@ -1068,8 +1051,7 @@ body {
   content:"\f2c9";
   font-size: 1.1em;
 }
-.fad.fa-temp:after,
-.fa-duotone.fa-temp:after {
+.fad.fa-temp:after {
   content:""
 }
 
@@ -1077,8 +1059,7 @@ body {
   content:"\f043"; /*  f748*/
   font-size: 1.1em;
 }
-.fad.fa-hum:after,
-.fa-duotone.fa-hum:after {
+.fad.fa-hum:after {
   content:""
 }
 
@@ -1087,8 +1068,7 @@ body {
   font-size: 1.1em;
   color: #ff0000 !important;
 }
-.fad.fa-heaton:after,
-.fa-duotone.fa-heaton:after {
+.fad.fa-heaton:after {
   content:""
 }
 
@@ -1096,8 +1076,7 @@ body {
   content:"\f06d";
   font-size: 1.1em;
 }
-.fad.fa-heatoff:after,
-.fa-duotone.fa-heatoff:after {
+.fad.fa-heatoff:after {
   content:""
 }
 
@@ -1386,7 +1365,6 @@ body {
 .fat,
 .fa-thin,
 .fad,
-.fa-duotone,
 .fab,
 .fa-brands {
   -moz-osx-font-smoothing:grayscale;
@@ -2825,7 +2803,8 @@ input:checked + .slider:before {
   cursor: pointer;
   min-width: 2em;
 }
-#schedule-edit-add {
+#schedule-edit-add,
+#schedule-edit-addoneshot {
   margin: 5px 5px 5px 0;
   font-size: 1.5em;
 }

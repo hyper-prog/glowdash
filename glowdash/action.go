@@ -81,7 +81,7 @@ func (p PanelAction) PanelHtml(withContainer bool) string {
 		</div>
 
 		<div class="bottom-slot-container d-flex justify-content-center">
-			<button id="b-{{.Id}}" class="align-self-center device-button primary medium jsaction {{if eq .State 0}}inactive{{end}}">
+			<button id="b-{{.Id}}-run" class="align-self-center device-button primary medium jsaction {{if eq .State 0}}inactive{{end}}">
 				<span class="device-action-border">
 					<span class="device-action">
 						<span class="text-primary icon-grid icon-grid-s">
@@ -126,21 +126,35 @@ func Contains(strings []string, needle string) bool {
 	return false
 }
 
+func (p PanelAction) IsActionIdMatch(aId string) bool {
+	if "b-"+p.idStr+"-run" == aId {
+		return true
+	}
+	if "b-"+p.idStr+"-update" == aId {
+		return true
+	}
+	return false
+}
+
 func (p PanelAction) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
 	var stateChanged bool = false
 	var updatedIds []string = []string{}
-
-	p.RelatedPanels = []string{}
-	initVariables := map[string]string{}
-	initVariables["ActionPanel.RunType"] = "UserAction"
-	initVariables["ActionPanel.Title"] = p.title
-	initVariables["ActionPanel.Id"] = p.idStr
-	initVariables["ActionPanel.DeviceType"] = p.deviceType
-	ExecuteCommands(p.Commands, initVariables, &(p.RelatedPanels))
-	if len(p.RelatedPanels) > 0 {
-		stateChanged = true
+	if actionName == "run" {
+		p.RelatedPanels = []string{}
+		initVariables := map[string]string{}
+		initVariables["ActionPanel.RunType"] = "UserAction"
+		initVariables["ActionPanel.Title"] = p.title
+		initVariables["ActionPanel.Id"] = p.idStr
+		initVariables["ActionPanel.DeviceType"] = p.deviceType
+		ExecuteCommands(p.Commands, initVariables, &(p.RelatedPanels))
+		if len(p.RelatedPanels) > 0 {
+			stateChanged = true
+		}
+		updatedIds = append(updatedIds, p.QueryDevice()...)
 	}
-	updatedIds = append(updatedIds, p.QueryDevice()...)
+	if actionName == "update" {
+		updatedIds = append(updatedIds, p.QueryDevice()...)
+	}
 	return "ok", updatedIds, stateChanged
 }
 

@@ -62,8 +62,8 @@ func (p PanelBase) PanelHtml(withContainer bool) string {
 	return ""
 }
 
-func (p PanelBase) DoAction(actionName string) (string, []string) {
-	return "", []string{}
+func (p PanelBase) DoAction(actionName string) (string, []string, bool) {
+	return "", []string{}, false
 }
 
 func (p PanelBase) DoActionFromScheduler(actionName string) []string {

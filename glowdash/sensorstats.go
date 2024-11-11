@@ -21,6 +21,7 @@ type PageSensorStats struct {
 	hasValidInfo bool
 	hwDeviceIp   string
 	hwDevicePort int
+	showCounters string
 
 	sensors []SensorData
 }
@@ -34,7 +35,7 @@ func NewPageSensorStats() *PageSensorStats {
 			deviceType: "",
 			index:      0,
 		},
-		false, "", 0, []SensorData{},
+		false, "", 0, "", []SensorData{},
 	}
 }
 
@@ -42,6 +43,7 @@ func (p *PageSensorStats) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig
 	if p.deviceType == "smtherm" {
 		p.hwDeviceIp = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Pages/[%d]/DeviceIp", indexInConfig), "")
 		p.hwDevicePort = sy.GetIntegerByPathWithDefault(fmt.Sprintf("/GlowDash/Pages/[%d]/DeviceTcpPort", indexInConfig), 5017)
+		p.showCounters = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Pages/[%d]/ShowCounter", indexInConfig), "resetable")
 
 		if sy.NodeExists(fmt.Sprintf("/GlowDash/Pages/[%d]/Sensors", indexInConfig)) {
 			sdefs, _ := sy.GetArrayByPath(fmt.Sprintf("/GlowDash/Pages/[%d]/Sensors", indexInConfig))
@@ -80,9 +82,36 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 			html += "\">" + ls + "</td>"
 			html += "<td>" + fmt.Sprintf("%.1f C", j.SmartJSON.GetFloat64ByPathWithDefault("/temp", 0.0)) + "</td>"
 			html += "<td>" + fmt.Sprintf("%.0f %%", j.SmartJSON.GetFloat64ByPathWithDefault("/hum", 0.0)) + "</td>"
-			html += "<td>" + fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/okread", 0.0))) + "</td>"
-			html += "<td>" + fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/crcerror", 0.0))) + "</td>"
-			html += "<td>" + fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/insense", 0.0))) + "</td>"
+			html += "<td>"
+			if p.showCounters == "hardwired" {
+				html += fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/okread", 0.0)))
+			} else if p.showCounters == "both" {
+				html += fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/okread", 0.0))) + " / " +
+					fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/c2okread", 0.0)))
+			} else {
+				html += fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/c2okread", 0.0)))
+			}
+			html += "</td>"
+			html += "<td>"
+			if p.showCounters == "hardwired" {
+				html += fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/crcerror", 0.0)))
+			} else if p.showCounters == "both" {
+				html += fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/crcerror", 0.0))) + " / " +
+					fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/c2crcerror", 0.0)))
+			} else {
+				html += fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/c2crcerror", 0.0)))
+			}
+			html += "</td>"
+			html += "<td>"
+			if p.showCounters == "hardwired" {
+				html += fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/insense", 0.0)))
+			} else if p.showCounters == "both" {
+				html += fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/insense", 0.0))) + " / " +
+					fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/c2insense", 0.0)))
+			} else {
+				html += fmt.Sprintf("%d", int(j.SmartJSON.GetFloat64ByPathWithDefault("/c2insense", 0.0)))
+			}
+			html += "</td>"
 			html += "</tr>"
 		}
 	}

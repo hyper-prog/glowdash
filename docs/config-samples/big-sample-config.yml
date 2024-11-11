@@ -146,7 +146,7 @@ GlowDash:
         Run Shading45Degree
 
   Pages:
-    - PageName: graphpage 
+    - PageName: graphpage
       PageType: SensorGraph
       DeviceType: smtherm
       DeviceIp: 192.168.1.10
@@ -161,6 +161,7 @@ GlowDash:
     - PageName: statpage
       PageType: SensorStats
       DeviceType: smtherm
+      ShowCounter: both         #Show counters,  "hardwired", "both", "resetable" (default is "resetable")
       DeviceIp: 192.168.1.10
       Sensors:
         - Name: Living room     # Display name of the sensor

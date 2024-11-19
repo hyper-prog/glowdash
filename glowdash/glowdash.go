@@ -80,6 +80,7 @@ type PanelInterface interface {
 	DoActionFromScheduler(string) []string
 	QueryDevice() []string
 	IsHwMatch(PanelTypes, string, int) bool
+	IsIpAddressMatch(string) bool
 	RefreshHwStateIfMatch(PanelTypes, string, int, string, int, int) string
 	ExposeVariables() map[string]string
 	InvalidateInfo()
@@ -139,7 +140,7 @@ var CommSSEHost string = ""
 var CommSSEPort int = 8085
 var BackgroudDevQueryNetDialerTimeout time.Duration = time.Duration(1200) * time.Millisecond
 var BackgroudDevQueryNetKeepaliveTimeout time.Duration = time.Duration(1200) * time.Millisecond
-var AssetVer string = "106"
+var AssetVer string = "107"
 
 var Panels []PanelInterface
 var Pages []PageInterface
@@ -436,9 +437,30 @@ func getStatic(w http.ResponseWriter, r *http.Request, stype string) {
 	io.WriteString(w, string(response))
 }
 
+func handleHit(w http.ResponseWriter, r *http.Request) {
+	affrectedIds := []string{}
+	rap := strings.Split(r.RemoteAddr, ":")
+	if len(rap) == 2 && len(rap[0]) > 0 {
+		for i := 0; i < len(Panels); i++ {
+			if Panels[i].IsIpAddressMatch(rap[0]) {
+				affrectedIds = append(affrectedIds, Panels[i].IdStr())
+			}
+		}
+	}
+
+	if len(affrectedIds) > 0 {
+		panelUpdateRequestSSE(affrectedIds)
+	}
+	io.WriteString(w, "thx")
+}
+
 type httpRouter struct{}
 
 func (router *httpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if strings.HasPrefix(r.URL.Path, "/hit") {
+		handleHit(w, r)
+		return
+	}
 	if strings.HasPrefix(r.URL.Path, "/static/") {
 		getStatic(w, r, "static")
 		return

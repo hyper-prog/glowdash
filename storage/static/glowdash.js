@@ -46,20 +46,17 @@ function b64DecodeUnicode(str) {
 }
 
 function abortXhrRequestsForGrpId(grpId) {
-    if(xhrRequests.has(grpId + "-up"))
-    {
+    if(xhrRequests.has(grpId + "-up")) {
         let xhrReq = xhrRequests.get(grpId + "-up");
         xhrReq.abort();
         xhrRequests.delete(grpId + "-up");
     }
-    if(xhrRequests.has(grpId + "-down"))
-    {
+    if(xhrRequests.has(grpId + "-down")) {
         let xhrReq = xhrRequests.get(grpId + "-down");
         xhrReq.abort();
         xhrRequests.delete(grpId + "-down");
     }
-    if(xhrRequests.has(grpId + "-update"))
-    {
+    if(xhrRequests.has(grpId + "-update")) {
         let xhrReq = xhrRequests.get(grpId + "-update");
         xhrReq.abort();
         xhrRequests.delete(grpId + "-update");
@@ -70,8 +67,7 @@ var skip_therm_sse_requests = false;
 var thermostatWaitTimeoutMillisec = 6 * 1000;
 var thermoBtnSetWaitId = 0;
 
-function thermostatSetTimeoutReach(id)
-{
+function thermostatSetTimeoutReach(id) {
     let val = document.getElementById("thermostatTemperatureDisplay-" + id).innerHTML;
     let xhr = new XMLHttpRequest();
     xhrRequests.set(id,xhr);
@@ -108,20 +104,17 @@ function initializeActions() {
             let targetElement = document.getElementById(id);
             let animatedElementId = id;
 
-            if(targetElement.classList.contains('thermobtn'))
-            {
+            if(targetElement.classList.contains('thermobtn')) {
                 let grpId = targetElement.dataset.grpid;
                 if(grpId.substr(0,2) != "b-")
                     return;
                 let panelId = grpId.substr(2);
                 let fvalStr = document.getElementById("thermostatTemperatureDisplay-" + panelId).dataset.fragval;
                 let fvalInt = parseInt(fvalStr);
-                if(grpId+"-up" == id)
-                {
+                if(grpId+"-up" == id) {
                     fvalInt += 1;
                 }
-                if(grpId+"-down" == id)
-                {
+                if(grpId+"-down" == id) {
                     fvalInt -= 1;
                 }
                 setTemperature(5.0 + fvalInt*0.5,panelId);
@@ -131,8 +124,7 @@ function initializeActions() {
                 return;
             }
 
-            if(targetElement.classList.contains('zcombomove'))
-            {
+            if(targetElement.classList.contains('zcombomove')) {
                 let stopButtonId = targetElement.dataset.grpid + "-stop";
                 document.getElementById(id).classList.add("displaynone");
                 document.getElementById(stopButtonId).classList.remove("displaynone");
@@ -144,8 +136,7 @@ function initializeActions() {
                 abortXhrRequestsForGrpId(targetElement.dataset.grpid)
             }
 
-            if(targetElement.classList.contains('zcombostop'))
-            {
+            if(targetElement.classList.contains('zcombostop')) {
                 abortXhrRequestsForGrpId(targetElement.dataset.grpid)
             }
 
@@ -203,7 +194,7 @@ function handleJustMovingPanels() {
     const allJustMoveButton = document.getElementsByClassName("justmove");
     for (let i = 0; i < allJustMoveButton.length; i++) {
         if(allJustMoveButton[i].classList.contains('justmove-processed'))
-            continue; 
+            continue;
         let grpId = allJustMoveButton[i].dataset.grpid;
         sendRequestForPanelId(grpId,"movupdate","");
         allJustMoveButton[i].classList.add('justmove-processed');
@@ -214,7 +205,7 @@ function handleDeferredInfos() {
     const allNoInfoPanel = document.getElementsByClassName("panelnoinfo");
     for (let i = 0; i < allNoInfoPanel.length; i++) {
         if(allNoInfoPanel[i].classList.contains('panelnoinfo-processed'))
-            continue; 
+            continue;
         let refId = allNoInfoPanel[i].dataset.refid;
         sendRequestForPanelId(refId,"update","");
         allNoInfoPanel[i].classList.add('panelnoinfo-processed');
@@ -319,14 +310,12 @@ function clockbutton_spinner_handle_click(id,mainId) {
         maxval = 23;
     if(baseElement.classList.contains("type-min"))
         maxval = 59;
-    if(baseElement.classList.contains("dir-up"))
-    {
+    if(baseElement.classList.contains("dir-up")) {
         ival += 1;
         if(ival > maxval)
             ival = 0;
     }
-    if(baseElement.classList.contains("dir-down"))
-    {
+    if(baseElement.classList.contains("dir-down")) {
         ival -= 1;
         if(ival < 0)
             ival = maxval;
@@ -353,8 +342,7 @@ function clockbutton_value_handle_click(overlay_container_id,mainId,targetId,hm)
         max = 23;
     if(hm == "min")
         max = 59;
-    for(i = 1 ; i <= max ; i++)
-    {
+    for(i = 1 ; i <= max ; i++) {
         ophh += "<tr><td><div class=\"overlay-select-button\" " +
                     "data-value=\""+i.toString()+"\" "+
                     "data-targetid=\""+targetId+"\">"+
@@ -367,11 +355,9 @@ function clockbutton_value_handle_click(overlay_container_id,mainId,targetId,hm)
     document.getElementById(overlay_container_id).style.display = "block";
 
     const allOlButton = document.getElementsByClassName("overlay-select-button");
-    for (let i = 0; i < allOlButton.length; i++)
-    {
+    for (let i = 0; i < allOlButton.length; i++) {
         let id = allOlButton[i].id;
-        if(!allOlButton[i].classList.contains('overlay-select-button-processed'))
-        {
+        if(!allOlButton[i].classList.contains('overlay-select-button-processed')) {
             allOlButton[i].addEventListener("click", function(e) {
                 let ival = parseInt(e.target.dataset.value);
 
@@ -416,8 +402,7 @@ function clockselector_send_changed_if_required(mainId) {
 function init_clockselector(mainId) {
     document.querySelectorAll('#' + mainId +' .clock-spinner').forEach(item => {
         let id = item.id;
-        if(!item.classList.contains('clock-spinner-processed'))
-        {
+        if(!item.classList.contains('clock-spinner-processed')) {
             item.addEventListener("click", function(e) {
                 clockbutton_spinner_handle_click(id,mainId);
                 e.preventDefault();
@@ -503,7 +488,7 @@ function updateTime() {
     setTimeout(updateTime, 10000);
 }
 
-document.addEventListener("DOMContentLoaded", function(event) { 
+document.addEventListener("DOMContentLoaded", function(event) {
     xhrRequests.clear();
     initializeActions();
     handleJustMovingPanels();

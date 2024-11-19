@@ -159,5 +159,9 @@ func (p PanelBase) IsHwMatch(fromPanelType PanelTypes, fromDeviceIp string, from
 	return false
 }
 
+func (p PanelBase) IsIpAddressMatch(deviceIp string) bool {
+	return false
+}
+
 func (p *PanelBase) InvalidateInfo() {
 }

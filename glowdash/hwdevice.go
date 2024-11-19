@@ -45,6 +45,13 @@ func (p PanelHwDevBased) IsHwMatch(fromPanelType PanelTypes, fromDeviceIp string
 	return false
 }
 
+func (p PanelHwDevBased) IsIpAddressMatch(deviceIp string) bool {
+	if p.deviceIp == deviceIp {
+		return true
+	}
+	return false
+}
+
 func (p *PanelHwDevBased) RefreshHwStateIfMatch(fromPanelType PanelTypes, fromDeviceIp string, fromInDeviceId int, fromScriptName string, State int, InputState int) string {
 	if p.panelType == fromPanelType && p.deviceIp == fromDeviceIp && p.inDeviceId == fromInDeviceId {
 		p.state = State

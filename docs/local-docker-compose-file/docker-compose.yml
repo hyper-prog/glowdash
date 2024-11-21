@@ -1,6 +1,6 @@
 services:
   glowdash:
-    image: hyperprog/glowdash
+    build: .
     restart: unless-stopped
     environment:
       TZ: "Europe/Budapest"

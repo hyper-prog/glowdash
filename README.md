@@ -36,6 +36,17 @@ The GlowDash can works together with Hasses (SSE daemon) to immediately show the
 The dashboard is also functional without it, however, in this case,
 the latest information will only be displayed when the page is updated.
 
+Docker images
+-------------
+Available amd64 and arm64 linux containers on Docker hub:
+
+- https://hub.docker.com/r/hyperprog/glowdash
+
+ Downloadable (pullable) image name:
+
+    hyperprog/glowdash
+
+
 Compile / Install
 -----------------
 It is recommended to use docker compose.
@@ -43,7 +54,6 @@ If you do so, the config file is the "storage/config.yml" and your user images c
 directory. After that, just edit the config file according to your needs and run the container
 
     cat docs/config-samples/minimal.yml > storage/config.yml
-    docker compose build
     docker compose up -d
 
 

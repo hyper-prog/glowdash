@@ -1,0 +1,10 @@
+github.com/hyper-prog/smartjson v1.0.13 h1:HYRnoheDRdiD1Sk2gMIkrikxOSrU1sDAyW30B5HQ/d4=
+github.com/hyper-prog/smartjson v1.0.13/go.mod h1:X+vginwm0+up5ILChS8ouF84wmfWK6/IP8IDebIdBmE=
+github.com/hyper-prog/smartjsonyamlstub v1.0.13 h1:YEb5H1Qhurrp0zaaBOeq9ERPLsEgzsQ/d/HgcHzN/JQ=
+github.com/hyper-prog/smartjsonyamlstub v1.0.13/go.mod h1:6Bz08P7uYaPsdi1Rqc2zv4eu1FC5ddp3UCOo5I0nZT0=
+github.com/hyper-prog/smartyaml v1.0.13 h1:4NT9kbMvC0q3NhJD7OG6gJ3u78P8CsGqCrxQf6PS/0M=
+github.com/hyper-prog/smartyaml v1.0.13/go.mod h1:XYg9dYU4pbFyv3ZJcVVBQNxqUL3899Dnf+vHQzSFd/Q=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

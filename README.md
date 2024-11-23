@@ -50,21 +50,20 @@ Available amd64 and arm64 linux containers on Docker hub:
 Compile / Install
 -----------------
 It is recommended to use docker compose.
-If you do so, the config file is the "storage/config.yml" and your user images can be put into "storage/user"
+If you do so, the config file is the "config/running.yml" and your user images can be put into "userstuff"
 directory. After that, just edit the config file according to your needs and run the container
 
-    cat docs/config-samples/minimal.yml > storage/config.yml
+    cat config/minimal.yml > config/running.yml
     docker compose up -d
 
 
 If you still want to compile it yourself, add the dependencies and compile all the *.go files
 
     export GO111MODULE=auto
-    go install github.com/hyper-prog/smartjson
-    go install github.com/hyper-prog/smartyaml
+    go mod download
 
     go build -o glowdash glowdash/*.go
-    ./glowdash myconfig.yml
+    ./glowdash config/running.yml
 
 Other devices, Future
 ---------------------

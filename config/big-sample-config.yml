@@ -7,9 +7,9 @@ GlowDash:
     ApiKey: 1234sample5678
     Location: Budapest
   DebugLevel: 0               # 0 - silent, 1,2,3,4...
-  StaticDirectory: "static"   # Location of static glowdash files,js,css, images
-  UserDirectory: "user"       # Location of user images
-  StateConfigDirectory: "."   # Location where the scheduled tasks file is saved
+  StaticDirectory: "static"        # Location of static glowdash files,js,css, images
+  UserDirectory: "user"            # Location of user images
+  StateConfigDirectory: "config"   # Location where the scheduled tasks file is saved
   WebUseSSE: 1                # 0: disabled, 1: Make the browsers connect to SSE server
   WebSSEPort: 5018            # The port of SSE server listen on
   CommUseSSE: 1               # 0: disabled, 1: Enable the Glowdash notify SSE server

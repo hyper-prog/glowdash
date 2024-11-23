@@ -14,9 +14,14 @@ RUN GO111MODULE=auto CGO_ENABLED=0 GOOS=linux go build -a -o glowdash \
 FROM alpine AS glowdash
 LABEL maintainer="hyper80@gmail.com" \
       description="GlowDash - Smart Home Web Dashboard"
+RUN mkdir /glowdash \
+    && mkdir /glowdash/static \
+    && mkdir /glowdash/user   \
+    && mkdir /glowdash/config
+COPY static/* /glowdash/static/
 COPY --from=glowdashbuildstage /glowdash/glowdash /usr/local/bin
 COPY --from=glowdashbuildstage /usr/share/zoneinfo /usr/share/zoneinfo
-RUN mkdir /glowdash
-VOLUME ["/glowdash"]
+VOLUME ["/glowdash/user"]
+VOLUME ["/glowdash/config"]
 WORKDIR /glowdash
-CMD ["/usr/local/bin/glowdash","/glowdash/config.yml"]
+CMD ["/usr/local/bin/glowdash","/glowdash/config/running.yml"]

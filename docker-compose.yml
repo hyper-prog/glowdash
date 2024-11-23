@@ -7,4 +7,5 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./storage:/glowdash
+      - ./userstuff:/glowdash/user
+      - ./config:/glowdash/config

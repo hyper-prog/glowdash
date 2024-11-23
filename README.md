@@ -1,4 +1,4 @@
-![GlowDash logo](https://raw.githubusercontent.com/hyper-prog/glowdash/master/storage/static/glowdash_s.webp)
+![GlowDash logo](https://raw.githubusercontent.com/hyper-prog/glowdash/master/static/glowdash_s.webp)
 
 GlowDash - The Smart Home Web Dashboard
 ============================================

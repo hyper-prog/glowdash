@@ -117,10 +117,24 @@ function initializeActions() {
                 if(grpId+"-down" == id) {
                     fvalInt -= 1;
                 }
+
+                //Removing animation class and stop running animation
+                document.querySelectorAll("#pc-"+panelId+" .sendthermsign.animasendtherm").forEach(item => {
+                    item.classList.remove("animasendtherm");
+                    item.getAnimations().forEach((anim) => {
+                        anim.cancel();
+                    });
+                });
+
                 setTemperature(5.0 + fvalInt*0.5,panelId);
                 if(thermoBtnSetWaitId != 0)
                     clearInterval(thermoBtnSetWaitId);
                 thermoBtnSetWaitId = setInterval(thermostatSetTimeoutReach,thermostatWaitTimeoutMillisec,panelId);
+
+                //Add animation class
+                document.querySelectorAll("#pc-"+panelId+" .sendthermsign").forEach(item => {
+                    item.classList.add("animasendtherm");
+                });
                 return;
             }
 

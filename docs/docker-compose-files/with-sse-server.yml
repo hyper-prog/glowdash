@@ -1,0 +1,22 @@
+services:
+  glowdash:
+    image: hyperprog/glowdash
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Budapest"
+    ports:
+      - "80:80"
+    volumes:
+      - ./userstuff:/glowdash/user
+      - ./config:/glowdash/config
+  hassesdaemon:
+    image: hyperprog/hassesdaemon
+    container_name: hasses_sse_srv
+    restart: always
+    ports:
+      - "8080:8080"
+      - "8085:8085"
+    logging:
+      options:
+        max-size: 5m
+

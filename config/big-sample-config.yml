@@ -68,7 +68,7 @@ GlowDash:
       Title: Sensors
       PanelType: Sensors   # Shows the current values of some sensors
       DeviceType: smtherm  # SMTherm - daemon
-      DeviceIp: 192.168.1.10   
+      DeviceIp: 192.168.1.10
       Sensors:
         - Name: Living room     # Display name of the sensor
           Code: livingroom      # Codename of the sensor in SMTherm
@@ -79,7 +79,7 @@ GlowDash:
 
     - Id: ppid003
       PanelType: ScheduleShortcut  # Shortcut to a scheduled task
-      ScheduleName: "Moring wake up"
+      ScheduleName: "Morning wake up"
 
     - Id: ppidheaterset
       Title: Central heating

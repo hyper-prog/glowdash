@@ -58,7 +58,7 @@ func (p PanelScheduleShortcut) PanelHtml(withContainer bool) string {
 		</div>
 	</div>
 
-	<div class="main-container panelnoinfo" data-refid="b-{{.Id}}">
+	<div class="main-container {{if .MissingSchedule}}panelnoinfo{{end}}" data-refid="b-{{.Id}}">
 		<div class="main-container-top">
 			<div class="placeholdersp"></div>
 
@@ -116,8 +116,6 @@ func (p PanelScheduleShortcut) PanelHtml(withContainer bool) string {
 		Disabled:        connectedSchedule && !s.enabled,
 	}
 
-	///Reggeli ébresztő
-
 	buffer := bytes.Buffer{}
 	templ.Execute(&buffer, pass)
 
@@ -153,6 +151,9 @@ func (p PanelScheduleShortcut) IsActionIdMatch(aId string) bool {
 	if "b-"+p.idStr+"-updateclock" == aId {
 		return true
 	}
+	if "b-"+p.idStr+"-update" == aId {
+		return true
+	}
 	return false
 }
 
@@ -168,17 +169,18 @@ func (p PanelScheduleShortcut) DoAction(actionName string, parameters map[string
 	var updatedIds []string = []string{}
 	if actionName == "toggle" {
 		idx := getScheduleIndex(p.scheduleName)
-		if idx > 0 {
+		if idx >= 0 {
 			s := getScheduleByIndex(idx)
 			s.enabled = !s.enabled
 			updateSchedule(idx, s)
+
 			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 	}
 	if actionName == "updateclock" {
 		idx := getScheduleIndex(p.scheduleName)
-		if idx > 0 {
+		if idx >= 0 {
 			s := getScheduleByIndex(idx)
 			if len(parameters["toclock"]) > 3 && parameters["toclock"][0] == 'h' {
 				hmtxt := strings.Split(parameters["toclock"][1:], "m")
@@ -193,9 +195,11 @@ func (p PanelScheduleShortcut) DoAction(actionName string, parameters map[string
 					}
 				}
 			}
-
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
+	}
+	if actionName == "update" {
+		updatedIds = append(updatedIds, p.QueryDevice()...)
 	}
 	return "ok", updatedIds, stateChanged
 }

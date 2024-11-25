@@ -173,7 +173,7 @@ function sendRequestForPanelId(id,reqSuffix,param) {
     xhrRequests.set(id,xhr);
     let url_to_call = '/action/'+id+"-"+reqSuffix+"?otsseid="+ot_sse_id;
     if(param != null && param != "" && param.length > 0 )
-        url_to_call += "?" + param;
+        url_to_call += "&" + param;
     xhr.open('GET',url_to_call , true);
     xhr.onreadystatechange = function(e) {
         xhrRequests.delete(id);
@@ -430,7 +430,7 @@ function initClockPickerBlocks() {
     const allClockPickerBlock = document.getElementsByClassName("clockpicker-controller-block");
     for (let i = 0; i < allClockPickerBlock.length; i++) {
         if(allClockPickerBlock[i].classList.contains('clockpicker-processed'))
-            continue; 
+            continue;
         let mainId = allClockPickerBlock[i].dataset.mainid;
         init_clockselector(mainId);
         allClockPickerBlock[i].classList.add('clockpicker-processed');
@@ -470,7 +470,7 @@ function initActionSubselector() {
     const allActionSelector = document.getElementsByClassName("schedule-action-selector");
     for (let i = 0; i < allActionSelector.length; i++) {
         if(allActionSelector[i].classList.contains('action-selector-processed'))
-            continue; 
+            continue;
         let actionSubId = allActionSelector[i].dataset.actionsubid;
         allActionSelector[i].addEventListener('change',function(e){
             fillActionSubselect(e.target.value,actionSubId);
@@ -494,6 +494,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     handleJustMovingPanels();
     handleDeferredInfos();
     initUnravedGauges();
+    initClockPickerBlocks();
     startSSE();
     updateTime();
 });

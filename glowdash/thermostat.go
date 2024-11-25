@@ -107,6 +107,8 @@ func (p PanelThermostat) PanelHtml(withContainer bool) string {
 					</div>
 				</div>
 
+				<div class="sendthermsign"></div>
+
 				{{if .ShowTitle}}
 				<div class="title-container mt-s">
 					<p class="title text-bold body-small-styles">{{.Title}}</p>

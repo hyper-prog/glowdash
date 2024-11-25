@@ -2406,9 +2406,7 @@ body {
 	height: 99999px;
 	background-repeat: no-repeat;
 	background-position: 0 0;
-  /*border color, change middle color*/
 	background-image: conic-gradient(rgba(0,0,0,0), #1976ed, rgba(0,0,0,0) 45%);
-  /* change speed here */
 	animation: rotate 2s linear infinite;
 }
 
@@ -2416,13 +2414,11 @@ body {
 	content: '';
 	position: absolute;
 	z-index: -1;
-  /* border width */
 	left: 5px;
 	top: 5px;
   /* double the px from the border width left */
 	width: calc(100% - 10px);
 	height: calc(100% - 10px);
-  /*bg color*/
 	background: #292a2e;
   /*box border radius*/
 	border-radius: 7px;
@@ -2435,7 +2431,7 @@ body {
 }
 
 .sendthermsign {
-  margin: 0;
+  margin: 2px 0px 0px 0px;
   padding: 0;
   display: block;
   width: 0%;

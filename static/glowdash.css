@@ -2398,36 +2398,34 @@ body {
   content: '';
   z-index: -2;
   text-align: center;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%) rotate(0deg);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(0deg);
   position: absolute;
-	width: 99999px;
-	height: 99999px;
-	background-repeat: no-repeat;
-	background-position: 0 0;
-	background-image: conic-gradient(rgba(0,0,0,0), #1976ed, rgba(0,0,0,0) 45%);
-	animation: rotate 2s linear infinite;
+  width: 99999px;
+  height: 99999px;
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-image: conic-gradient(rgba(0,0,0,0) 0%,rgba(0,0,0,0) 25%,#ffcc22 40%,#ffaa55 70% ,rgba(0,0,0,0) 85%);
+  animation: rotate 1.5s linear infinite;
 }
 
 .animated-border-box:after {
-	content: '';
-	position: absolute;
-	z-index: -1;
-	left: 5px;
-	top: 5px;
-  /* double the px from the border width left */
-	width: calc(100% - 10px);
-	height: calc(100% - 10px);
-	background: #292a2e;
-  /*box border radius*/
-	border-radius: 7px;
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 5px;
+  top: 5px;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  background: #292a2e;
+  border-radius: 7px;
 }
 
 @keyframes rotate {
-	100% {
-		transform: translate(-50%, -50%) rotate(1turn);
-	}
+  100% {
+    transform: translate(-50%, -50%) rotate(1turn);
+  }
 }
 
 .sendthermsign {
@@ -2436,7 +2434,7 @@ body {
   display: block;
   width: 0%;
   height: 2px;
-  background-color: #1976ed;
+  background: linear-gradient(to right,rgba(0,0,0,0) 0%,#fe2 5%,#fa5 50%,#fe2 95%,rgba(0,0,0,0) 100%);
 }
 
 .sendthermsign.animasendtherm {

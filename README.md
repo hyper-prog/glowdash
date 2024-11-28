@@ -3,12 +3,12 @@
 GlowDash - The Smart Home Web Dashboard
 ============================================
 
-GlowDash is web based dasboard to control (mostly) Shelly switches, shanding relays, scripts
+GlowDash is [web based](https://en.wikipedia.org/wiki/World_Wide_Web) dasboard to control (mostly) [Shelly switches](https://www.shelly.com/), shanding relays, scripts
 and custom thermostat daemons. **It does not need any cloud access, it uses the local rpc interface** of
-the Shelly relays to query/set states. It was originally written to allow for more complex control
+the Shelly [relays](https://en.wikipedia.org/wiki/Relay) to query/set states. It was originally written to allow for more complex control
 over window shading slats as the original shelly application can.
 Therefore, the program can define unique actions that can accept complex scripting methods.
-The GlowDash written in Go language and designed to run in Docker container.
+The GlowDash written in [Go language](https://en.wikipedia.org/wiki/Go_(programming_language)) and designed to run in [Docker](https://en.wikipedia.org/wiki/Docker_(software)) container.
 
 [![GlowDash screenshot](https://raw.githubusercontent.com/hyper-prog/glowdash/master/docs/images/screenshot.jpg)](https://www.youtube.com/watch?v=y1USYtkOYOk)
 
@@ -17,7 +17,7 @@ Use the GlowDash If:
 - If you don't want to use the cloud or even you disabled cloud access on your devices, but you want to keep the functionality.
 - If you want to create unique actions that perform complex tasks on multiple devices at the same time.
 - If you want any local wifi device to be able to control your Shelly devices without a Shelly app or Shelly account.
-- If you would like to use DHT22 and RaspberriPi based thermostat, with more sensors. (SMTherm daemon required)
+- If you would like to use DHT22 and [Raspberry Pi](https://en.wikipedia.org/wiki/Raspberry_Pi) based thermostat, with more sensors. (SMTherm daemon required)
 - If you would like to monitor and log temperatures and humidity with DHT22 and RaspberriPi. (SMTherm daemon required)
 - If you want to create scheduled tasks which runs your custom actions or set the termostat.
 

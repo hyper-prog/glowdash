@@ -11,7 +11,7 @@ Therefore, the program can define unique actions that can accept complex scripti
 The GlowDash written in [Go language](https://en.wikipedia.org/wiki/Go_(programming_language)) and designed to run in [Docker](https://en.wikipedia.org/wiki/Docker_(software)) container.
 
 [![GlowDash youtube video](https://raw.githubusercontent.com/hyper-prog/glowdash/master/docs/images/woyt.png)](https://www.youtube.com/watch?v=y1USYtkOYOk)
-s
+
 ![GlowDash screenshot](https://raw.githubusercontent.com/hyper-prog/glowdash/master/docs/images/screenshot.jpg)
 
 Use the GlowDash If:

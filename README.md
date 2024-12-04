@@ -10,7 +10,9 @@ over window shading slats as the original shelly application can.
 Therefore, the program can define unique actions that can accept complex scripting methods.
 The GlowDash written in [Go language](https://en.wikipedia.org/wiki/Go_(programming_language)) and designed to run in [Docker](https://en.wikipedia.org/wiki/Docker_(software)) container.
 
-[![GlowDash screenshot](https://raw.githubusercontent.com/hyper-prog/glowdash/master/docs/images/screenshot.jpg)](https://www.youtube.com/watch?v=y1USYtkOYOk)
+[![GlowDash youtube video](https://raw.githubusercontent.com/hyper-prog/glowdash/master/docs/images/woyt.png)](https://www.youtube.com/watch?v=y1USYtkOYOk)
+s
+![GlowDash screenshot](https://raw.githubusercontent.com/hyper-prog/glowdash/master/docs/images/screenshot.jpg)
 
 Use the GlowDash If:
 - If you want a dashboard similar to Shelly's design.

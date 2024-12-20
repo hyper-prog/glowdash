@@ -77,9 +77,11 @@ func htmlHeaderLine(sub string) string {
 		for i := 0; i < pc; i++ {
 			if Panels[i].SubTo() == sub {
 				html += "<li><a href=\"/subpage/" + Panels[i].SubTo() + "\">" + Panels[i].Title() + "</a></li>"
+				break
 			}
 			if Panels[i].LaunchTo() == sub {
 				html += "<li><a href=\"/page/" + Panels[i].LaunchTo() + "\">" + Panels[i].Title() + "</a></li>"
+				break
 			}
 		}
 	}

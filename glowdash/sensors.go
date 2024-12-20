@@ -38,6 +38,7 @@ func NewPanelSensors() *PanelSensors {
 			idStr:       "",
 			panelType:   Sensors,
 			title:       "",
+			eventtitle:  "",
 			subPage:     "",
 			thumbImg:    "",
 			deviceType:  "",

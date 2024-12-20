@@ -29,6 +29,7 @@ func NewPanelLaunch() *PanelLaunch {
 			idStr:       "",
 			panelType:   Launch,
 			title:       "",
+			eventtitle:  "",
 			subPage:     "",
 			thumbImg:    "",
 			deviceType:  "",

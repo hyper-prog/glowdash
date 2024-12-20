@@ -28,6 +28,7 @@ func NewPanelGroup() *PanelGroup {
 			idStr:       "",
 			panelType:   Group,
 			title:       "",
+			eventtitle:  "",
 			subPage:     "",
 			thumbImg:    "",
 			deviceType:  "",

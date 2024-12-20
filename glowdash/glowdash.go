@@ -45,6 +45,7 @@ type PanelBase struct {
 	idStr       string
 	panelType   PanelTypes
 	title       string
+	eventtitle  string
 	subPage     string
 	thumbImg    string
 	deviceType  string
@@ -55,6 +56,7 @@ type PanelBase struct {
 
 type PanelInterface interface {
 	Title() string
+	EventTitle() string
 	PanelType() PanelTypes
 	IdStr() string
 	Sub() string
@@ -289,6 +291,16 @@ func readConfig(yamlfile string) bool {
 		Panels[i].SetIndex(i)
 	}
 
+	return false
+}
+
+func PanelIdExists(id string) bool {
+	pc := len(Panels)
+	for i := 0; i < pc; i++ {
+		if id == Panels[i].IdStr() {
+			return true
+		}
+	}
 	return false
 }
 

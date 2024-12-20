@@ -30,6 +30,10 @@ func (p PanelBase) Title() string {
 	return p.title
 }
 
+func (p PanelBase) EventTitle() string {
+	return p.eventtitle
+}
+
 func (p PanelBase) Sub() string {
 	return p.subPage
 }
@@ -76,10 +80,19 @@ func (p *PanelBase) LoadBaseConfig(sy smartyaml.SmartYAML, indexInConfig int) {
 	p.idStr = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/Id", indexInConfig), fmt.Sprintf("autogenId%d", indexInConfig+1))
 	p.thumbImg = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/Thumbnail", indexInConfig), "")
 	p.deviceType = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/DeviceType", indexInConfig), "Unknown")
-
+	p.eventtitle = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/EventTitle", indexInConfig), "")
+	if p.eventtitle == "" {
+		p.eventtitle = p.title
+	}
 	p.hide = false
 	if sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/Hide", indexInConfig), "") == "yes" {
 		p.hide = true
+	}
+
+	//Duplicated Id protection
+	conf_id := p.idStr
+	for runner := 1111 ; runner < 9999 && PanelIdExists(p.idStr) ; runner++ {
+		p.idStr = fmt.Sprintf("%s%d",conf_id,runner)
 	}
 }
 

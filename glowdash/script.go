@@ -29,6 +29,7 @@ func NewPanelScript() *PanelScript {
 				idStr:       "",
 				panelType:   Script,
 				title:       "",
+				eventtitle:  "",
 				subPage:     "",
 				thumbImg:    "",
 				deviceType:  "",

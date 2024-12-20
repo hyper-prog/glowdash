@@ -31,6 +31,7 @@ func NewPanelShading() *PanelShading {
 				idStr:       "",
 				panelType:   Shading,
 				title:       "",
+				eventtitle:  "",
 				subPage:     "",
 				thumbImg:    "",
 				deviceType:  "",

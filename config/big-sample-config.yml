@@ -18,6 +18,7 @@ GlowDash:
   Panels:                           # You can define panels here
     - Id: ppid001                   # Unique id, optional. Required if you would like to add scheduled task on this panel
       Title: Facade lighting        # Panel title text
+      EventTitle: House facade lighting   # Verbose title text which shows in schedule editor (default value is the title value)
       PanelType: Switch             # Controls a normal relay (For example lamp)
       DeviceType: Shelly
       DeviceIp: 192.168.1.101       # Ip address of shelly relay

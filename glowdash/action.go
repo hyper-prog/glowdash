@@ -33,6 +33,7 @@ func NewPanelAction() *PanelAction {
 			idStr:       "",
 			panelType:   Action,
 			title:       "",
+			eventtitle:  "",
 			subPage:     "",
 			thumbImg:    "",
 			deviceType:  "",

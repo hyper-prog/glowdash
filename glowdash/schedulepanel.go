@@ -27,8 +27,9 @@ func NewPanelScheduleShortcut() *PanelScheduleShortcut {
 	return &PanelScheduleShortcut{
 		PanelBase{
 			idStr:       "",
-			panelType:   Action,
+			panelType:   ScheduleShortcut,
 			title:       "",
+			eventtitle:  "",
 			subPage:     "",
 			thumbImg:    "",
 			deviceType:  "",

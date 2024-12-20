@@ -27,6 +27,7 @@ func NewPanelSwitch() *PanelSwitch {
 				idStr:       "",
 				panelType:   Switch,
 				title:       "",
+				eventtitle:  "",
 				subPage:     "",
 				thumbImg:    "",
 				deviceType:  "",

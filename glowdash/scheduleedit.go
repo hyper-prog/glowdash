@@ -216,7 +216,7 @@ func htmlStaticScheduleBlock(index int, cS int, s Schedule) string {
 	title := "-"
 	refPanel := GetPanelById(s.actionId)
 	if refPanel != nil {
-		title = refPanel.Title()
+		title = refPanel.EventTitle()
 	}
 	html += "<div class=\"schedule-item-act\">"
 	html += "<span class=\"schedule-item-act-id\">" + title + "</span>"
@@ -374,7 +374,7 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 		}
 
 		if Panels[i].PanelType() == Switch {
-			html += "<option value=\"switch:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].Title() + "</option>"
+			html += "<option value=\"switch:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].EventTitle() + "</option>"
 
 			if current {
 				subselOpts += "<option value=\"on\" " + IfTrue(s.actionParam == "on", "selected") + ">Switch On</option>"
@@ -382,7 +382,7 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 			}
 		}
 		if Panels[i].PanelType() == Shading {
-			html += "<option value=\"shading:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].Title() + "</option>"
+			html += "<option value=\"shading:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].EventTitle() + "</option>"
 
 			if current {
 				subselOpts += "<option value=\"open\" " + IfTrue(s.actionParam == "open", "selected") + ">Open</option>"
@@ -390,13 +390,13 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 			}
 		}
 		if Panels[i].PanelType() == Action {
-			html += "<option value=\"action:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].Title() + "</option>"
+			html += "<option value=\"action:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].EventTitle() + "</option>"
 			if current {
 				subselOpts += "<option value=\"run\" " + IfTrue(s.actionParam == "run", "selected") + ">Run</option>"
 			}
 		}
 		if Panels[i].PanelType() == Script {
-			html += "<option value=\"script:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].Title() + "</option>"
+			html += "<option value=\"script:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].EventTitle() + "</option>"
 
 			if current {
 				subselOpts += "<option value=\"start\" " + IfTrue(s.actionParam == "start", "selected") + ">Start</option>"
@@ -404,7 +404,7 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 			}
 		}
 		if Panels[i].PanelType() == Thermostat {
-			html += "<option value=\"therm:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].Title() + "</option>"
+			html += "<option value=\"therm:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].EventTitle() + "</option>"
 
 			if current {
 				apf, _ := strconv.ParseFloat(s.actionParam, 8)

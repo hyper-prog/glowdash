@@ -37,6 +37,7 @@ func NewPanelThermostat() *PanelThermostat {
 			idStr:       "",
 			panelType:   Thermostat,
 			title:       "",
+			eventtitle:  "",
 			subPage:     "",
 			thumbImg:    "",
 			deviceType:  "",

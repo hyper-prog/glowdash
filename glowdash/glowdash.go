@@ -142,7 +142,7 @@ var CommSSEHost string = ""
 var CommSSEPort int = 8085
 var BackgroudDevQueryNetDialerTimeout time.Duration = time.Duration(1200) * time.Millisecond
 var BackgroudDevQueryNetKeepaliveTimeout time.Duration = time.Duration(1200) * time.Millisecond
-var AssetVer string = "113"
+var AssetVer string = "114"
 
 var Panels []PanelInterface
 var Pages []PageInterface

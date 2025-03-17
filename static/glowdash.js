@@ -356,7 +356,7 @@ function clockbutton_value_handle_click(overlay_container_id,mainId,targetId,hm)
         max = 23;
     if(hm == "min")
         max = 59;
-    for(i = 1 ; i <= max ; i++) {
+    for(i = 0 ; i <= max ; i++) {
         ophh += "<tr><td><div class=\"overlay-select-button\" " +
                     "data-value=\""+i.toString()+"\" "+
                     "data-targetid=\""+targetId+"\">"+

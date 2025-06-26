@@ -1,7 +1,7 @@
 /*
 	GlowDash - Smart Home Web Dashboard
 
-	(C) 2024 Péter Deák (hyper80@gmail.com)
+	(C) 2024-2025 Péter Deák (hyper80@gmail.com)
 	License: GPLv2
 */
 

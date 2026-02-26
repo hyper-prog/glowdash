@@ -1,7 +1,7 @@
 /*
 	GlowDash - Smart Home Web Dashboard
 
-	(C) 2024-2025 Péter Deák (hyper80@gmail.com)
+	(C) 2024-2026 Péter Deák (hyper80@gmail.com)
 	License: GPLv2
 */
 
@@ -218,4 +218,25 @@ func htmlScheduleDays(sdl Schedule, mode string, breakline bool) string {
 	}
 	html += "</div>" //.schedule-item-days
 	return html
+}
+
+func getBadgeHtml(badge string) string {
+	if badge == "electric" {
+		return `
+            <div class="overlay-bolt avatar-badge animate" id="icon2">
+            <svg viewBox="0 0 24 24">
+                <path d="M13 2L3 14h7l-1 8 10-12h-7z"/>
+            </svg>
+            </div>`
+	}
+	if badge == "gas" {
+		return `
+            <div class="overlay-flame avatar-badge animate" id="icon1">
+            <svg viewBox="0 0 64 64">
+                <path d="M32 4 C22 16 14 26 14 38 C14 52 22 60 32 60 C44 60 50 50 50 38 C50 26 40 18 32 4 Z"/>
+                <path class="inner" d="M32 18 C26 28 24 32 24 40 C24 46 28 50 32 50 C38 50 40 44 40 40 C40 32 36 28 32 18 Z"/>
+            </svg>
+            </div>`
+	}
+	return ""
 }

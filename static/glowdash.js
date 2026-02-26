@@ -104,6 +104,7 @@ function initializeActions() {
             let targetElement = document.getElementById(id);
             let animatedElementId = id;
 
+            //Special handling for thermostat buttons (On pane type "Thermostat" )
             if(targetElement.classList.contains('thermobtn')) {
                 let grpId = targetElement.dataset.grpid;
                 if(grpId.substr(0,2) != "b-")
@@ -138,6 +139,7 @@ function initializeActions() {
                 return;
             }
 
+            //Special handling for shading up or down buttons (On pane type "Shading" )
             if(targetElement.classList.contains('zcombomove')) {
                 let stopButtonId = targetElement.dataset.grpid + "-stop";
                 document.getElementById(id).classList.add("displaynone");
@@ -150,8 +152,22 @@ function initializeActions() {
                 abortXhrRequestsForGrpId(targetElement.dataset.grpid)
             }
 
+            //Special handling for shading stop buttons (On pane type "Shading" )
             if(targetElement.classList.contains('zcombostop')) {
                 abortXhrRequestsForGrpId(targetElement.dataset.grpid)
+            }
+
+            //Special handling for toggle switch buttons (On pane type "ToggleSwitch" )
+            if(targetElement.classList.contains('tglswbtn')) {
+                let tgshId = targetElement.dataset.tgshid;
+                if(tgshId.substr(0,9) != "tglshows-")
+                    return;
+                //Start flip animation
+                document.getElementById(tgshId + "-tpp").classList.add("circle-avatar-flip");
+                //Hide badge during (state chnage) animation
+                document.querySelectorAll("#"+tgshId+"-tmw .avatar-badge").forEach(item => {
+                    item.classList.add("displaynoneimportant");
+                });
             }
 
             document.querySelectorAll("#"+animatedElementId+" .text-primary").forEach(item => {

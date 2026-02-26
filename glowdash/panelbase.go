@@ -1,7 +1,7 @@
 /*
 	GlowDash - Smart Home Web Dashboard
 
-	(C) 2024-2025 Péter Deák (hyper80@gmail.com)
+	(C) 2024-2026 Péter Deák (hyper80@gmail.com)
 	License: GPLv2
 */
 
@@ -91,8 +91,8 @@ func (p *PanelBase) LoadBaseConfig(sy smartyaml.SmartYAML, indexInConfig int) {
 
 	//Duplicated Id protection
 	conf_id := p.idStr
-	for runner := 1111 ; runner < 9999 && PanelIdExists(p.idStr) ; runner++ {
-		p.idStr = fmt.Sprintf("%s%d",conf_id,runner)
+	for runner := 1111; runner < 9999 && PanelIdExists(p.idStr); runner++ {
+		p.idStr = fmt.Sprintf("%s%d", conf_id, runner)
 	}
 }
 

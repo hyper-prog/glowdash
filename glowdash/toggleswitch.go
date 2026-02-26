@@ -11,21 +11,26 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hyper-prog/smartyaml"
 )
 
-type PanelSwitch struct {
+type PanelToggleSwitch struct {
 	PanelHwDevBased
+
+	title2    string
+	thumbImg2 string
+	badge     string
+	badge2    string
 
 	customquerycode string
 	customsetcode   string
 }
 
-func NewPanelSwitch() *PanelSwitch {
-	return &PanelSwitch{
+func NewPanelToggleSwitch() *PanelToggleSwitch {
+	return &PanelToggleSwitch{
 		PanelHwDevBased{
 			PanelBase{
 				idStr:       "",
@@ -41,11 +46,16 @@ func NewPanelSwitch() *PanelSwitch {
 			},
 			false, "", 0, 0, 0, 0.0, 0.0,
 		},
-		"", "",
+		"", "", "", "", "", "",
 	}
 }
 
-func (p *PanelSwitch) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig int) {
+func (p *PanelToggleSwitch) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig int) {
+	p.title2 = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/TitleAlt", indexInConfig), p.title)
+	p.thumbImg2 = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/ThumbnailAlt", indexInConfig), p.thumbImg)
+	p.badge = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/Badge", indexInConfig), "")
+	p.badge2 = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/BadgeAlt", indexInConfig), p.badge)
+
 	p.customquerycode = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/CustomQueryCode", indexInConfig), "")
 	p.customsetcode = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/CustomSetCode", indexInConfig), "")
 
@@ -56,8 +66,12 @@ func (p *PanelSwitch) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig int
 
 }
 
-func (p PanelSwitch) PanelHtml(withContainer bool) string {
-	templ, _ := template.New("PcT").Parse(`
+func (p *PanelToggleSwitch) PanelHtml(withContainer bool) string {
+
+	BadgeText := getBadgeHtml(p.badge)
+	BadgeAltText := getBadgeHtml(p.badge2)
+
+	rawhtml := `
 	<div class="badge badge-left" style="max-width: 100%;">
 		<div class="label label-s no-radius-bottom-left-diagonal">
 			<span class="mr-xs icon-grid icon-grid-xs"><i class="fas fa-microchip"></i></span>
@@ -66,16 +80,18 @@ func (p PanelSwitch) PanelHtml(withContainer bool) string {
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="main-container {{if .NoValidInfo}}panelnoinfo{{end}}" data-refid="b-{{.Id}}">
 		<div class="main-container-top">
-			<div class="circle-avatar-wrapper widget-avatar">
-				<div class="circle-avatar large" role="presentation">
-					<div class="image" style="background-image: url('/user/{{.ThumbImg}}')"></div>
+			<div id="tglshows-{{.Id}}-tmw" class="circle-avatar-wrapper widget-avatar">
+				<div id="tglshows-{{.Id}}-tpp" class="circle-avatar large" role="presentation"> <!-- circle-avatar-flip -->
+					<div class="image circle-avatar-face front" style="background-image: url('/user/{{.ThumbImgFront}}')"></div>
+					<div class="image circle-avatar-face back" style="background-image: url('/user/{{.ThumbImgBack}}')"></div>
 				</div>
+				___BADGEOVERLAYTEXTBYSTATE___
 			</div>
 			<div class="title-container mt-s">
-				<p class="title text-bold body-small-styles">{{.Title}}</p>
+				<p class="title text-bold body-small-styles">{{.TitleByState}}</p>
 			</div>
 			{{if .NoValidInfo}}
 			<div class="ctrlline-container mt-s">
@@ -94,49 +110,78 @@ func (p PanelSwitch) PanelHtml(withContainer bool) string {
 		</div>
 
 		<div class="bottom-slot-container d-flex justify-content-center">
-			<button id="b-{{.Id}}-switch" class="align-self-center device-button primary medium jsaction {{if eq .State 0}}inactive{{end}} {{if .NoValidInfo}}noinfo{{end}}">
+			<button id="b-{{.Id}}-switch"
+					data-tgshid="tglshows-{{.Id}}"
+			        class="align-self-center device-button primary medium jsaction tglswbtn inactive {{if .NoValidInfo}}noinfo{{end}}">
 				<span class="device-action-border">
 					<span class="device-action">
 						<span class="text-primary icon-grid icon-grid-s">
-							<i class="fa fa-power-off"></i>
+							<i class="fa fa-change-toggle"></i>
 						</span>
-						{{if .HasValidInfo}}
-						<span class="indicator {{if eq .InputState 0}}off{{end}}{{if eq .InputState 1}}on{{end}}"></span>
-						{{end}}
 					</span>
 				</span>
 			</button>
 		</div>
-	</div>`)
+	</div>`
+
+	titleByState := ""
+	thumbImgFront := ""
+	thumbImgBack := ""
+
+	rawhtml = strings.ReplaceAll(rawhtml, "___BADGEOVERLAYTEXT1___", BadgeText)
+	rawhtml = strings.ReplaceAll(rawhtml, "___BADGEOVERLAYTEXT2___", BadgeAltText)
+
+	if p.state == 0 {
+		titleByState = p.title
+		rawhtml = strings.ReplaceAll(rawhtml, "___BADGEOVERLAYTEXTBYSTATE___", BadgeText)
+		thumbImgFront = p.thumbImg
+		thumbImgBack = p.thumbImg2
+	} else {
+		titleByState = p.title2
+		rawhtml = strings.ReplaceAll(rawhtml, "___BADGEOVERLAYTEXTBYSTATE___", BadgeAltText)
+		thumbImgFront = p.thumbImg2
+		thumbImgBack = p.thumbImg
+	}
+
+	templ, _ := template.New("PcT").Parse(rawhtml)
 
 	pass := struct {
-		Title        string
-		Id           string
-		ThumbImg     string
-		State        int
-		InputState   int
-		IpAddress    string
-		HasPowerInfo bool
-		HasValidInfo bool
-		NoValidInfo  bool
-		Watt         string
-		Volt         string
+		Title         string
+		TitleByState  string
+		Id            string
+		ThumbImg      string
+		ThumbImg2     string
+		ThumbImgFront string
+		ThumbImgBack  string
+		State         int
+		InputState    int
+		IpAddress     string
+		HasPowerInfo  bool
+		HasValidInfo  bool
+		NoValidInfo   bool
+		Watt          string
+		Volt          string
 	}{
-		Title:        p.title,
-		Id:           p.idStr,
-		ThumbImg:     p.thumbImg,
-		State:        p.state,
-		InputState:   p.inputState,
-		IpAddress:    p.deviceIp,
-		HasPowerInfo: p.hasPoweInfo,
-		HasValidInfo: p.hasValidInfo,
-		NoValidInfo:  !p.hasValidInfo,
-		Watt:         fmt.Sprintf("%.1f", p.watt),
-		Volt:         fmt.Sprintf("%.1f", p.volt),
+		Title:         p.title,
+		TitleByState:  titleByState,
+		Id:            p.idStr,
+		ThumbImg:      p.thumbImg,
+		ThumbImg2:     p.thumbImg2,
+		State:         p.state,
+		InputState:    p.inputState,
+		IpAddress:     p.deviceIp,
+		HasPowerInfo:  p.hasPoweInfo,
+		HasValidInfo:  p.hasValidInfo,
+		NoValidInfo:   !p.hasValidInfo,
+		Watt:          fmt.Sprintf("%.1f", p.watt),
+		Volt:          fmt.Sprintf("%.1f", p.volt),
+		ThumbImgFront: thumbImgFront,
+		ThumbImgBack:  thumbImgBack,
 	}
 
 	buffer := bytes.Buffer{}
 	templ.Execute(&buffer, pass)
+
 	if withContainer {
 		return fmt.Sprintf("<div id=\"pc-%s\" class=\"widget-card\" tabindex=\"-1\">", p.IdStr()) +
 			buffer.String() + "</div>"
@@ -145,7 +190,7 @@ func (p PanelSwitch) PanelHtml(withContainer bool) string {
 	return buffer.String()
 }
 
-func (p PanelSwitch) IsActionIdMatch(aId string) bool {
+func (p *PanelToggleSwitch) IsActionIdMatch(aId string) bool {
 	if "b-"+p.idStr+"-switch" == aId {
 		return true
 	}
@@ -155,7 +200,7 @@ func (p PanelSwitch) IsActionIdMatch(aId string) bool {
 	return false
 }
 
-func (p PanelSwitch) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
+func (p *PanelToggleSwitch) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
 	var stateChanged bool = false
 	var updatedIds []string = []string{}
 
@@ -164,10 +209,10 @@ func (p PanelSwitch) DoAction(actionName string, parameters map[string]string) (
 		if ok {
 			relatedPanels := []string{}
 			initVariables := p.ExposeVariables()
-			initVariables["SwitchPanel.Title"] = p.title
-			initVariables["SwitchPanel.Id"] = p.idStr
-			initVariables["SwitchPanel.DeviceType"] = p.deviceType
-			initVariables["SwitchPanel.ActionName"] = actionName
+			initVariables["ToggleSwitchPanel.Title"] = p.title
+			initVariables["ToggleSwitchPanel.Id"] = p.idStr
+			initVariables["ToggleSwitchPanel.DeviceType"] = p.deviceType
+			initVariables["ToggleSwitchPanel.ActionName"] = actionName
 			initVariables["ReqiredStateText"] = initVariables["Panel.TextualOppositeState"]
 			results := ExecuteCommands(code, initVariables, &relatedPanels)
 			if DebugLevel >= 2 {
@@ -198,6 +243,7 @@ func (p PanelSwitch) DoAction(actionName string, parameters map[string]string) (
 			time.Sleep(time.Millisecond * 200)
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
+
 		if actionName == "update" {
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
@@ -206,17 +252,17 @@ func (p PanelSwitch) DoAction(actionName string, parameters map[string]string) (
 	return "ok", updatedIds, stateChanged
 }
 
-func (p PanelSwitch) DoActionFromScheduler(actionName string) []string {
+func (p *PanelToggleSwitch) DoActionFromScheduler(actionName string) []string {
 
 	if (actionName == "on" || actionName == "off") && p.customsetcode != "" {
 		code, ok := ProgramLibrary[p.customsetcode]
 		if ok {
 			relatedPanels := []string{}
 			initVariables := p.ExposeVariables()
-			initVariables["SwitchPanel.Title"] = p.title
-			initVariables["SwitchPanel.Id"] = p.idStr
-			initVariables["SwitchPanel.DeviceType"] = p.deviceType
-			initVariables["SwitchPanel.ActionName"] = actionName
+			initVariables["ToggleSwitchPanel.Title"] = p.title
+			initVariables["ToggleSwitchPanel.Id"] = p.idStr
+			initVariables["ToggleSwitchPanel.DeviceType"] = p.deviceType
+			initVariables["ToggleSwitchPanel.ActionName"] = actionName
 			if actionName == "on" {
 				initVariables["ReqiredStateText"] = "true"
 			}
@@ -255,17 +301,17 @@ func (p PanelSwitch) DoActionFromScheduler(actionName string) []string {
 	return []string{}
 }
 
-func (p PanelSwitch) QueryDevice() []string {
+func (p *PanelToggleSwitch) QueryDevice() []string {
 	var updatedIds []string = []string{}
 
 	if p.customquerycode != "" {
 		code, ok := ProgramLibrary[p.customquerycode]
 		if ok {
 			initVariables := p.ExposeVariables()
-			initVariables["SwitchPanel.Title"] = p.title
-			initVariables["SwitchPanel.Id"] = p.idStr
-			initVariables["SwitchPanel.DeviceType"] = p.deviceType
-			initVariables["SwitchPanel.ActionName"] = "update"
+			initVariables["ToggleSwitchPanel.Title"] = p.title
+			initVariables["ToggleSwitchPanel.Id"] = p.idStr
+			initVariables["ToggleSwitchPanel.DeviceType"] = p.deviceType
+			initVariables["ToggleSwitchPanel.ActionName"] = "update"
 
 			resInt := 0
 			results := ExecuteCommands(code, initVariables, &updatedIds)
@@ -279,14 +325,7 @@ func (p PanelSwitch) QueryDevice() []string {
 			if results["Return"] == "true" {
 				resInt = 1
 			}
-
-			inputstate := 0
-			if inputstatestr, istrok := results["Return.InputState"]; istrok {
-				if isv, iserr := strconv.Atoi(inputstatestr); iserr == nil {
-					inputstate = isv
-				}
-			}
-			updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredPanelsSwitch(resInt, inputstate, false, 0.0, 0.0)...)
+			updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredPanelsSwitch(resInt, 0, false, 0.0, 0.0)...)
 		}
 		return updatedIds
 	}
@@ -311,35 +350,13 @@ func (p PanelSwitch) QueryDevice() []string {
 			state = 0
 		}
 
-		if jhq.SmartJSON.NodeExists("/apower") && jhq.SmartJSON.NodeExists("/voltage") {
-			str1 := ""
-			str2 := ""
-			apower, str1 = jhq.SmartJSON.GetFloat64ByPath("/apower")
-			voltage, str2 = jhq.SmartJSON.GetFloat64ByPath("/voltage")
-			if str1 == "float64" && str2 == "float64" && apower >= 0.0 && voltage >= 0.0 {
-				powerMeasured = true
-			}
-		}
-
-		execUrl = fmt.Sprintf("http://%s/rpc/Input.GetStatus?id=%d", p.deviceIp, p.inDeviceId)
-		jhq2 := execJsonHttpQuery(execUrl)
-		if !jhq2.Success {
-			p.InvalidateInfo()
-			return []string{p.idStr}
-		}
-		istate := jhq2.SmartJSON.GetBoolByPathWithDefault("/state", false)
-		if istate {
-			inputstate = 1
-		} else {
-			inputstate = 0
-		}
 		updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredPanelsSwitch(state, inputstate, powerMeasured, apower, voltage)...)
 	}
 
 	return updatedIds
 }
 
-func (p *PanelSwitch) RefreshHwStatesInRequiredPanelsSwitch(State int, InputState int, PowMet bool, Watt float64, Volt float64) []string {
+func (p *PanelToggleSwitch) RefreshHwStatesInRequiredPanelsSwitch(State int, InputState int, PowMet bool, Watt float64, Volt float64) []string {
 	var updatedIds []string = []string{}
 
 	pc := len(Panels)
@@ -364,7 +381,7 @@ func (p *PanelSwitch) RefreshHwStatesInRequiredPanelsSwitch(State int, InputStat
 	return updatedIds
 }
 
-func (p *PanelSwitch) RefreshHwStateIfMatchSwitch(fromPanelType PanelTypes, fromDeviceIp string, fromInDeviceId int, fromScriptName string, State int, InputState int, PowMet bool, Watt float64, Volt float64) string {
+func (p *PanelToggleSwitch) RefreshHwStateIfMatchSwitch(fromPanelType PanelTypes, fromDeviceIp string, fromInDeviceId int, fromScriptName string, State int, InputState int, PowMet bool, Watt float64, Volt float64) string {
 	if p.panelType == fromPanelType && p.deviceIp == fromDeviceIp && p.inDeviceId == fromInDeviceId {
 		p.state = State
 		p.inputState = InputState
@@ -377,7 +394,7 @@ func (p *PanelSwitch) RefreshHwStateIfMatchSwitch(fromPanelType PanelTypes, from
 	return ""
 }
 
-func (p PanelSwitch) ExposeVariables() map[string]string {
+func (p *PanelToggleSwitch) ExposeVariables() map[string]string {
 
 	var m map[string]string = map[string]string{}
 

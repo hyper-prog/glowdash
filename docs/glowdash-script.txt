@@ -1,7 +1,11 @@
-GlowDash scripts are useable under Action panels, 
+GlowDash scripts are useable under Action panels,
 and also can be add to CommandLibrary (See big-sample-config.yml)
 
 The lines begins with // are comments.
+
+Every variables in this script has string type,
+but you can use operators and commands
+which interprets these variables as decimal or boolean
 
 Available commands in GlowDash script:
 --------------------------------------
@@ -43,13 +47,23 @@ Available commands in GlowDash script:
     // Same as variable = variable / value
 	DivWith variable value
 
+	// Add some minute to a time, variable = "14:45" + 35 //Result: "15:20"
+	AddMinutesToTime variableNameContainsTime minutesToAdd
+
     //Wait some milliseconds
 	WaitMs milliseconds
     
+	//Calls a http request and don't care the result
 	CallHttp httprequest
+
+	//Calls a http request and store the json result in a variable
+	CallHttpStoreJson variablename httprequestResultedJson
 
     //Calls a http request and extract the specified elements from the resulted json and store it in a variable
 	SetFromJsonReq variable httprequest jsonpath
+
+	//Extract the specified elements from the stored json requested earlier by CallHttpStoreJson
+	SetFromStoredJson variableToGet variableOfStoredJson jsonpath
 
     //After the script runs it refresh the related panels
 	RelatedPanel Paneltype ip deviceid
@@ -67,16 +81,17 @@ Available commands in GlowDash script:
  Operators useable in expressions (Like If and While):
  ------------------------------------------------------
  
-	==    Numerical equal
-	!=    Numerical not equal
-	<     Numerical less
-	<=    Numerical less or equal
-	>     Numerical greater
-	<=    Numerical greater or equal
-	eq    Strings equal
-	neq   Strings not equal
-	in    String in a comma separated list
-	nin	  String not in a comma separated list
+	==     Numerical equal
+	!=     Numerical not equal
+	<      Numerical less
+	<=     Numerical less or equal
+	>      Numerical greater
+	<=     Numerical greater or equal
+	eq     Strings equal
+	neq    Strings not equal
+	in     String in a comma separated list
+	nin	   String not in a comma separated list
+	booleq Compare sides as converted to boolean
 
 
 You can find sample scripts in config-samples/big-sample-config.yml

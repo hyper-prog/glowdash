@@ -1,7 +1,7 @@
 /*
 	GlowDash - Smart Home Web Dashboard
 
-	(C) 2024-2025 Péter Deák (hyper80@gmail.com)
+	(C) 2024-2026 Péter Deák (hyper80@gmail.com)
 	License: GPLv2
 */
 
@@ -266,6 +266,16 @@ func (p PanelScript) ExposeVariables() map[string]string {
 	m["Panel.InDeviceId"] = fmt.Sprintf("%d", p.inDeviceId)
 	m["Panel.State"] = fmt.Sprintf("%d", p.state)
 	m["Panel.InputState"] = fmt.Sprintf("%d", p.inputState)
+	m["Panel.TextualState"] = ""
+	m["Panel.TextualOppositeState"] = ""
+
+	if p.state == 0 {
+		m["Panel.TextualState"] = "false"
+		m["Panel.TextualOppositeState"] = "true"
+	} else if p.state == 1 {
+		m["Panel.TextualState"] = "true"
+		m["Panel.TextualOppositeState"] = "false"
+	}
 
 	return m
 }

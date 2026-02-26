@@ -1,7 +1,7 @@
 /*
 	GlowDash - Smart Home Web Dashboard
 
-	(C) 2024-2025 Péter Deák (hyper80@gmail.com)
+	(C) 2024-2026 Péter Deák (hyper80@gmail.com)
 	License: GPLv2
 */
 
@@ -289,9 +289,19 @@ func sendSSENotify(message string) {
 	execTcpSend(CommSSEHost, CommSSEPort, message)
 }
 
-func min(a int,b int ) int {
+func min(a int, b int) int {
 	if a < b {
 		return a
 	}
 	return b
+}
+
+func Contains(strings []string, needle string) bool {
+	sc := len(strings)
+	for i := 0; i < sc; i++ {
+		if strings[i] == needle {
+			return true
+		}
+	}
+	return false
 }

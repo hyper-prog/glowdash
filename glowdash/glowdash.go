@@ -1,7 +1,7 @@
 /*
 	GlowDash - Smart Home Web Dashboard
 
-	(C) 2024-2025 Péter Deák (hyper80@gmail.com)
+	(C) 2024-2026 Péter Deák (hyper80@gmail.com)
 	License: GPLv2
 */
 
@@ -223,6 +223,9 @@ func readConfig(yamlfile string) bool {
 
 		if typ == "Switch" {
 			p = NewPanelSwitch()
+		}
+		if typ == "ToggleSwitch" {
+			p = NewPanelToggleSwitch()
 		}
 		if typ == "Shading" {
 			p = NewPanelShading()

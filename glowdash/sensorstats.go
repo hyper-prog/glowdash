@@ -1,7 +1,7 @@
 /*
 	GlowDash - Smart Home Web Dashboard
 
-	(C) 2024-2025 Péter Deák (hyper80@gmail.com)
+	(C) 2024-2026 Péter Deák (hyper80@gmail.com)
 	License: GPLv2
 */
 
@@ -143,7 +143,7 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 				html += "normcolor"
 			}
 			html += "\">"
-			html += "<td>" + fmt.Sprintf("%d / %d",na,nd) + "</td>"
+			html += "<td>" + fmt.Sprintf("%d / %d", na, nd) + "</td>"
 			html += "<td>" + when[i] + "</td>"
 			html += "<td class=\""
 			if what[i] == "Start heating" {

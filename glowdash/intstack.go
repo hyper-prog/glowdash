@@ -1,7 +1,7 @@
 /*
 	GlowDash - Smart Home Web Dashboard
 
-	(C) 2024-2025 Péter Deák (hyper80@gmail.com)
+	(C) 2024-2026 Péter Deák (hyper80@gmail.com)
 	License: GPLv2
 */
 
@@ -51,6 +51,15 @@ func (s IntStack) Top() int {
 		return 0
 	}
 	return s[l-1]
+}
+
+func (s IntStack) HasZeroElement() bool {
+	for _, v := range s {
+		if v == 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func (s IntStack) TopDef(def int) int {

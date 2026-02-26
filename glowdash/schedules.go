@@ -1,7 +1,7 @@
 /*
 	GlowDash - Smart Home Web Dashboard
 
-	(C) 2024-2025 Péter Deák (hyper80@gmail.com)
+	(C) 2024-2026 Péter Deák (hyper80@gmail.com)
 	License: GPLv2
 */
 
@@ -507,4 +507,28 @@ func SaveSchedulesIfRequired() {
 	if schedulesUnsaved {
 		SaveSchedulesToFileDb()
 	}
+}
+
+func getScheduleActionTypeByPanelId(panelId string) string {
+	panelcnt := len(Panels)
+	for i := 0; i < panelcnt; i++ {
+		if Panels[i].IdStr() == panelId {
+			if Panels[i].PanelType() == Switch {
+				return "switch"
+			}
+			if Panels[i].PanelType() == Shading {
+				return "shading"
+			}
+			if Panels[i].PanelType() == Action {
+				return "action"
+			}
+			if Panels[i].PanelType() == Script {
+				return "script"
+			}
+			if Panels[i].PanelType() == Thermostat {
+				return "therm"
+			}
+		}
+	}
+	return ""
 }

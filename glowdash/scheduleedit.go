@@ -1,7 +1,7 @@
 /*
 	GlowDash - Smart Home Web Dashboard
 
-	(C) 2024-2025 Péter Deák (hyper80@gmail.com)
+	(C) 2024-2026 Péter Deák (hyper80@gmail.com)
 	License: GPLv2
 */
 
@@ -361,6 +361,7 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 	html += "<select name=\"action\" class=\"schedule-action-selector\" data-actionsubid=\"sch-sub-sel-one\">"
 	panelcnt := len(Panels)
 	subselOpts := ""
+	showindex := 0
 	for i := 0; i < panelcnt; i++ {
 		if strings.HasPrefix(Panels[i].IdStr(), "autogenId") {
 			continue
@@ -368,7 +369,8 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 
 		current := false
 		selectedText := ""
-		if (!new && s.actionId == Panels[i].IdStr()) || (new && i == 0) {
+
+		if (!new && s.actionId == Panels[i].IdStr()) || (new &&  showindex == 0) {
 			selectedText = "selected"
 			current = true
 		}
@@ -413,6 +415,8 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 				}
 			}
 		}
+
+		showindex++
 	}
 	html += "</select>"
 	html += "<br/>"

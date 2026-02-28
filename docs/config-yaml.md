@@ -75,7 +75,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: Group
 - **Description:** Groups panels together into a subpage.
 - **Sample Image:**
-  ![Group Panel Sample](images/PanelSampleImages/Group.jpg)
+
+![Group Panel Sample](images/PanelSampleImages/Group.jpg)
+
 - **Properties:**
   - `PanelType: Group`: Identifies this panel as a container for other panels.
   - `Title` (string): The title displayed on the group panel.
@@ -96,7 +98,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: Switch
 - **Description:** Controls a relay (e.g., lamp).
 - **Sample Image:**
-  ![Switch Panel Sample](images/PanelSampleImages/Switch.jpg)
+
+![Switch Panel Sample](images/PanelSampleImages/Switch.jpg)
+
 - **Properties:**
   - `PanelType: Switch`: Controls a standard relay (for example, a lamp).
   - `Id` (string, optional): Optional unique identifier for the panel (required for scheduled tasks or advanced features).
@@ -125,7 +129,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: Shading
 - **Description:** Controls a shading device (e.g., Shelly cover).
 - **Sample Image:**
-  ![Shading Panel Sample](images/PanelSampleImages/Shading.jpg)
+
+![Shading Panel Sample](images/PanelSampleImages/Shading.jpg)
+
 - **Properties:**
   - `PanelType: Shading`: Controls a shading device (e.g., Shelly cover or dual cover).
   - `Id` (string, optional): Optional unique identifier for the panel (required for scheduled tasks or advanced features).
@@ -150,7 +156,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: Action
 - **Description:** Custom action with a script.
 - **Sample Image:**
-  ![Action Panel Sample](images/PanelSampleImages/Action.jpg)
+
+![Action Panel Sample](images/PanelSampleImages/Action.jpg)
+
 - **Properties:**
   - `PanelType: Action`: A custom action panel that runs a GlowDash script.
   - `Id` (string, optional): Optional unique identifier for the panel (required for scheduled tasks or advanced features).
@@ -183,7 +191,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: Sensors
 - **Description:** Shows current values of sensors.
 - **Sample Image:**
-  ![Sensors Panel Sample](images/PanelSampleImages/Sensors.jpg)
+
+![Sensors Panel Sample](images/PanelSampleImages/Sensors.jpg)
+
 - **Properties:**
   - `PanelType: Sensors`: Displays the current values of sensors.
   - `Id` (string): Unique identifier for the panel.
@@ -212,7 +222,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: ScheduleShortcut
 - **Description:** Shortcut to a scheduled task.
 - **Sample Image:**
-  ![ScheduleShortcut Panel Sample](images/PanelSampleImages/ScheduleShortcut.jpg)
+
+![ScheduleShortcut Panel Sample](images/PanelSampleImages/ScheduleShortcut.jpg)
+
 - **Properties:**
   - `PanelType: ScheduleShortcut`: A shortcut panel to a scheduled task.
   - `Id` (string): Unique identifier for the panel.
@@ -229,7 +241,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: Thermostat
 - **Description:** Controls a thermostat device.
 - **Sample Image:**
-  ![Thermostat Panel Sample](images/PanelSampleImages/Thermostat.jpg)
+
+![Thermostat Panel Sample](images/PanelSampleImages/Thermostat.jpg)
+
 - **Properties:**
   - `PanelType: Thermostat`: Controls a thermostat device.
   - `Id` (string): Unique identifier for the panel.
@@ -250,7 +264,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: ThermostatSwitch
 - **Description:** Controls a thermostat switch device.
 - **Sample Image:**
-  ![ThermostatSwitch Panel Sample](images/PanelSampleImages/ThermostatSwitch.jpg)
+
+![ThermostatSwitch Panel Sample](images/PanelSampleImages/ThermostatSwitch.jpg)
+
 - **Properties:**
   - `PanelType: ThermostatSwitch`: Controls a thermostat switch device.
   - `Id` (string): Unique identifier for the panel.
@@ -273,7 +289,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: ToggleSwitch
 - **Description:** Switch with two states (e.g., electric/gas water heater).
 - **Sample Image:**
-  ![ToggleSwitch Panel Sample](images/PanelSampleImages/Switch.jpg)
+
+![ToggleSwitch Panel Sample](images/PanelSampleImages/Switch.jpg)
+
 - **Properties:**
   - `PanelType: ToggleSwitch`: A switch panel for devices with two states (e.g., electric/gas water heater).
   - `Id` (string): Unique identifier for the panel.
@@ -312,7 +330,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: Launch
 - **Description:** Launches another page.
 - **Sample Image:**
-  ![Launch Panel Sample](images/PanelSampleImages/Launch.jpg)
+
+![Launch Panel Sample](images/PanelSampleImages/Launch.jpg)
+
 - **Properties:**
   - `PanelType: Launch`: A panel that launches another page.
   - `Title` (string): The title displayed on the panel.
@@ -332,7 +352,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ### PanelType: Script
 **Description:** Runs a custom script on a device (e.g., Shelly). Used for advanced automation or device control.
 **Sample Image:**
-  ![Script Panel Sample](images/PanelSampleImages/Script.jpg)
+
+![Script Panel Sample](images/PanelSampleImages/Script.jpg)
+
 **Properties:**
   - `PanelType: Script`: Identifies this panel as a script runner.
   - `Title` (string): The title displayed on the panel.

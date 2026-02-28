@@ -146,6 +146,38 @@ GlowDash:
         LoadVariablesFromPanelId ppidlrshade
         Run Shading45Degree
 
+    - Id: tswid001        # ToggleWsitch type
+      Title: Hotwater maker (Electric boiler)  # Panel title text
+      TitleAlt: Hotwater maker (Gas heater) # Alternate title text which shows when the switch is on (optional)
+      EventTitle: Hotwater maker   # Verbose title text which shows in schedule editor (default value is the title value)
+      PanelType: ToggleSwitch      # Switch which controls a device with two states (For example electric-gas water heater)
+      DeviceType: Shelly
+      DeviceIp: 192.168.1.177      # Ip address of shelly relay
+      InDeviceId: 0                # Internal Id in the shelly relay
+      Thumbnail: boiler.png        # Thumbnail image to the panel (Image in user directory)
+      ThumbnailAlt: gasheater.png  # Alternate thumbnail image to the panel, animated on switch (optional)
+      Badge: "electric"            # A badge pictogram to show on the panel when the switch is off (optional)
+      BadgeAlt: "gas"              # A badge pictogram to show on the panel when the switch is on, animated on switch (optional)
+      CustomQueryCode: customquerysample # Custom code to query the state of the device. (Have to be defined in CommandLibrary)
+      CustomSetCode: customsetsample     # Custom code to set the state of the device. (Have to be defined in CommandLibrary)
+
+    - Id: acthwtogas001
+      Title: Hotwater maker to gas heater for 25 minutes
+      PanelType: Action
+      Thumbnail: gasheater.png
+      Commands: |
+        RelatedPanel Switch 192.168.1.177 0
+        Set SwDeviceIp 192.168.1.177
+        CallHttp http://{{SwDeviceIp}}/rpc/Switch.Set?id=0&on=true
+        If {{LastHttpCallSuccess}} booleq false
+             Return error
+        EndIf
+        WaitMs 1000
+        //Create a one-shot schedule to switch back to electric boiler after 25 minutes
+        Set swofftime {{Time.TimeHM}}
+        AddMinutesToTime swofftime 25
+        AddOneshotSchedule tswid001 off {{swofftime}}
+
   Pages:
     - PageName: graphpage
       PageType: SensorGraph
@@ -218,4 +250,27 @@ GlowDash:
         CallHttp http://{{DeviceIp}}/rpc/Cover.Open?id={{DeviceId}}
         WaitMs {{BackOpenTime}}
         CallHttp http://{{DeviceIp}}/rpc/Cover.Stop?id={{DeviceId}}
+
+    - Name: customquerysample
+      Code: |
+        PrintConsole Hello custom-query-sample from {{Panel.Title}}
+        CallHttpStoreJson req1 http://{{Panel.DeviceIp}}/rpc/Switch.GetStatus?id={{Panel.InDeviceId}}
+        SetFromStoredJson outputstate req1 /output
+        If {{LastHttpCallSuccess}} booleq false
+             Return error
+        EndIf
+        Return {{outputstate}}
+
+    - Name: customsetsample
+      Code: |
+        RelatedPanel Switch {{Panel.DeviceIp}} {{Panel.InDeviceId}}
+        PrintConsole Hello custom-set-sample from {{Panel.Title}}
+        CallHttp http://{{Panel.DeviceIp}}/rpc/Switch.Set?id={{Panel.InDeviceId}}&on={{ReqiredStateText}}
+        If {{LastHttpCallSuccess}} booleq false
+             Return error
+        EndIf
+        // Wait one second to let the device update its state, then return success
+        WaitMs 1000
+        Return 1
+
 

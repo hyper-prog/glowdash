@@ -237,6 +237,7 @@ func EvalExpressionBool(ctx RunContext, cmdpart string) bool {
 		return false //not correct expression
 	}
 	b := false
+
 	if parts[1] == "==" ||
 		parts[1] == "!=" ||
 		parts[1] == "<" ||
@@ -269,6 +270,7 @@ func EvalExpressionBool(ctx RunContext, cmdpart string) bool {
 		}
 		return false //error in expression
 	}
+
 	if parts[1] == "eq" ||
 		parts[1] == "neq" ||
 		parts[1] == "in" ||

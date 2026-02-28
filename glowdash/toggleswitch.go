@@ -63,7 +63,6 @@ func (p *PanelToggleSwitch) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConf
 		p.deviceIp = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/DeviceIp", indexInConfig), "")
 		p.inDeviceId = sy.GetIntegerByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/InDeviceId", indexInConfig), 0)
 	}
-
 }
 
 func (p *PanelToggleSwitch) PanelHtml(withContainer bool) string {
@@ -186,7 +185,6 @@ func (p *PanelToggleSwitch) PanelHtml(withContainer bool) string {
 		return fmt.Sprintf("<div id=\"pc-%s\" class=\"widget-card\" tabindex=\"-1\">", p.IdStr()) +
 			buffer.String() + "</div>"
 	}
-
 	return buffer.String()
 }
 
@@ -247,8 +245,8 @@ func (p *PanelToggleSwitch) DoAction(actionName string, parameters map[string]st
 		if actionName == "update" {
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
-
 	}
+
 	return "ok", updatedIds, stateChanged
 }
 
@@ -298,6 +296,7 @@ func (p *PanelToggleSwitch) DoActionFromScheduler(actionName string) []string {
 			return p.QueryDevice()
 		}
 	}
+
 	return []string{}
 }
 

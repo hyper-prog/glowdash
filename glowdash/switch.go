@@ -53,7 +53,6 @@ func (p *PanelSwitch) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig int
 		p.deviceIp = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/DeviceIp", indexInConfig), "")
 		p.inDeviceId = sy.GetIntegerByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/InDeviceId", indexInConfig), 0)
 	}
-
 }
 
 func (p PanelSwitch) PanelHtml(withContainer bool) string {
@@ -201,8 +200,8 @@ func (p PanelSwitch) DoAction(actionName string, parameters map[string]string) (
 		if actionName == "update" {
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
-
 	}
+
 	return "ok", updatedIds, stateChanged
 }
 
@@ -252,6 +251,7 @@ func (p PanelSwitch) DoActionFromScheduler(actionName string) []string {
 			return p.QueryDevice()
 		}
 	}
+
 	return []string{}
 }
 
@@ -409,6 +409,5 @@ func (p PanelSwitch) ExposeVariables() map[string]string {
 		m["Panel.TextualState"] = "true"
 		m["Panel.TextualOppositeState"] = "false"
 	}
-
 	return m
 }

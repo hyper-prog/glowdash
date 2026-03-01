@@ -38,7 +38,7 @@ GlowDash can work together with Hasses (SSE daemon) to immediately show backgrou
 The dashboard is also functional without it; however, in this case,
 the latest information will only be displayed when the page is updated.
 
-- [Configuration documentation](docs/config-yaml.md)
+[Configuration documentation](docs/config-yaml.md)
 
 Scripting Capabilities
 -----------------------
@@ -47,7 +47,7 @@ GlowDash supports advanced scripting capabilities, allowing users to create cust
 
 For details on configuration and scripting, see:
 
-- [GlowDash scripting language documentation](docs/glowdash-script.md)
+[GlowDash scripting language documentation](docs/glowdash-script.md)
 
 Docker images
 -------------

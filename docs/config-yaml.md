@@ -220,7 +220,7 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ---
 
 ### PanelType: ScheduleShortcut
-- **Description:** Shortcut to a scheduled task.
+- **Description:** Shortcut to a scheduled task. Gives quick control possibilities to an already exists schedule.
 - **Sample Image:**
 
 ![ScheduleShortcut Panel Sample](images/PanelSampleImages/ScheduleShortcut.jpg)
@@ -287,10 +287,10 @@ Each panel type accepts a different set of properties. Below, each panel type is
 ---
 
 ### PanelType: ToggleSwitch
-- **Description:** Switch with two states (e.g., electric/gas water heater).
+- **Description:** Switch with two states (e.g., electric/gas water heater). This switch can receive two title, thumbnail image and optional badges and do animated changing between two states.
 - **Sample Image:**
 
-![ToggleSwitch Panel Sample](images/PanelSampleImages/Switch.jpg)
+![ToggleSwitch Panel Sample](images/PanelSampleImages/ToggleSwitch.jpg)
 
 - **Properties:**
   - `PanelType: ToggleSwitch`: A switch panel for devices with two states (e.g., electric/gas water heater).

@@ -57,7 +57,7 @@ GlowDash scripts are used in Action panels, worker functions in switches and the
 
 > **Note:** Expressions in `If` and `While` only support two operands and a single operator. Parentheses and logical chaining (e.g., `and`, `or`) are not supported.
 
-> **Note:** In all commands where an argument is requested, you can use variable substitution with `{{variablename}}`. For example, `If {{color}} == black`.
+> **Note:** In all commands where an argument is requested, you can use variable substitution with `{{variablename}}`. For example, `If {{color}} eq black`.
 
 ## Command Details (Unified)
 
@@ -68,10 +68,14 @@ GlowDash scripts are used in Action panels, worker functions in switches and the
 - **Description:** Starts a conditional block. If the expression is true, executes the following lines until `Else` or `EndIf`.
 - **Sample:**
 ```glowdash
-If {{state}} == open
-    PrintConsole The state is open
+If {{count}} == 2
+    PrintConsole There is two
 Else
-    PrintConsole The state is not open
+    PrintConsole There is not two
+EndIf
+
+If {{color}} eq black
+    PrintConsole The color is black
 EndIf
 ```
 
@@ -121,12 +125,13 @@ PrintConsole Variable name is {{name}}
 - **Parameters:**
   - `<variable>`: Variable name. Supports `{{variablename}}` substitution.
   - `<value>`: Value to assign. Supports `{{variablename}}` substitution.
-- **Description:** Sets a variable to a value.
+- **Description:** Define and sets a variable to a value. You can set already defined variables too.
 - **Sample:**
 ```glowdash
 Set catname Mirmur
 
 Set catvar {{catname}}
+Set catvar 3
 ```
 
 ### Run
@@ -159,8 +164,15 @@ RunSet result helloworld
 - **Sample:**
 ```glowdash
 Set myvar 2
+// myvar is 2
+
 AddTo myvar 5
+// myvar is 5
+
+Set increment 3
 AddTo myvar {{increment}}
+// myvar is 8
+
 PrintConsole Variable myvar is {{myvar}}
 ```
 
@@ -174,6 +186,7 @@ PrintConsole Variable myvar is {{myvar}}
 ```glowdash
 Set myvar 24
 SubFrom myvar 2
+// myvar is 22
 ```
 
 ### MulWith
@@ -186,6 +199,7 @@ SubFrom myvar 2
 ```glowdash
 Set myvar 2
 MulWith myvar 3
+// myvar is 6
 ```
 
 ### DivWith
@@ -198,6 +212,7 @@ MulWith myvar 3
 ```glowdash
 Set myvar 22
 DivWith myvar 2
+// myvar 11
 ```
 
 ### AddMinutesToTime
@@ -211,6 +226,7 @@ DivWith myvar 2
 Set time 14:45
 AddMinutesToTime time 35
 PrintConsole {{time}}
+// time is 15:20
 ```
 
 ### WaitMs
@@ -390,6 +406,7 @@ PrintVariablesConsole
 ```glowdash
 Set myvar 5.12
 RoundDown myvar
+// myvar is 5.0
 ```
 
 ### RoundUp
@@ -401,6 +418,7 @@ RoundDown myvar
 ```glowdash
 Set myvar 5.12
 RoundUp myvar
+// myvar is 6.0
 ```
 
 ### RoundMath
@@ -412,13 +430,18 @@ RoundUp myvar
 ```glowdash
 Set myvar 5.12
 RoundMath myvar
+// myvar is 5.0
+
+Set myvar 3.72
+RoundMath myvar
+// myvar is 4.0
 ```
 
 ### AddOneshotSchedule
-- **Syntax:** `AddOneshotSchedule <panelid> <state> <time>`
+- **Syntax:** `AddOneshotSchedule <panelid> <action> <time>`
 - **Parameters:**
   - `<panelid>`: Panel ID to schedule.
-  - `<state>`: State to set (e.g., 'on', 'off').
+  - `<action>`: Action activated in panel (e.g., 'on', 'off', 'run' in actions).
   - `<time>`: Time string (HH:MM) for the schedule.
 - **Description:** Adds a one-shot schedule for the specified panel and state at the given time.
 - **Sample:**
@@ -428,6 +451,8 @@ AddOneshotSchedule tswid001 off 15:30
 Set swofftime {{Time.TimeHM}}
 AddMinutesToTime swofftime 30
 AddOneshotSchedule tswid001 off {{swofftime}}
+
+AddOneshotSchedule ac004 run 19:15
 ```
 
 ## Predefined Variables

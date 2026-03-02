@@ -252,5 +252,10 @@ func (p PanelSensors) ExposeVariables() map[string]string {
 	m["Panel.SubPage"] = p.subPage
 	m["Panel.Index"] = fmt.Sprintf("%d", p.index)
 
+	for _, s := range p.sensors {
+		m["Panel.Sensors."+s.codename+".temp"] = fmt.Sprintf("%f", s.temp)
+		m["Panel.Sensors."+s.codename+".hum"] = fmt.Sprintf("%f", s.hum)
+	}
+
 	return m
 }

@@ -383,5 +383,11 @@ func (p PanelThermostat) ExposeVariables() map[string]string {
 	m["Panel.DeviceType"] = p.deviceType
 	m["Panel.SubPage"] = p.subPage
 	m["Panel.Index"] = fmt.Sprintf("%d", p.index)
+
+	m["Panel.WorkingOn"] = TrueFalseTextFromBool(p.workingOn)
+	m["Panel.TargetTemp"] = fmt.Sprintf("%f", p.tartgetTemp)
+	m["Panel.ReferenceTemp"] = fmt.Sprintf("%f", p.referenceTemp)
+	m["Panel.HeatingOn"] = TrueFalseTextFromBool(p.heatingOn)
+
 	return m
 }

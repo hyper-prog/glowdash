@@ -459,10 +459,10 @@ AddOneshotSchedule ac004 run 19:15
 
 When a script starts, several variables related to the current date and time are automatically set and available for use. These are:
 
-| Variable            | Description                                 | Example Value |
-|---------------------|---------------------------------------------|--------------|
-| Time.Hour           | Current hour (00-23)                        | 14           |
-| Time.Minute         | Current minute (00-59)                      | 05           |
+| Variable            | Description                                  | Example Value |
+|---------------------|----------------------------------------------|--------------|
+| Time.Hour           | Current hour (00-23)                         | 14           |
+| Time.Minute         | Current minute (00-59)                       | 05           |
 | Time.TimeHM         | Current time, hour and minute (HH:MM)        | 14:05        |
 | Time.TimeHMS        | Current time, hour, minute, second (HH:MM:SS)| 14:05:23     |
 | Time.Second         | Current second (00-59)                       | 23           |

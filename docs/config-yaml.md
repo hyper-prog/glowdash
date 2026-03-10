@@ -84,6 +84,8 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `Thumbnail` (string): The image displayed for the group panel (from the user directory).
   - `CornerTitle` (string, optional): A small label displayed in the panel's corner (optional).
   - `SubPageTo` (string): The name of the subpage to which this group links.
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
 ```yaml
 - Title: Pool
@@ -112,6 +114,8 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `Thumbnail` (string): The image displayed for the panel (from the user directory).
   - `CustomQueryCode` (string, optional): Custom code to query the state of the device (must be defined in CommandLibrary).
   - `CustomSetCode` (string, optional): Custom code to set the state of the device (must be defined in CommandLibrary).
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
 ```yaml
 - Id: ppid001
@@ -140,6 +144,9 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `DeviceIp` (string): The IP address of the device.
   - `InDeviceId` (int): Internal ID of the device (e.g., cover number).
   - `Thumbnail` (string): The image displayed for the panel (from the user directory).
+  - `EventTitle` (string, optional): Verbose title used in the schedule editor (defaults to `Title`).
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
 ```yaml
 - Title: Living room shading
@@ -163,10 +170,13 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `PanelType: Action`: A custom action panel that runs a GlowDash script.
   - `Id` (string, optional): Optional unique identifier for the panel (required for scheduled tasks or advanced features).
   - `Title` (string): The title displayed on the panel.
+  - `EventTitle` (string, optional): Verbose title used in the schedule editor (defaults to `Title`).
   - `DeviceType` (string, optional): The type of device (optional, e.g., Shelly).
   - `Thumbnail` (string): The image displayed for the panel (from the user directory).
   - `Commands` (string, GlowDash script): The script to execute when the panel is activated.
   - `CommandFile` (string, optional): Path to an external file containing the script to execute (overrides `Commands` if provided).
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
 ```yaml
 - Id: lralllampoff
@@ -201,6 +211,8 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `DeviceType` (string): The type of device (e.g., smtherm daemon).
   - `DeviceIp` (string): The IP address of the device.
   - `Sensors` (list of objects with `Name` and `Code`): List of sensors to display, each with a display name and a code name.
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
 ```yaml
 - Id: ppid002
@@ -229,6 +241,8 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `PanelType: ScheduleShortcut`: A shortcut panel to a scheduled task.
   - `Id` (string): Unique identifier for the panel.
   - `ScheduleName` (string): The name of the scheduled task to link to.
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
 ```yaml
 - Id: ppid003
@@ -248,8 +262,11 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `PanelType: Thermostat`: Controls a thermostat device.
   - `Id` (string): Unique identifier for the panel.
   - `Title` (string): The title displayed on the panel.
+  - `EventTitle` (string, optional): Verbose title used in the schedule editor (defaults to `Title`).
   - `DeviceType` (string): The type of device (e.g., smtherm).
   - `DeviceIp` (string): The IP address of the device.
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
 ```yaml
 - Id: ppidheaterset
@@ -274,6 +291,8 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `DeviceType` (string): The type of device (e.g., smtherm).
   - `DeviceIp` (string): The IP address of the device.
   - `Thumbnail` (string, optional): The image displayed for the panel (from the user directory, optional).
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
 ```yaml
 - Id: ppidheatersetsw
@@ -307,6 +326,8 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `BadgeAlt` (string, optional): Badge pictogram displayed when the switch is on (optional).
   - `CustomQueryCode` (string, optional): Custom code to query the state of the device (must be defined in CommandLibrary).
   - `CustomSetCode` (string, optional): Custom code to set the state of the device (must be defined in CommandLibrary).
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
 ```yaml
 - Id: tswid001
@@ -339,6 +360,8 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `Thumbnail` (string): The image displayed for the panel (from the user directory).
   - `LaunchTo` (string): The name of the page to launch when this panel is activated.
   - `ButtonFontImageCssClass` (string, optional): CSS class for the launch button icon (default: fa-launch).
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
 ```yaml
 - Title: Temperature graphs
@@ -358,11 +381,12 @@ Each panel type accepts a different set of properties. Below, each panel type is
 **Properties:**
   - `PanelType: Script`: Identifies this panel as a script runner.
   - `Title` (string): The title displayed on the panel.
-  - `SubPage` (string, optional): The name of the subpage this panel links to (optional).
   - `DeviceType` (string): The type of device (e.g., Shelly).
   - `DeviceIp` (string): The IP address of the device.
   - `ScriptName` (string): The name of the script to run on the device.
   - `Thumbnail` (string): The image displayed for the panel (from the user directory).
+  - `SubPage` (string, optional): Name of the subpage where this panel is shown.
+  - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 **Sample:**
 ```yaml
 - Title: Wind guard script

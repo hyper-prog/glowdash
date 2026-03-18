@@ -59,7 +59,7 @@ func (p PanelShading) PanelHtml(withContainer bool) string {
     	    <div class="label label-s no-radius-bottom-left-diagonal">
     	        <span class="mr-xs icon-grid icon-grid-xs"><i class="fas fa-microchip"></i></span>
     	        <div class="label-value-container">
-    	            <p class="text-600 miniature-styles text-nowrap">Device</p>
+    	            <p class="text-600 miniature-styles text-nowrap">{{.PTypText}}</p>
     	        </div>
     	    </div>
     	</div>
@@ -86,7 +86,7 @@ func (p PanelShading) PanelHtml(withContainer bool) string {
 
 			{{if .NoValidInfo}}
 			<div class="ctrlline-container mt-s">
-				<p class="text-600 title text-bold body-small-styles">No information</p>
+				<p class="text-600 title text-bold body-small-styles">{{.NoInfoText}}</p>
 			</div>
 			{{else}}
 				{{if .PosIndicator}}
@@ -147,6 +147,7 @@ func (p PanelShading) PanelHtml(withContainer bool) string {
 	pass := struct {
 		Title        string
 		Id           string
+		PTypText     string
 		ThumbImg     string
 		State        int
 		StateInv     int
@@ -161,9 +162,11 @@ func (p PanelShading) PanelHtml(withContainer bool) string {
 		NoValidInfo  bool
 		Watt         string
 		Volt         string
+		NoInfoText   string
 	}{
 		Title:        p.title,
 		Id:           p.idStr,
+		PTypText:     T("Device"),
 		ThumbImg:     p.thumbImg,
 		State:        p.state,
 		StateInv:     100 - p.state,
@@ -178,6 +181,7 @@ func (p PanelShading) PanelHtml(withContainer bool) string {
 		NoValidInfo:  !p.hasValidInfo,
 		Watt:         fmt.Sprintf("%.1f", p.watt),
 		Volt:         fmt.Sprintf("%.1f", p.volt),
+		NoInfoText:   T("No information"),
 	}
 
 	buffer := bytes.Buffer{}
@@ -248,6 +252,7 @@ func (p PanelShading) DoActionCoverUp() {
 	execUrl := fmt.Sprintf("http://%s/rpc/Cover.Open?id=%d", p.deviceIp, p.inDeviceId)
 	ro := execJsonHttpQuery(execUrl)
 	if !ro.Success {
+		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 		p.InvalidateInfo()
 		return
 	}
@@ -258,6 +263,7 @@ func (p PanelShading) DoActionCoverDown() {
 	execUrl := fmt.Sprintf("http://%s/rpc/Cover.Close?id=%d", p.deviceIp, p.inDeviceId)
 	ro := execJsonHttpQuery(execUrl)
 	if !ro.Success {
+		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 		p.InvalidateInfo()
 		return
 	}
@@ -268,6 +274,7 @@ func (p PanelShading) DoActionCoverStop() {
 	execUrl := fmt.Sprintf("http://%s/rpc/Cover.Stop?id=%d", p.deviceIp, p.inDeviceId)
 	ro := execJsonHttpQuery(execUrl)
 	if !ro.Success {
+		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 		p.InvalidateInfo()
 		return
 	}
@@ -280,16 +287,22 @@ func (p PanelShading) DoAction(actionName string, parameters map[string]string) 
 
 	if p.deviceType == "Shelly" && p.deviceIp != "" {
 		if actionName == "up" {
+			GlowdashConsole.Write(T("Set shading \"{{title}}\" to &lt;{{tst}}&gt;",
+				map[string]any{"title": p.title, "tst": T("up")}))
 			p.DoActionCoverUp()
 			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 		if actionName == "down" {
+			GlowdashConsole.Write(T("Set shading \"{{title}}\" to &lt;{{tst}}&gt;",
+				map[string]any{"title": p.title, "tst": T("down")}))
 			p.DoActionCoverDown()
 			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 		if actionName == "stop" {
+			GlowdashConsole.Write(T("Set shading \"{{title}}\" to &lt;{{tst}}&gt;",
+				map[string]any{"title": p.title, "tst": T("stop")}))
 			p.DoActionCoverStop()
 			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
@@ -308,10 +321,14 @@ func (p PanelShading) DoAction(actionName string, parameters map[string]string) 
 func (p PanelShading) DoActionFromScheduler(actionName string) []string {
 	if p.deviceType == "Shelly" && p.deviceIp != "" {
 		if actionName == "open" {
+			GlowdashConsole.Write(T("Scheduled set Shelly shading \"{{title}}\" to &lt;{{tst}}&gt;",
+				map[string]any{"title": p.title, "tst": T("open")}))
 			p.DoActionCoverUp()
 			return p.QueryDevice()
 		}
 		if actionName == "close" {
+			GlowdashConsole.Write(T("Scheduled set Shelly shading \"{{title}}\" to &lt;{{tst}}&gt;",
+				map[string]any{"title": p.title, "tst": T("close")}))
 			p.DoActionCoverDown()
 			return p.QueryDevice()
 		}

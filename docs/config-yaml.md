@@ -26,12 +26,14 @@ All configuration options are nested under the `GlowDash` key.
 | Key                     | Type    | Default     | Description |
 |-------------------------|---------|-------------|-------------|
 | DashboardTitle          | string  | "GlowDash"  | Title shown in the main title line. |
+| LanguageCode            | string  | "en"        | Language code of Glowdash interface |
 | ReadWindInfo            | bool    | false       | If true, reads wind information and shows it in the title line. |
 | WindInfoPollInterval    | int     | 3600        | Poll interval for wind info (seconds). |
 | WeatherSource           | object  |             | Weather provider settings (see below). |
 | DebugLevel              | int     | 0           | Debug verbosity: 0 (silent), 1, 2, 3, 4... |
-| StaticDirectory         | string  | ""          | Directory for static files (js, css, images). |
+| StaticDirectory         | string  | "static"    | Directory for static files (js, css, images). |
 | UserDirectory           | string  | ""          | Directory for user images. |
+| LanguagesDirectory      | string  | "lang"      | Directory of language files |
 | StateConfigDirectory    | string  | "."         | Directory where scheduled tasks are saved. |
 | WebUseSSE               | int     | 0           | 0: disabled, 1: browsers connect to SSE server. |
 | WebSSEPort              | int     | 8080        | Port for SSE server. |
@@ -42,6 +44,7 @@ All configuration options are nested under the `GlowDash` key.
 | AssetVer                | string  | "114"       | Asset version. |
 | BackDevDialerTimeout    | int(ms) | 1200        | Device query dialer timeout (ms). |
 | BackDevKeepaliveTimeout | int(ms) | 1200        | Device query keepalive timeout (ms). |
+| MaxLogLines             | int     | 128         | Maximum lines keeps in log |
 
 ### WeatherSource
 
@@ -404,21 +407,36 @@ Each panel type accepts a different set of properties. Below, each panel type is
 
 All pages must have a `PageType` property. The available page types (as seen in the sample config) include:
 
+- **Console**
 - **SensorGraph**
 - **SensorStats**
 - **ScheduleEdit**
 
 Each page type accepts a different set of properties. Below, each page type is listed with its relevant properties and a sample configuration.
 
+### PageType: Console
+- **Description:** Glowdash internal console.
+- **Properties:**
+  - `PageType: Console`
+  - `Title` (string, optional) The title shown in address bar
+  - `PageName` (string) This name refers to this panel when create a launch panel
+- **Sample:**
+```yaml
+- Title: Glowdash console
+  PageName: glowdashconsole
+  PageType: SensorGraph
+```
+
 ---
 
 ### PageType: SensorGraph
 - **Description:** Displays sensor data as graphs.
 - **Properties:**
-  - `PageName` (string)
   - `PageType: SensorGraph`
-  - `DeviceType` (string)
-  - `DeviceIp` (string)
+  - `Title` (string, optional) The title shown in address bar
+  - `PageName` (string) (string) This name refers to this panel when create a launch panel
+  - `DeviceType` (string) Device type. Now only the "smtherm" device supported.
+  - `DeviceIp` (string) IP address of device.
   - `DeviceTcpPort` (int, optional): TCP port of the device (default: 5017, for smtherm devices).
   - `Sensors` (list of objects with `Name` and `Code`)
 - **Sample:**
@@ -441,10 +459,11 @@ Each page type accepts a different set of properties. Below, each page type is l
 ### PageType: SensorStats
 - **Description:** Displays sensor statistics and counters.
 - **Properties:**
-  - `PageName` (string)
   - `PageType: SensorStats`
-  - `DeviceType` (string)
-  - `DeviceIp` (string)
+  - `Title` (string, optional) The title shown in address bar
+  - `PageName` (string) This name refers to this panel when create a launch panel
+  - `DeviceType` (string) Device type. Now only the "smtherm" device supported.
+  - `DeviceIp` (string) IP address of device.
   - `Sensors` (list of objects with `Name` and `Code`)
   - `ShowCounter` (string, optional: "hardwired", "both", "resetable")
 - **Sample:**
@@ -468,9 +487,9 @@ Each page type accepts a different set of properties. Below, each page type is l
 ### PageType: ScheduleEdit
 - **Description:** Provides a schedule editor interface.
 - **Properties:**
-  - `Title` (string, optional)
   - `PageType: ScheduleEdit`
-  - `PageName` (string)
+  - `Title` (string, optional) The title shown in address bar
+  - `PageName` (string) This name refers to this panel when create a launch panel
 - **Sample:**
 ```yaml
 - Title: Scheduled tasks

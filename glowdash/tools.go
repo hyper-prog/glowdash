@@ -10,10 +10,13 @@ package main
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/hyper-prog/smartjson"
@@ -66,6 +69,59 @@ func Base64Encode(s string) string {
 func Base64Decode(s string) string {
 	se, _ := base64.StdEncoding.DecodeString(s)
 	return string(se)
+}
+
+func T(key string, params ...map[string]any) string {
+	s, ok := TranslationMap[key]
+	if !ok {
+		s = key
+	}
+	if len(params) == 0 {
+		return s
+	}
+
+	for k, v := range params[0] {
+		placeholder := "{{" + k + "}}"
+		s = strings.ReplaceAll(s, placeholder, fmt.Sprint(v))
+	}
+	return s
+}
+
+func LoadLanguageFile(path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if DebugLevel > 0 {
+			fmt.Printf("Error loading language file: %s\n", err)
+		}
+		return err
+	}
+
+	var m map[string]string
+	if err := json.Unmarshal(data, &m); err != nil {
+		if DebugLevel > 0 {
+			fmt.Printf("Error parsing language file: %s\n", err)
+		}
+		return err
+	}
+	if DebugLevel > 0 {
+		fmt.Printf("Loaded language file: %s\n", path)
+	}
+	TranslationMap = m
+	return nil
+}
+
+func PostAction_LanguageLoaded() {
+	days_oneletter_concatenated_translated := T(Days_oneletter_concatenated)
+	for i := 0; i < 7; i++ {
+		Days_oneletter[i] = string(days_oneletter_concatenated_translated[i])
+	}
+	days_short_concatenated_translated := T(Days_short_concatenated)
+	days_short_map := strings.Split(days_short_concatenated_translated, ",")
+	if len(days_short_map) == 7 {
+		for i := 0; i < 7; i++ {
+			Days_short[i] = days_short_map[i]
+		}
+	}
 }
 
 var WeatherSource WeatherSourceType = WeatherSourceType{"", "", ""}

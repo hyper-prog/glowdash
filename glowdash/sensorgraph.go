@@ -203,15 +203,15 @@ func (p PageSensorGraph) PageHtml(withContainer bool, r *http.Request) string {
 	html += "<option value=\"temp\" "
 	if temphum == "temp" {
 		html += "selected"
-		ytitle = "Temperature (Celsius)"
+		ytitle = T("Temperature (Celsius)")
 	}
-	html += ">Temperature</option>"
+	html += ">" + T("Temperature") + "</option>"
 	html += "<option value=\"hum\" "
 	if temphum == "hum" {
 		html += "selected"
-		ytitle = "Humidity (Percent)"
+		ytitle = T("Humidity (Percent)")
 	}
-	html += ">Humidity</option>"
+	html += ">" + T("Humidity") + "</option>"
 	html += "</select>"
 
 	html += "<select name=\"len\" class=\"custom-select\">"
@@ -220,7 +220,7 @@ func (p PageSensorGraph) PageHtml(withContainer bool, r *http.Request) string {
 		if length_values[i] == length {
 			html += "selected"
 		}
-		html += ">" + n + "</option>"
+		html += ">" + T(n) + "</option>"
 	}
 	html += "</select>"
 
@@ -230,11 +230,11 @@ func (p PageSensorGraph) PageHtml(withContainer bool, r *http.Request) string {
 		if offset_values[i] == offset {
 			html += "selected"
 		}
-		html += ">" + n + "</option>"
+		html += ">" + T(n) + "</option>"
 	}
 	html += "</select>"
 
-	html += "<input type=\"submit\" name=\"updategraph\" value=\"Show\" class=\" custom-submit\">"
+	html += "<input type=\"submit\" name=\"updategraph\" value=\"" + T("Show") + "\" class=\" custom-submit\">"
 	//html += "<div class=\"clearboth\"></div>"
 	html += "</div>"
 	html += "</form>"
@@ -246,7 +246,7 @@ func (p PageSensorGraph) PageHtml(withContainer bool, r *http.Request) string {
 
 	html += `var data = [` + datanames + `];
 	         const layout = {
-	             xaxis: {range: [` + rangex + `], title: "Time",color: "white"},
+	             xaxis: {range: [` + rangex + `], title: "` + T("Time") + `",color: "white"},
 	             yaxis: {range: [` + rangey + `], title: "` + ytitle + `",color: "white"},
 	             title: {
 					text: "` + p.title + `",

@@ -56,9 +56,9 @@ func htmlHeaderLine(sub string) string {
 			fmt.Sprintf("<span class=\"titleandclock\">"+
 				"<span id=\"mmmpname\">%s</span> - <span id=\"tlclock\">%02d:%02d</span>"+
 				"<span class=\"pluscomma\">, </span></span>  "+
-				"<span class=\"windinfosect\">Wind:%.1fkm/h, Gust: %.1fkm/h (%02d:%02d)</span>",
+				"<span class=\"windinfosect\">%s:%.1fkm/h, %s: %.1fkm/h (%02d:%02d)</span>",
 				DashboardTitle, now.Hour(), now.Minute(),
-				LastWindInfo.Windspeed, LastWindInfo.GustSpeed,
+				T("Wind"), LastWindInfo.Windspeed, T("Gust"), LastWindInfo.GustSpeed,
 				LastWindInfo.RequestTime.Hour(), LastWindInfo.RequestTime.Minute()) +
 			"</div>"
 	} else {
@@ -171,10 +171,10 @@ func htmlClockPicker(mainId string, hour int, min int, updownbuttons bool, extra
 }
 
 func htmlScheduleDays(sdl Schedule, mode string, breakline bool) string {
-	var days_map *map[int]string = &days_short
+	var days_map *map[int]string = &Days_short
 
 	if mode == "oneletter" {
-		days_map = &days_oneletter
+		days_map = &Days_oneletter
 	}
 
 	html := "<div class=\"schedule-item-days\">"

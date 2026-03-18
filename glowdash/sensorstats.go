@@ -64,14 +64,21 @@ func (p *PageSensorStats) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig
 
 func (p PageSensorStats) PageHtml_smtherm() string {
 	html := "<table border=\"1\" class=\"stattable\">"
-	html += "<tr><th>Name</th> <th>Last read</th> <th>Last success</th> <th>Temp</th> <th>Hum</th> <th>Succ Read</th> <th>Crc Error</th> <th>Insense data</th></tr>"
+	html += "<tr><th>" + T("Name") +
+		"</th> <th>" + T("Last read") +
+		"</th> <th>" + T("Last read success") +
+		"</th> <th>" + T("Temp") +
+		"</th> <th>" + T("Hum") +
+		"</th> <th>" + T("Succ Read") +
+		"</th> <th>" + T("Crc Error") +
+		"</th> <th>" + T("Nonsense data") + "</th></tr>"
 	for i := 0; i < len(p.sensors); i++ {
 
 		j := execJsonTcpQuery(p.hwDeviceIp, p.hwDevicePort, fmt.Sprintf("cmd:qstat;sn:%s;", p.sensors[i].codename))
 		if j.Success {
 			html += "<tr>"
 			html += "<td>" + p.sensors[i].name + "</td>"
-			html += "<td>" + fmt.Sprintf("%ds ago", int(j.SmartJSON.GetFloat64ByPathWithDefault("/lastread", 0.0))) + "</td>"
+			html += "<td>" + fmt.Sprintf(T("%ds ago"), int(j.SmartJSON.GetFloat64ByPathWithDefault("/lastread", 0.0))) + "</td>"
 			ls := j.SmartJSON.GetStringByPathWithDefault("/lastok", "N.A.")
 			html += "<td class=\""
 			if ls == "yes" {
@@ -79,7 +86,7 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 			} else {
 				html += "csred"
 			}
-			html += "\">" + ls + "</td>"
+			html += "\">" + T(ls) + "</td>"
 			html += "<td>" + fmt.Sprintf("%.1f C", j.SmartJSON.GetFloat64ByPathWithDefault("/temp", 0.0)) + "</td>"
 			html += "<td>" + fmt.Sprintf("%.0f %%", j.SmartJSON.GetFloat64ByPathWithDefault("/hum", 0.0)) + "</td>"
 			html += "<td>"
@@ -124,10 +131,13 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 	alternate := true
 	l := min(len(when), min(len(what), min(len(dura), len(day))))
 	if l == 0 {
-		html += "<p class=\"whitetext\">There is no heater activity log.</p>"
+		html += "<p class=\"whitetext\">" + T("There is no heater activity log.") + "</p>"
 	} else {
 		html += "<table class=\"stattable\">"
-		html += "<tr><th>Num</th><th>Date/Time</th><th>Action</th><th>Duration</th></tr>"
+		html += "<tr><th>" + T("Num") +
+			"</th><th>" + T("Date/Time") +
+			"</th><th>" + T("Action") +
+			"</th><th>" + T("Duration") + "</th></tr>"
 		na := 1
 		nd := 1
 		for i := l - 1; i >= 0; i-- {
@@ -153,7 +163,7 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 			if what[i] == "Stop heating" {
 				html += "csdeepblue"
 			}
-			html += "\">" + what[i] + "</td>"
+			html += "\">" + T(what[i]) + "</td>"
 			html += "<td class=\""
 			if dura[i] != "" {
 				html += "csred"
@@ -203,7 +213,7 @@ func (p PageSensorStats) CollectHeaterHistory_smtherm() ([]string, []string, []s
 					if int(f1) == 2 {
 						whatstr = "Stop heating"
 						if lastHasStart {
-							durastr = fmt.Sprintf("%d minute", int(tm.Sub(lastStart).Seconds()/60))
+							durastr = fmt.Sprintf(T("%d minute"), int(tm.Sub(lastStart).Seconds()/60))
 						}
 					}
 					what = append(what, whatstr)

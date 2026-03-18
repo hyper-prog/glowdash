@@ -21,6 +21,8 @@ type RunContext struct {
 	whileblocks  IntStack
 }
 
+var GlowdashStateVariables = map[string]string{}
+
 func ExecuteCommands(program string, contextVariables map[string]string, relatedPanels *[]string) map[string]string {
 	returnValues := map[string]string{}
 	returnValues["Return"] = ""
@@ -29,7 +31,7 @@ func ExecuteCommands(program string, contextVariables map[string]string, related
 	cmdCount := len(cmds)
 	var ctx RunContext = RunContext{map[string]string{}, map[string]JsonHttpQuery{}, []int{}, []int{}}
 	ctx.variables = contextVariables
-	AddBaseValiables(&ctx)
+	AddBaseVariables(&ctx)
 
 	for ip < cmdCount {
 		cmd := strings.TrimSpace(cmds[ip])
@@ -106,6 +108,11 @@ func ExecuteCommands(program string, contextVariables map[string]string, related
 			ip++
 			continue
 		}
+		if strings.HasPrefix(cmd, "PrintGlowdashConsole ") {
+			Command_PrintGlowdashConsole(ctx, cmd[21:])
+			ip++
+			continue
+		}
 		if strings.HasPrefix(cmd, "AddTo ") {
 			Command_AddTo(&ctx, cmd[6:])
 			ip++
@@ -152,7 +159,7 @@ func ExecuteCommands(program string, contextVariables map[string]string, related
 			continue
 		}
 		if strings.HasPrefix(cmd, "WaitMs ") {
-			Command_WaitMs(ctx, cmd[7:])
+			Command_WaitMs(&ctx, cmd[7:])
 			ip++
 			continue
 		}
@@ -206,6 +213,11 @@ func ExecuteCommands(program string, contextVariables map[string]string, related
 			ip++
 			continue
 		}
+		if cmd == "PrintVariablesGlowdashConsole" {
+			Command_PrintVariablesGlowdashConsole(ctx)
+			ip++
+			continue
+		}
 
 		fmt.Println("--------- Script error---------\nUnknown command: ", cmd)
 
@@ -221,11 +233,35 @@ func ExecuteCommands(program string, contextVariables map[string]string, related
 	return returnValues
 }
 
+func SetVariable(ctx *RunContext, name string, value string) {
+	if strings.HasPrefix(name, "state.") {
+		GlowdashStateVariables[name[6:]] = value
+		return
+	}
+	ctx.variables[name] = value
+}
+
+func GetVariable(ctx *RunContext, name string, fallback string) string {
+	if strings.HasPrefix(name, "state.") {
+		if val, ok := GlowdashStateVariables[name[6:]]; ok {
+			return val
+		}
+		return fallback
+	}
+	if val, ok := ctx.variables[name]; ok {
+		return val
+	}
+	return fallback
+}
+
 func ResolveVariables(ctx RunContext, str string) string {
 	rstr := str
 	if strings.Contains(str, "{{") && strings.Contains(str, "}}") {
 		for name, value := range ctx.variables {
 			rstr = strings.Replace(rstr, "{{"+name+"}}", value, -1)
+		}
+		for name, value := range GlowdashStateVariables {
+			rstr = strings.Replace(rstr, "{{state."+name+"}}", value, -1)
 		}
 	}
 	return rstr
@@ -385,7 +421,7 @@ func Command_RunSet(ctx *RunContext, cmdpart string, relatedPanels *[]string) {
 		code, ok := ProgramLibrary[parts[1]]
 		if ok {
 			results := ExecuteCommands(code, ctx.variables, relatedPanels)
-			ctx.variables[parts[0]] = results["Return"]
+			SetVariable(ctx, parts[0], results["Return"])
 		}
 	}
 }
@@ -394,20 +430,36 @@ func Command_PrintConsole(ctx RunContext, cmdpart string) {
 	fmt.Println("ACTION-CONSOLE> " + ResolveVariables(ctx, cmdpart))
 }
 
+func Command_PrintGlowdashConsole(ctx RunContext, cmdpart string) {
+	GlowdashConsole.Write("&gt;&gt;&gt; " + ResolveVariables(ctx, cmdpart))
+}
+
 func Command_PrintVariablesConsole(ctx RunContext) {
+	for n, v := range GlowdashStateVariables {
+		fmt.Println("ACTION-CONSOLE> state." + n + " = " + v)
+	}
 	for n, v := range ctx.variables {
 		fmt.Println("ACTION-CONSOLE> " + n + " = " + v)
+	}
+}
+
+func Command_PrintVariablesGlowdashConsole(ctx RunContext) {
+	for n, v := range GlowdashStateVariables {
+		GlowdashConsole.Write("&gt;&gt;&gt; state." + n + " = " + v)
+	}
+	for n, v := range ctx.variables {
+		GlowdashConsole.Write("&gt;&gt;&gt; " + n + " = " + v)
 	}
 }
 
 func Command_AddTo(ctx *RunContext, cmdpart string) {
 	parts := strings.Split(cmdpart, " ")
 	if len(parts) == 2 {
-		fvv, err1 := strconv.ParseFloat(ctx.variables[parts[0]], 32)
+		fvv, err1 := strconv.ParseFloat(GetVariable(ctx, parts[0], "0"), 32)
 		fav, err2 := strconv.ParseFloat(ResolveVariables(*ctx, parts[1]), 32)
 
 		if err1 == nil && err2 == nil {
-			ctx.variables[parts[0]] = fmt.Sprintf("%f", fvv+fav)
+			SetVariable(ctx, parts[0], fmt.Sprintf("%g", fvv+fav))
 		}
 	}
 }
@@ -415,11 +467,11 @@ func Command_AddTo(ctx *RunContext, cmdpart string) {
 func Command_SubFrom(ctx *RunContext, cmdpart string) {
 	parts := strings.Split(cmdpart, " ")
 	if len(parts) == 2 {
-		fvv, err1 := strconv.ParseFloat(ctx.variables[parts[0]], 32)
+		fvv, err1 := strconv.ParseFloat(GetVariable(ctx, parts[0], "0"), 32)
 		fav, err2 := strconv.ParseFloat(ResolveVariables(*ctx, parts[1]), 32)
 
 		if err1 == nil && err2 == nil {
-			ctx.variables[parts[0]] = fmt.Sprintf("%f", fvv-fav)
+			SetVariable(ctx, parts[0], fmt.Sprintf("%g", fvv-fav))
 		}
 	}
 }
@@ -427,11 +479,11 @@ func Command_SubFrom(ctx *RunContext, cmdpart string) {
 func Command_MulWith(ctx *RunContext, cmdpart string) {
 	parts := strings.Split(cmdpart, " ")
 	if len(parts) == 2 {
-		fvv, err1 := strconv.ParseFloat(ctx.variables[parts[0]], 32)
+		fvv, err1 := strconv.ParseFloat(GetVariable(ctx, parts[0], "0"), 32)
 		fav, err2 := strconv.ParseFloat(ResolveVariables(*ctx, parts[1]), 32)
 
 		if err1 == nil && err2 == nil {
-			ctx.variables[parts[0]] = fmt.Sprintf("%f", fvv*fav)
+			SetVariable(ctx, parts[0], fmt.Sprintf("%g", fvv*fav))
 		}
 	}
 }
@@ -439,11 +491,11 @@ func Command_MulWith(ctx *RunContext, cmdpart string) {
 func Command_DivWith(ctx *RunContext, cmdpart string) {
 	parts := strings.Split(cmdpart, " ")
 	if len(parts) == 2 {
-		fvv, err1 := strconv.ParseFloat(ctx.variables[parts[0]], 32)
+		fvv, err1 := strconv.ParseFloat(GetVariable(ctx, parts[0], "0"), 32)
 		fav, err2 := strconv.ParseFloat(ResolveVariables(*ctx, parts[1]), 32)
 
 		if err1 == nil && err2 == nil && fav != 0 {
-			ctx.variables[parts[0]] = fmt.Sprintf("%f", fvv/fav)
+			SetVariable(ctx, parts[0], fmt.Sprintf("%g", fvv/fav))
 		}
 	}
 }
@@ -451,11 +503,11 @@ func Command_DivWith(ctx *RunContext, cmdpart string) {
 func Command_ModWith(ctx *RunContext, cmdpart string) {
 	parts := strings.Split(cmdpart, " ")
 	if len(parts) == 2 {
-		fvv, err1 := strconv.ParseFloat(ctx.variables[parts[0]], 32)
+		fvv, err1 := strconv.ParseFloat(GetVariable(ctx, parts[0], "0"), 32)
 		fav, err2 := strconv.ParseFloat(ResolveVariables(*ctx, parts[1]), 32)
 
 		if err1 == nil && err2 == nil {
-			ctx.variables[parts[0]] = fmt.Sprintf("%d", int(fvv)%int(fav))
+			SetVariable(ctx, parts[0], fmt.Sprintf("%d", int(fvv)%int(fav)))
 		}
 	}
 }
@@ -463,30 +515,32 @@ func Command_ModWith(ctx *RunContext, cmdpart string) {
 func Command_Round(ctx *RunContext, cmdpart string, mode int) {
 	parts := strings.Split(cmdpart, " ")
 	if len(parts) == 1 {
-		fvv, err1 := strconv.ParseFloat(ctx.variables[parts[0]], 32)
+		fvv, err1 := strconv.ParseFloat(GetVariable(ctx, parts[0], "0"), 32)
 
 		if err1 == nil {
+			var result string
 			if mode == 0 {
-				ctx.variables[parts[0]] = fmt.Sprintf("%d", int(fvv))
+				result = fmt.Sprintf("%d", int(fvv))
 			} else if mode == 1 {
-				ctx.variables[parts[0]] = fmt.Sprintf("%d", int(fvv+0.9999))
+				result = fmt.Sprintf("%d", int(fvv+0.9999))
 			} else {
-				ctx.variables[parts[0]] = fmt.Sprintf("%d", int(fvv+0.5))
+				result = fmt.Sprintf("%d", int(fvv+0.5))
 			}
+			SetVariable(ctx, parts[0], result)
 		}
 	}
 }
 
 func Command_AddMinutesToTime(ctx *RunContext, cmdpart string) {
 	parts := strings.Split(cmdpart, " ")
-	if len(parts) != 2 {
-		ctx.variables[parts[0]] = "error"
+	if len(parts) != 2 && len(parts) > 0 {
+		SetVariable(ctx, parts[0], "error")
 		return
 	}
 
-	timestring, errnf := ctx.variables[parts[0]]
-	if !errnf {
-		ctx.variables[parts[0]] = "error"
+	timestring := GetVariable(ctx, parts[0], "")
+	if timestring == "" {
+		SetVariable(ctx, parts[0], "error")
 		return
 	}
 	timeparts := strings.Split(timestring, ":")
@@ -500,24 +554,25 @@ func Command_AddMinutesToTime(ctx *RunContext, cmdpart string) {
 		if err1 == nil && err2 == nil && err3 == nil {
 			t := time.Date(2000, 1, 1, hour, min, 0, 0, time.UTC)
 			t = t.Add(time.Duration(minutesToAdd) * time.Minute)
-			ctx.variables[parts[0]] = fmt.Sprintf("%02d:%02d", t.Hour(), t.Minute())
+			result := fmt.Sprintf("%02d:%02d", t.Hour(), t.Minute())
+			SetVariable(ctx, parts[0], result)
 			return
 		}
 	}
-	ctx.variables[parts[0]] = "error"
+	SetVariable(ctx, parts[0], "error")
 }
 
-func Command_WaitMs(ctx RunContext, cmdpart string) {
-	msval, err := strconv.Atoi(ResolveVariables(ctx, cmdpart))
+func Command_WaitMs(ctx *RunContext, cmdpart string) {
+	msval, err := strconv.Atoi(ResolveVariables(*ctx, cmdpart))
 	if err == nil {
 		time.Sleep(time.Millisecond * time.Duration(msval))
 	}
 }
 
 func Command_Set(ctx *RunContext, cmdpart string) {
-	parts := strings.Split(cmdpart, " ")
+	parts := strings.SplitN(cmdpart, " ", 2)
 	if len(parts) == 2 {
-		ctx.variables[parts[0]] = ResolveVariables(*ctx, parts[1])
+		SetVariable(ctx, parts[0], ResolveVariables(*ctx, parts[1]))
 	}
 }
 
@@ -533,20 +588,20 @@ func Command_SetFromJsonReq(ctx *RunContext, cmdpart string) {
 
 		_, typestr := jhq.SmartJSON.GetNodeByPath(parts[2])
 		if typestr == "string" {
-			ctx.variables[parts[0]] = jhq.SmartJSON.GetStringByPathWithDefault(parts[2], "")
+			SetVariable(ctx, parts[0], jhq.SmartJSON.GetStringByPathWithDefault(parts[2], ""))
 		}
 		if typestr == "float64" {
-			ctx.variables[parts[0]] = fmt.Sprintf("%f", jhq.SmartJSON.GetFloat64ByPathWithDefault(parts[2], 0.0))
+			SetVariable(ctx, parts[0], fmt.Sprintf("%g", jhq.SmartJSON.GetFloat64ByPathWithDefault(parts[2], 0.0)))
 		}
 		if typestr == "int" {
-			ctx.variables[parts[0]] = fmt.Sprintf("%d", jhq.SmartJSON.GetIntegerByPathWithDefault(parts[2], 0))
+			SetVariable(ctx, parts[0], fmt.Sprintf("%d", jhq.SmartJSON.GetIntegerByPathWithDefault(parts[2], 0)))
 		}
 		if typestr == "bool" {
 			b, _ := jhq.SmartJSON.GetBoolByPath(parts[2])
 			if b {
-				ctx.variables[parts[0]] = "true"
+				SetVariable(ctx, parts[0], "true")
 			} else {
-				ctx.variables[parts[0]] = "false"
+				SetVariable(ctx, parts[0], "false")
 			}
 		}
 	}
@@ -562,20 +617,20 @@ func Command_SetFromStoredJson(ctx *RunContext, cmdpart string) {
 		}
 		_, typestr := jhq.SmartJSON.GetNodeByPath(parts[2])
 		if typestr == "string" {
-			ctx.variables[parts[0]] = jhq.SmartJSON.GetStringByPathWithDefault(parts[2], "")
+			SetVariable(ctx, parts[0], jhq.SmartJSON.GetStringByPathWithDefault(parts[2], ""))
 		}
 		if typestr == "float64" {
-			ctx.variables[parts[0]] = fmt.Sprintf("%f", jhq.SmartJSON.GetFloat64ByPathWithDefault(parts[2], 0.0))
+			SetVariable(ctx, parts[0], fmt.Sprintf("%g", jhq.SmartJSON.GetFloat64ByPathWithDefault(parts[2], 0.0)))
 		}
 		if typestr == "int" {
-			ctx.variables[parts[0]] = fmt.Sprintf("%d", jhq.SmartJSON.GetIntegerByPathWithDefault(parts[2], 0))
+			SetVariable(ctx, parts[0], fmt.Sprintf("%d", jhq.SmartJSON.GetIntegerByPathWithDefault(parts[2], 0)))
 		}
 		if typestr == "bool" {
 			b, _ := jhq.SmartJSON.GetBoolByPath(parts[2])
 			if b {
-				ctx.variables[parts[0]] = "true"
+				SetVariable(ctx, parts[0], "true")
 			} else {
-				ctx.variables[parts[0]] = "false"
+				SetVariable(ctx, parts[0], "false")
 			}
 		}
 	}
@@ -594,7 +649,8 @@ func Command_SetSchedule(ctx *RunContext, cmdpart string) {
 func Command_AddOneshotSchedule(ctx *RunContext, cmdpart string) {
 	rc := ResolveVariables(*ctx, cmdpart)
 	s := Schedule{}
-	s.name = "Generated schedule on " + time.Now().Format("2006-01-02 15:04:05")
+	s.name = T("Generated schedule on {{timestr}}",
+		map[string]any{"timestr": time.Now().Format("2006-01-02 15:04:05")})
 	s.enabled = true
 	s.oneshot = true
 
@@ -651,7 +707,7 @@ func Command_CallHttpStoreJson(ctx *RunContext, cmdpart string) {
 	}
 }
 
-func AddBaseValiables(ctx *RunContext) {
+func AddBaseVariables(ctx *RunContext) {
 	now := time.Now()
 	ctx.variables["Time.Hour"] = fmt.Sprintf("%02d", now.Hour())
 	ctx.variables["Time.Minute"] = fmt.Sprintf("%02d", now.Minute())

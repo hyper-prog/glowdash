@@ -1,5 +1,6 @@
 GlowDash:
   DashboardTitle: "GlowDash"        #Show in main title line (You can change to your home name)
+  LanguageCode: "hu"                #Language code of Glowdash interface (default: "en")
   ReadWindInfo: true                #If true: reads some wind informations and show in title line
   WindInfoPollInterval: 600
   WeatherSource:
@@ -8,13 +9,15 @@ GlowDash:
     Location: Budapest
   DebugLevel: 0               # 0 - silent, 1,2,3,4...
   StaticDirectory: "static"        # Location of static glowdash files,js,css, images
-  UserDirectory: "user"            # Location of user images
+  UserDirectory: "userstuff"       # Location of user images
+  LanguagesDirectory: "lang"       # Location of language files
   StateConfigDirectory: "config"   # Location where the scheduled tasks file is saved
   WebUseSSE: 1                # 0: disabled, 1: Make the browsers connect to SSE server
   WebSSEPort: 5018            # The port of SSE server listen on
   CommUseSSE: 1               # 0: disabled, 1: Enable the Glowdash notify SSE server
   CommSSEPort: 5019           # The port of Hasses SSE server control channel listen on
   CommSSEHost: 192.168.1.99   # The host of Hasses SSE server, Default: 127.0.0.1
+  MaxLogLines: 256            # Maximum lines keeps in log (Default: 128)
   Panels:                           # You can define panels here
     - Id: ppid001                   # Unique id, optional. Required if you would like to add scheduled task on this panel
       Title: Facade lighting        # Panel title text
@@ -178,7 +181,16 @@ GlowDash:
         AddMinutesToTime swofftime 25
         AddOneshotSchedule tswid001 off {{swofftime}}
 
+    - Title: Console
+      PanelType: Launch
+      Thumbnail: console.png
+      LaunchTo: conpage
+
   Pages:
+    - Title: Console page
+      PageType: Console
+      PageName: conpage
+
     - PageName: graphpage
       PageType: SensorGraph
       DeviceType: smtherm
@@ -265,7 +277,7 @@ GlowDash:
       Code: |
         RelatedPanel Switch {{Panel.DeviceIp}} {{Panel.InDeviceId}}
         PrintConsole Hello custom-set-sample from {{Panel.Title}}
-        CallHttp http://{{Panel.DeviceIp}}/rpc/Switch.Set?id={{Panel.InDeviceId}}&on={{ReqiredStateText}}
+        CallHttp http://{{Panel.DeviceIp}}/rpc/Switch.Set?id={{Panel.InDeviceId}}&on={{RequiredStateText}}
         If {{LastHttpCallSuccess}} booleq false
              Return error
         EndIf

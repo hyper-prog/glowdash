@@ -78,7 +78,7 @@ func (p PanelSensors) PanelHtml(withContainer bool) string {
 		<div class="label label-s no-radius-bottom-left-diagonal">
 			<span class="mr-xs icon-grid icon-grid-xs"><i class="fas fa-microchip"></i></span>
 			<div class="label-value-container">
-				<p class="text-600 miniature-styles text-nowrap">Device</p>
+				<p class="text-600 miniature-styles text-nowrap">{{.PTypText}}</p>
 			</div>
 		</div>
 	</div>
@@ -123,6 +123,7 @@ func (p PanelSensors) PanelHtml(withContainer bool) string {
 		Title        string
 		ShowTitle    bool
 		Id           string
+		PTypText     string
 		ThumbImg     string
 		HasValidInfo bool
 		NoValidInfo  bool
@@ -130,6 +131,7 @@ func (p PanelSensors) PanelHtml(withContainer bool) string {
 		Title:        p.title,
 		ShowTitle:    false,
 		Id:           p.idStr,
+		PTypText:     T("Device"),
 		ThumbImg:     p.thumbImg,
 		HasValidInfo: p.hasValidInfo,
 		NoValidInfo:  !p.hasValidInfo,

@@ -75,7 +75,7 @@ func (p *PanelToggleSwitch) PanelHtml(withContainer bool) string {
 		<div class="label label-s no-radius-bottom-left-diagonal">
 			<span class="mr-xs icon-grid icon-grid-xs"><i class="fas fa-microchip"></i></span>
 			<div class="label-value-container">
-				<p class="text-600 miniature-styles text-nowrap">Device</p>
+				<p class="text-600 miniature-styles text-nowrap">{{.PTypText}}</p>
 			</div>
 		</div>
 	</div>
@@ -94,7 +94,7 @@ func (p *PanelToggleSwitch) PanelHtml(withContainer bool) string {
 			</div>
 			{{if .NoValidInfo}}
 			<div class="ctrlline-container mt-s">
-				<p class="text-600 title text-bold body-small-styles">No information</p>
+				<p class="text-600 title text-bold body-small-styles">{{.NoInfoText}}</p>
 			</div>
 			{{else}}
 				{{if .HasPowerInfo}}
@@ -148,6 +148,7 @@ func (p *PanelToggleSwitch) PanelHtml(withContainer bool) string {
 		Title         string
 		TitleByState  string
 		Id            string
+		PTypText      string
 		ThumbImg      string
 		ThumbImg2     string
 		ThumbImgFront string
@@ -160,10 +161,12 @@ func (p *PanelToggleSwitch) PanelHtml(withContainer bool) string {
 		NoValidInfo   bool
 		Watt          string
 		Volt          string
+		NoInfoText    string
 	}{
 		Title:         p.title,
 		TitleByState:  titleByState,
 		Id:            p.idStr,
+		PTypText:      T("Device"),
 		ThumbImg:      p.thumbImg,
 		ThumbImg2:     p.thumbImg2,
 		State:         p.state,
@@ -176,6 +179,7 @@ func (p *PanelToggleSwitch) PanelHtml(withContainer bool) string {
 		Volt:          fmt.Sprintf("%.1f", p.volt),
 		ThumbImgFront: thumbImgFront,
 		ThumbImgBack:  thumbImgBack,
+		NoInfoText:    T("No information"),
 	}
 
 	buffer := bytes.Buffer{}
@@ -211,16 +215,27 @@ func (p *PanelToggleSwitch) DoAction(actionName string, parameters map[string]st
 			initVariables["ToggleSwitchPanel.Id"] = p.idStr
 			initVariables["ToggleSwitchPanel.DeviceType"] = p.deviceType
 			initVariables["ToggleSwitchPanel.ActionName"] = actionName
-			initVariables["ReqiredStateText"] = initVariables["Panel.TextualOppositeState"]
+			initVariables["RequiredStateText"] = initVariables["Panel.TextualOppositeState"]
+			GlowdashConsole.Write(T("Set toggle switch \"{{title}}\" by custom code \"{{code}}\" to &lt;{{state}}&gt;",
+				map[string]any{"title": p.title, "code": p.customsetcode, "state": T(initVariables["RequiredStateText"])}))
 			results := ExecuteCommands(code, initVariables, &relatedPanels)
 			if DebugLevel >= 2 {
 				fmt.Printf("Custom set code \"%s\" executed for panel %s, result: %s\n", p.customsetcode, p.title, results["Return"])
 			}
 			if results["Return"] == "error" {
+				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 				p.InvalidateInfo()
 			}
 			stateChanged = true
 			time.Sleep(time.Millisecond * 200)
+			updatedIds = append(updatedIds, p.QueryDevice()...)
+		}
+		return "ok", updatedIds, stateChanged
+	}
+
+	if actionName == "update" && p.customquerycode != "" {
+		_, ok := ProgramLibrary[p.customquerycode]
+		if ok {
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 		return "ok", updatedIds, stateChanged
@@ -232,9 +247,12 @@ func (p *PanelToggleSwitch) DoAction(actionName string, parameters map[string]st
 			if p.state == 1 {
 				tostr = "false"
 			}
+			GlowdashConsole.Write(T("Set Shelly toggle switch \"{{title}}\" to &lt;{{state}}&gt;",
+				map[string]any{"title": p.title, "state": T(tostr)}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Switch.Set?id=%d&on=%s", p.deviceIp, p.inDeviceId, tostr)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {
+				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 				p.InvalidateInfo()
 			}
 			stateChanged = true
@@ -262,15 +280,19 @@ func (p *PanelToggleSwitch) DoActionFromScheduler(actionName string) []string {
 			initVariables["ToggleSwitchPanel.DeviceType"] = p.deviceType
 			initVariables["ToggleSwitchPanel.ActionName"] = actionName
 			if actionName == "on" {
-				initVariables["ReqiredStateText"] = "true"
+				initVariables["RequiredStateText"] = "true"
 			}
 			if actionName == "off" {
-				initVariables["ReqiredStateText"] = "false"
+				initVariables["RequiredStateText"] = "false"
 			}
+			GlowdashConsole.Write(T("Scheduled set toggle switch \"{{title}}\" by custom code \"{{code}}\" to &lt;{{state}}&gt;",
+				map[string]any{"title": p.title, "code": p.customsetcode, "state": T(initVariables["RequiredStateText"])}))
 			results := ExecuteCommands(code, initVariables, &relatedPanels)
 			if results["Return"] == "error" {
+				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 				p.InvalidateInfo()
 			}
+
 			time.Sleep(time.Millisecond * 200)
 		}
 		return p.QueryDevice()
@@ -278,18 +300,24 @@ func (p *PanelToggleSwitch) DoActionFromScheduler(actionName string) []string {
 
 	if p.deviceType == "Shelly" && p.deviceIp != "" {
 		if actionName == "on" {
+			GlowdashConsole.Write(T("Scheduled set Shelly toggle switch \"{{title}}\" to &lt;{{sts}}&gt;",
+				map[string]any{"title": p.title, "sts": T("true")}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Switch.Set?id=%d&on=true", p.deviceIp, p.inDeviceId)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {
+				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 				p.InvalidateInfo()
 			}
 			time.Sleep(time.Millisecond * 200)
 			return p.QueryDevice()
 		}
 		if actionName == "off" {
+			GlowdashConsole.Write(T("Scheduled set Shelly toggle switch \"{{title}}\" to &lt;{{sts}}&gt;",
+				map[string]any{"title": p.title, "sts": T("false")}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Switch.Set?id=%d&on=false", p.deviceIp, p.inDeviceId)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {
+				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 				p.InvalidateInfo()
 			}
 			time.Sleep(time.Millisecond * 200)

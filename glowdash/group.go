@@ -44,7 +44,7 @@ func (p PanelGroup) SubTo() string {
 }
 
 func (p *PanelGroup) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig int) {
-	p.panelCornerTitle = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/CornerTitle", indexInConfig), "Group")
+	p.panelCornerTitle = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/CornerTitle", indexInConfig), T("Group"))
 	p.subPageTo = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/SubPageTo", indexInConfig), "")
 }
 

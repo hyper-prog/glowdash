@@ -35,17 +35,17 @@ func NewPageScheduleEdit() *PageScheduleEdit {
 
 func (p *PageScheduleEdit) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig int) {
 	if p.title == "" {
-		p.title = "Glowdash schedules"
+		p.title = T("Glowdash schedules")
 	}
 }
 
 func subActionCodeToDisplay(code string) string {
 	if code == "" {
-		return "Nothing"
+		return T("Nothing")
 	}
 	dtext, found := subActionDisplayText[code]
 	if found {
-		return dtext
+		return T(dtext)
 	}
 	return code + " C"
 }
@@ -53,14 +53,14 @@ func subActionCodeToDisplay(code string) string {
 func ProcessScheduleForm(r *http.Request) string {
 
 	mode := ""
-	if r.Form.Get("sdlsubmit") != "Add schedule" && r.Form.Get("sdlsubmit") != "Save schedule" {
+	if r.Form.Get("sdlsubmit") != T("Add schedule") && r.Form.Get("sdlsubmit") != T("Save schedule") {
 		return mode
 	}
 
-	if r.Form.Get("sdlsubmit") == "Add schedule" {
+	if r.Form.Get("sdlsubmit") == T("Add schedule") {
 		mode = "n"
 	}
-	if r.Form.Get("sdlsubmit") == "Save schedule" {
+	if r.Form.Get("sdlsubmit") == T("Save schedule") {
 		mode = "e"
 	}
 
@@ -85,7 +85,7 @@ func ProcessScheduleForm(r *http.Request) string {
 	formname := r.Form.Get("sdlname")
 	if len(formname) < 1 {
 		t := time.Now()
-		formname = fmt.Sprintf("Unnamed schedule - %s", t.Format("15:04:05"))
+		formname = T("Unnamed schedule - {{time}}", map[string]any{"time": t.Format("15:04:05")})
 	}
 	s.name = formname
 	if mode == "n" {
@@ -203,9 +203,9 @@ func htmlStaticScheduleBlock(index int, cS int, s Schedule) string {
 		html += "<div class=\"schedule-item-ena\"><img src=\"/static/one-shot.png\"/></div>"
 	} else {
 		if s.enabled {
-			html += "<div class=\"schedule-item-ena\"><span class=\"act-show-ena-on\">ON</span></div>"
+			html += "<div class=\"schedule-item-ena\"><span class=\"act-show-ena-on\">" + T("ON") + "</span></div>"
 		} else {
-			html += "<div class=\"schedule-item-ena\"><span class=\"act-show-ena-off\">OFF</span></div>"
+			html += "<div class=\"schedule-item-ena\"><span class=\"act-show-ena-off\">" + T("OFF") + "</span></div>"
 		}
 	}
 
@@ -223,7 +223,7 @@ func htmlStaticScheduleBlock(index int, cS int, s Schedule) string {
 	html += "<span class=\"schedule-item-act-sep\"><i class=\"fa fa-rightarrow\"></i></span>"
 	html += "<span class=\"schedule-item-act-param\">" + subActionCodeToDisplay(s.actionParam) + "</span>"
 	html += "<br/>"
-	html += "<span class=\"schedule-item-lastrun\">Last run on: " + s.lastrun + "</span>"
+	html += "<span class=\"schedule-item-lastrun\">" + T("Last run on:") + " " + s.lastrun + "</span>"
 	html += "</div>" //.schedule-item-act
 
 	html += "<div class=\"schedule-item-func\"><table>"
@@ -248,11 +248,13 @@ func htmlStaticScheduleBlock(index int, cS int, s Schedule) string {
 
 func htmlDeleteConfirmation(index int, s Schedule) string {
 	html := "<div class=\"schedule-item-name\">" + s.name + "</div>"
-	html += "<div>Do you really want to delete this schedule?</div>"
+	html += "<div>" + T("Do you really want to delete this schedule?") + "</div>"
 
 	html += "<table><tr>"
-	html += "<td><button class=\"jsaction scheduleedit-ctrl-button\" id=\"act-schedule-real-delete-idx-" + fmt.Sprintf("%d", index) + "\">Yes, delete schedule</button></td>"
-	html += "<td><button class=\"jsaction scheduleedit-ctrl-button\" id=\"act-schedule-backstatic-idx-" + fmt.Sprintf("%d", index) + "\">No, cancel</button></td>"
+	html += "<td><button class=\"jsaction scheduleedit-ctrl-button\" id=\"act-schedule-real-delete-idx-" +
+		fmt.Sprintf("%d", index) + "\">" + T("Yes, delete schedule") + "</button></td>"
+	html += "<td><button class=\"jsaction scheduleedit-ctrl-button\" id=\"act-schedule-backstatic-idx-" +
+		fmt.Sprintf("%d", index) + "\">" + T("No, cancel") + "</button></td>"
 	html += "</tr></table>"
 
 	return html
@@ -264,12 +266,12 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 	current_time := time.Now()
 	if new {
 		if oneshotIfNew {
-			html += "<span style=\"font-weight: strong; font-size: larger; padding: 5px;\">New one shot schedule</span>"
+			html += "<span style=\"font-weight: strong; font-size: larger; padding: 5px;\">" + T("New one shot schedule") + "</span>"
 		} else {
-			html += "<span style=\"font-weight: strong; font-size: larger; padding: 5px;\">New schedule</span>"
+			html += "<span style=\"font-weight: strong; font-size: larger; padding: 5px;\">" + T("New schedule") + "</span>"
 		}
 	} else {
-		html += "<span style=\"font-weight: strong; font-size: larger; padding: 5px;\">Edit schedule</span>"
+		html += "<span style=\"font-weight: strong; font-size: larger; padding: 5px;\">" + T("Edit schedule") + "</span>"
 	}
 
 	name_string := ""
@@ -311,7 +313,7 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 	html += "<div class=\"schedule-data-area\">"
 
 	html += "<div class=\"schedule-data-block\">"
-	html += "<div class=\"schedule-data-item-desc\">Enabled / Name</div>"
+	html += "<div class=\"schedule-data-item-desc\">" + T("Enabled / Name") + "</div>"
 	html += "<div class=\"schedule-data-item-value\">"
 	if !new {
 		html += "  <input type=\"hidden\" name=\"index\" value=\"" + fmt.Sprintf("%d", getScheduleIndex(s.name)) + "\" />"
@@ -332,7 +334,7 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 	html += "</div>"
 
 	html += "<div class=\"schedule-data-block\">"
-	html += "<div class=\"schedule-data-item-desc\">Running time</div>"
+	html += "<div class=\"schedule-data-item-desc\">" + T("Running time") + "</div>"
 	html += "<div class=\"schedule-data-item-value\">"
 	if new {
 		html += htmlClockPicker("newsch", current_time.Hour(), current_time.Minute(), true, "", "none")
@@ -343,20 +345,21 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 	html += "</div>"
 
 	html += "<div class=\"schedule-data-block\">"
-	html += "<div class=\"schedule-data-item-desc\">Running days</div>"
+	html += "<div class=\"schedule-data-item-desc\">" + T("Running days") + "</div>"
 	html += "<div class=\"schedule-data-item-value\">"
-	html += `Mon<input type="checkbox" name="mon" ` + mon_checked + `/>
-			 Tue<input type="checkbox" name="tue" ` + tue_checked + `/>
-			 Wed<input type="checkbox" name="wed" ` + wed_checked + `/>
-			 Thu<input type="checkbox" name="thu" ` + thu_checked + `/><br/>
-			 Fri<input type="checkbox" name="fri" ` + fri_checked + `/>
-			 Sat<input type="checkbox" name="sat" ` + sat_checked + `/>
-			 Sun<input type="checkbox" name="sun" ` + sun_checked + `/>`
+	html += "" +
+		T("Mon") + `<input type="checkbox" name="mon" ` + mon_checked + "/>" +
+		T("Tue") + `<input type="checkbox" name="tue" ` + tue_checked + "/>" +
+		T("Wed") + `<input type="checkbox" name="wed" ` + wed_checked + "/>" +
+		T("Thu") + `<input type="checkbox" name="thu" ` + thu_checked + "/><br/>" +
+		T("Fri") + `<input type="checkbox" name="fri" ` + fri_checked + "/>" +
+		T("Sat") + `<input type="checkbox" name="sat" ` + sat_checked + "/>" +
+		T("Sun") + `<input type="checkbox" name="sun" ` + sun_checked + "/>"
 	html += "</div>"
 	html += "</div>"
 
 	html += "<div class=\"schedule-data-block\">"
-	html += "<div class=\"schedule-data-item-desc\">Action on Time</div>"
+	html += "<div class=\"schedule-data-item-desc\">" + T("Action on Time") + "</div>"
 	html += "<div class=\"schedule-data-item-value\">"
 	html += "<select name=\"action\" class=\"schedule-action-selector\" data-actionsubid=\"sch-sub-sel-one\">"
 	panelcnt := len(Panels)
@@ -370,7 +373,7 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 		current := false
 		selectedText := ""
 
-		if (!new && s.actionId == Panels[i].IdStr()) || (new &&  showindex == 0) {
+		if (!new && s.actionId == Panels[i].IdStr()) || (new && showindex == 0) {
 			selectedText = "selected"
 			current = true
 		}
@@ -379,30 +382,30 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 			html += "<option value=\"switch:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].EventTitle() + "</option>"
 
 			if current {
-				subselOpts += "<option value=\"on\" " + IfTrue(s.actionParam == "on", "selected") + ">Switch On</option>"
-				subselOpts += "<option value=\"off\" " + IfTrue(s.actionParam == "off", "selected") + ">Switch Off</option>"
+				subselOpts += "<option value=\"on\" " + IfTrue(s.actionParam == "on", "selected") + ">" + T("Switch On") + "</option>"
+				subselOpts += "<option value=\"off\" " + IfTrue(s.actionParam == "off", "selected") + ">" + T("Switch Off") + "</option>"
 			}
 		}
 		if Panels[i].PanelType() == Shading {
 			html += "<option value=\"shading:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].EventTitle() + "</option>"
 
 			if current {
-				subselOpts += "<option value=\"open\" " + IfTrue(s.actionParam == "open", "selected") + ">Open</option>"
-				subselOpts += "<option value=\"close\" " + IfTrue(s.actionParam == "close", "selected") + ">Close</option>"
+				subselOpts += "<option value=\"open\" " + IfTrue(s.actionParam == "open", "selected") + ">" + T("Open") + "</option>"
+				subselOpts += "<option value=\"close\" " + IfTrue(s.actionParam == "close", "selected") + ">" + T("Close") + "</option>"
 			}
 		}
 		if Panels[i].PanelType() == Action {
 			html += "<option value=\"action:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].EventTitle() + "</option>"
 			if current {
-				subselOpts += "<option value=\"run\" " + IfTrue(s.actionParam == "run", "selected") + ">Run</option>"
+				subselOpts += "<option value=\"run\" " + IfTrue(s.actionParam == "run", "selected") + ">" + T("Run") + "</option>"
 			}
 		}
 		if Panels[i].PanelType() == Script {
 			html += "<option value=\"script:" + Panels[i].IdStr() + "\" " + selectedText + ">" + Panels[i].EventTitle() + "</option>"
 
 			if current {
-				subselOpts += "<option value=\"start\" " + IfTrue(s.actionParam == "start", "selected") + ">Start</option>"
-				subselOpts += "<option value=\"stop\" " + IfTrue(s.actionParam == "stop", "selected") + ">Stop</option>"
+				subselOpts += "<option value=\"start\" " + IfTrue(s.actionParam == "start", "selected") + ">" + T("Start") + "</option>"
+				subselOpts += "<option value=\"stop\" " + IfTrue(s.actionParam == "stop", "selected") + ">" + T("Stop") + "</option>"
 			}
 		}
 		if Panels[i].PanelType() == Thermostat {
@@ -429,15 +432,15 @@ func htmlScheduleEditor(new bool, oneshotIfNew bool, s Schedule) string {
 	html += "</div>"
 
 	html += "<div class=\"schedule-data-block\">"
-	html += "<div class=\"schedule-data-item-desc\">Operation</div>"
+	html += "<div class=\"schedule-data-item-desc\">" + T("Operation") + "</div>"
 	html += "<div class=\"schedule-data-item-value\">"
 	if new {
-		html += "  <input type=\"submit\" name=\"sdlsubmit\" value=\"Add schedule\" class=\"schedule-submit-button\" />"
+		html += "  <input type=\"submit\" name=\"sdlsubmit\" value=\"" + T("Add schedule") + "\" class=\"schedule-submit-button\" />"
 	} else {
-		html += "  <input type=\"submit\" name=\"sdlsubmit\" value=\"Save schedule\" class=\"schedule-submit-button\" />"
+		html += "  <input type=\"submit\" name=\"sdlsubmit\" value=\"" + T("Save schedule") + "\" class=\"schedule-submit-button\" />"
 	}
 	html += "<br/>"
-	html += "  <input type=\"submit\" name=\"sdlsubmit\" value=\"Cancel\" class=\"schedule-submit-button\" />"
+	html += "  <input type=\"submit\" name=\"sdlsubmit\" value=\"" + T("Cancel") + "\" class=\"schedule-submit-button\" />"
 	html += "</div>"
 	html += "</div>"
 

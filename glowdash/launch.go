@@ -36,7 +36,7 @@ func NewPanelLaunch() *PanelLaunch {
 			hasPoweInfo: false,
 			index:       0,
 		},
-		"Page", "", "fa-launch",
+		"Launch", "", "fa-launch",
 	}
 }
 
@@ -45,7 +45,7 @@ func (p PanelLaunch) LaunchTo() string {
 }
 
 func (p *PanelLaunch) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig int) {
-	p.panelCornerTitle = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/CornerTitle", indexInConfig), "Launch")
+	p.panelCornerTitle = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/CornerTitle", indexInConfig), T("Launch"))
 	p.buttonFontImageCssClass = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/ButtonFontImageCssClass", indexInConfig), "fa-launch")
 	p.pageIdentifier = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/LaunchTo", indexInConfig), "")
 }

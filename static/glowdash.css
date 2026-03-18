@@ -2852,6 +2852,17 @@ input:checked + .slider:before {
   color: white;
 }
 
+.logpage-inner-show {
+  background: #0a0a0a;
+   background-color: #454545;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.8),rgba(0, 0, 0, 0.8)),url("/static/logbackgr.jpg");
+  border: 5px solid #20224e;
+  border-radius: var(--radius-big);
+  padding: 5px;
+  color: #a0f0ff;
+  font-family: monospace;
+}
+
 /* Badge overlays (toggleswitch) */
 .avatar-badge {
     position: absolute;

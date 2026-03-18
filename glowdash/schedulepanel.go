@@ -54,7 +54,7 @@ func (p PanelScheduleShortcut) PanelHtml(withContainer bool) string {
 		<div class="label label-s no-radius-bottom-left-diagonal">
 			<span class="mr-xs icon-grid icon-grid-xs"><i class="fas fa-sched3"></i></span>
 			<div class="label-value-container">
-				<p class="text-600 miniature-styles text-nowrap">Schedule</p>
+				<p class="text-600 miniature-styles text-nowrap">{{.PTypText}}</p>
 			</div>
 		</div>
 	</div>
@@ -71,7 +71,7 @@ func (p PanelScheduleShortcut) PanelHtml(withContainer bool) string {
 
 			{{if .MissingSchedule}}
 			<div class="ctrlline-container mt-s">
-				<p class="text-600 title text-bold body-small-styles">No information</p>
+				<p class="text-600 title text-bold body-small-styles">{{.NoInfoText}}</p>
 			</div>
 			{{end}}
 
@@ -102,19 +102,23 @@ func (p PanelScheduleShortcut) PanelHtml(withContainer bool) string {
 	pass := struct {
 		Title           string
 		Id              string
+		PTypText        string
 		ThumbImg        string
 		ConnShedule     bool
 		MissingSchedule bool
 		Enabled         bool
 		Disabled        bool
+		NoInfoText      string
 	}{
 		Title:           p.title,
 		Id:              p.idStr,
+		PTypText:        T("Schedule"),
 		ThumbImg:        p.thumbImg,
 		ConnShedule:     connectedSchedule,
 		MissingSchedule: !connectedSchedule,
 		Enabled:         connectedSchedule && s.enabled,
 		Disabled:        connectedSchedule && !s.enabled,
+		NoInfoText:      T("No information"),
 	}
 
 	buffer := bytes.Buffer{}
@@ -173,6 +177,12 @@ func (p PanelScheduleShortcut) DoAction(actionName string, parameters map[string
 		if idx >= 0 {
 			s := getScheduleByIndex(idx)
 			s.enabled = !s.enabled
+			etxt := "enabled"
+			if !s.enabled {
+				etxt = "disabled"
+			}
+			GlowdashConsole.Write(T("Set schedule \"{{name}}\" state to &lt;{{enabled}}&gt;",
+				map[string]any{"name": p.scheduleName, "enabled": T(etxt)}))
 			updateSchedule(idx, s)
 
 			stateChanged = true
@@ -191,6 +201,8 @@ func (p PanelScheduleShortcut) DoAction(actionName string, parameters map[string
 					if herr == nil && merr == nil {
 						s.hour = hv
 						s.min = mv
+						GlowdashConsole.Write(fmt.Sprintf(T("Set schedule \"{{name}}\" time to &lt;{{time}}&gt;",
+							map[string]any{"name": p.scheduleName, "time": fmt.Sprintf("%02d:%02d", s.hour, s.min)})))
 						updateSchedule(idx, s)
 						stateChanged = true
 					}

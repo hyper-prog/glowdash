@@ -16,7 +16,8 @@ GlowDash scripts are used in Action panels, worker functions in switches and the
 | [While](#while) | Loop while condition is true |
 | [EndWhile](#endwhile) | End of While loop |
 | [Return](#return) | Exit script (or function), optionally with a value |
-| [PrintConsole](#printconsole) | Print text to the console |
+| [PrintConsole](#printconsole) | Print text to the console (standard output)|
+| [PrintGlowdashConsole](#printconsole) | Print text to the GlowDash console |
 | [Set](#set) | Set a variable to the value (And define if necessary) |
 | [Run](#run) | Run a named ProgramLibrary element |
 | [RunSet](#runset) | Run ProgramLibrary and store return value in a variable |
@@ -36,7 +37,8 @@ GlowDash scripts are used in Action panels, worker functions in switches and the
 | [RelatedPanel](#relatedpanel) | Refresh related panels |
 | [LoadVariablesFromPanelId](#loadvariablesfrompanelid) | Load variables from a panel |
 | [LoadVariablesFromPanelIdWithPrefix](#loadvariablesfrompanelidwithprefix) | Load variables with a prefix |
-| [PrintVariablesConsole](#printvariablesconsole) | Print all variables to the console |
+| [PrintVariablesConsole](#printvariablesconsole) | Print all variables to the console (standard output)|
+| [PrintVariablesGlowdashConsole](#printvariablesglowdashconsole) | Print all variables to the GlowDash console |
 | [AddOneshotSchedule](#addoneshotschedule) | Add a one-shot schedule |
 
 ## Operators for Expressions
@@ -112,12 +114,24 @@ Return {{state}}
 - **Syntax:** `PrintConsole <text>`
 - **Parameters:**
   - `<text>`: Text or variable to print.
-- **Description:** Prints text to the console/log.
+- **Description:** Prints text to the console/log. Standard output.
 - **Sample:**
 ```glowdash
 PrintConsole Hello World
 
 PrintConsole Variable name is {{name}}
+```
+
+### PrintGlowdashConsole
+- **Syntax:** `PrintGlowdashConsole <text>`
+- **Parameters:**
+  - `<text>`: Text or variable to print.
+- **Description:** Prints text to the Glowdash console.
+- **Sample:**
+```glowdash
+PrintGlowdashConsole Hello World
+
+PrintGlowdashConsole Variable name is {{name}}
 ```
 
 ### Set
@@ -391,10 +405,19 @@ LoadVariablesFromPanelIdWithPrefix MySw_ sw1
 ### PrintVariablesConsole
 - **Syntax:** `PrintVariablesConsole`
 - **Parameters:** None
-- **Description:** Prints all variables to console/log.
+- **Description:** Prints all variables to console/log. Standard output.
 - **Sample:**
 ```glowdash
 PrintVariablesConsole
+```
+
+### PrintVariablesGlowdashConsole
+- **Syntax:** `PrintVariablesGlowdashConsole`
+- **Parameters:** None
+- **Description:** Prints all variables to GlowDash console.
+- **Sample:**
+```glowdash
+PrintVariablesGlowdashConsole
 ```
 
 ### RoundDown

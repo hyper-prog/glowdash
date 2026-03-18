@@ -61,7 +61,7 @@ func (p PanelAction) PanelHtml(withContainer bool) string {
 		<div class="label label-s no-radius-bottom-left-diagonal">
 			<span class="mr-xs icon-grid icon-grid-xs"><i class="fas fa-program2"></i></span>
 			<div class="label-value-container">
-				<p class="text-600 miniature-styles text-nowrap">Action</p>
+				<p class="text-600 miniature-styles text-nowrap">{{.PTypText}}</p>
 			</div>
 		</div>
 	</div>
@@ -94,11 +94,13 @@ func (p PanelAction) PanelHtml(withContainer bool) string {
 	pass := struct {
 		Title    string
 		Id       string
+		PTypText string
 		ThumbImg string
 		State    int
 	}{
 		Title:    p.title,
 		Id:       p.idStr,
+		PTypText: T("Action"),
 		ThumbImg: p.thumbImg,
 		State:    0,
 	}
@@ -134,6 +136,7 @@ func (p PanelAction) DoAction(actionName string, parameters map[string]string) (
 		initVariables["ActionPanel.Title"] = p.title
 		initVariables["ActionPanel.Id"] = p.idStr
 		initVariables["ActionPanel.DeviceType"] = p.deviceType
+		GlowdashConsole.Write(T("Run action \"{{title}}\"", map[string]any{"title": p.title}))
 		ExecuteCommands(p.Commands, initVariables, &(p.RelatedPanels))
 		if len(p.RelatedPanels) > 0 {
 			stateChanged = true
@@ -154,6 +157,7 @@ func (p PanelAction) DoActionFromScheduler(actionName string) []string {
 		initVariables["ActionPanel.Title"] = p.title
 		initVariables["ActionPanel.Id"] = p.idStr
 		initVariables["ActionPanel.DeviceType"] = p.deviceType
+		GlowdashConsole.Write(T("Scheduled run action \"{{title}}\"", map[string]any{"title": p.title}))
 		ExecuteCommands(p.Commands, initVariables, &(p.RelatedPanels))
 		return p.QueryDevice()
 	}

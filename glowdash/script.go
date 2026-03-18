@@ -57,7 +57,7 @@ func (p PanelScript) PanelHtml(withContainer bool) string {
 		<div class="label label-s no-radius-bottom-left-diagonal">
 			<span class="mr-xs icon-grid icon-grid-xs"><i class="fas fa-microchip"></i></span>
 			<div class="label-value-container">
-				<p class="text-600 miniature-styles text-nowrap">Device</p>
+				<p class="text-600 miniature-styles text-nowrap">{{.PTypText}}</p>
 			</div>
 		</div>
 	</div>
@@ -74,7 +74,7 @@ func (p PanelScript) PanelHtml(withContainer bool) string {
 			</div>
 			{{if .NoValidInfo}}
 			<div class="ctrlline-container mt-s">
-				<p class="text-600 title text-bold body-small-styles">No information</p>
+				<p class="text-600 title text-bold body-small-styles">{{.NoInfoText}}</p>
 			</div>
 			{{end}}
 			{{if .HasPowerInfo}}
@@ -103,21 +103,25 @@ func (p PanelScript) PanelHtml(withContainer bool) string {
 	pass := struct {
 		Title        string
 		Id           string
+		PTypText     string
 		ThumbImg     string
 		State        int
 		IpAddress    string
 		HasPowerInfo bool
 		HasValidInfo bool
 		NoValidInfo  bool
+		NoInfoText   string
 	}{
 		Title:        p.title,
 		Id:           p.idStr,
+		PTypText:     T("Device"),
 		ThumbImg:     p.thumbImg,
 		State:        p.state,
 		IpAddress:    p.deviceIp,
 		HasPowerInfo: p.hasPoweInfo,
 		HasValidInfo: p.hasValidInfo,
 		NoValidInfo:  !p.hasValidInfo,
+		NoInfoText:   T("No information"),
 	}
 
 	buffer := bytes.Buffer{}
@@ -150,9 +154,12 @@ func (p PanelScript) DoAction(actionName string, parameters map[string]string) (
 			if p.state == 1 {
 				actstr = "Stop"
 			}
+			GlowdashConsole.Write(T("Set Shelly script \"{{title}}\" state to &lt;{{state}}&gt;",
+				map[string]any{"title": p.title, "state": T(actstr)}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Script.%s?id=%d", p.deviceIp, actstr, p.inDeviceId)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {
+				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 				p.InvalidateInfo()
 			}
 			stateChanged = true
@@ -169,18 +176,24 @@ func (p PanelScript) DoAction(actionName string, parameters map[string]string) (
 func (p PanelScript) DoActionFromScheduler(actionName string) []string {
 	if p.deviceType == "Shelly" && p.deviceIp != "" && p.scriptName != "" && p.inDeviceId > -1 {
 		if actionName == "start" {
+			GlowdashConsole.Write(T("Scheduled set Shelly script \"{{title}}\" state to &lt;{{state}}&gt;",
+				map[string]any{"title": p.title, "state": T("Start")}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Script.Start?id=%d", p.deviceIp, p.inDeviceId)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {
+				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 				p.InvalidateInfo()
 			}
 			time.Sleep(time.Millisecond * 500)
 			return p.QueryDevice()
 		}
 		if actionName == "stop" {
+			GlowdashConsole.Write(T("Scheduled set Shelly script \"{{title}}\" state to &lt;{{state}}&gt;",
+				map[string]any{"title": p.title, "state": T("Stop")}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Script.Stop?id=%d", p.deviceIp, p.inDeviceId)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {
+				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 				p.InvalidateInfo()
 			}
 			time.Sleep(time.Millisecond * 500)

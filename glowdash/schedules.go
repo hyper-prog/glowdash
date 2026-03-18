@@ -41,7 +41,8 @@ type Schedule struct {
 	actionParam string
 }
 
-var days_oneletter = map[int]string{
+var Days_oneletter_concatenated = "MTWTFSS"
+var Days_oneletter = map[int]string{
 	0: "M",
 	1: "T",
 	2: "W",
@@ -51,7 +52,8 @@ var days_oneletter = map[int]string{
 	6: "S",
 }
 
-var days_short = map[int]string{
+var Days_short_concatenated = "Mon,Tue,Wed,Thu,Fri,Sat,Sun"
+var Days_short = map[int]string{
 	0: "Mon",
 	1: "Tue",
 	2: "Wed",

@@ -93,8 +93,9 @@ type PageTypes int
 const (
 	Settings     PageTypes = 0
 	ScheduleEdit PageTypes = 1
-	SensorStats  PageTypes = 2
-	SensorGraph  PageTypes = 3
+	Console      PageTypes = 2
+	SensorStats  PageTypes = 3
+	SensorGraph  PageTypes = 4
 	UnknownPage  PageTypes = 99
 )
 
@@ -126,13 +127,16 @@ type PageInterface interface {
 }
 
 var DashboardTitle string = "GlowDash"
+var GlowdashVersion string = "1.0.1"
+var LanguageCode string = ""
 var DebugLevel = 0
 var configFileName string = ""
 var ReadWindInfo bool = false
 var WindInfoPollInterval int64 = 3600
 var LastWindInfo WindInfo
-var StaticFilesDirectory string
+var StaticFilesDirectory string = "static"
 var UserFilesDirectory string
+var LanguageFilesDirectory string = "lang"
 var StateConfigDirectory string
 var WebServerPort string
 var WebUseSSE int = 0
@@ -142,11 +146,13 @@ var CommSSEHost string = ""
 var CommSSEPort int = 8085
 var BackgroudDevQueryNetDialerTimeout time.Duration = time.Duration(1200) * time.Millisecond
 var BackgroudDevQueryNetKeepaliveTimeout time.Duration = time.Duration(1200) * time.Millisecond
-var AssetVer string = "115"
+var AssetVer string = "116"
+var MaxLogLines int = 128
 
 var Panels []PanelInterface
 var Pages []PageInterface
 var ProgramLibrary map[string]string = map[string]string{}
+var TranslationMap map[string]string = map[string]string{}
 
 func readConfig(yamlfile string) bool {
 	Panels = []PanelInterface{}
@@ -168,6 +174,9 @@ func readConfig(yamlfile string) bool {
 		WebServerPort = "80"
 	}
 
+	DebugLevel = configYAML.GetIntegerByPathWithDefault("/GlowDash/DebugLevel", 0)
+	LanguageCode = configYAML.GetStringByPathWithDefault("/GlowDash/LanguageCode", "")
+	MaxLogLines = int(configYAML.GetIntegerByPathWithDefault("/GlowDash/MaxLogLines", 128))
 	WebUseSSE = int(configYAML.GetIntegerByPathWithDefault("/GlowDash/WebUseSSE", 0))
 	WebSSEPort = int(configYAML.GetIntegerByPathWithDefault("/GlowDash/WebSSEPort", 8080))
 	CommUseSSE = int(configYAML.GetIntegerByPathWithDefault("/GlowDash/CommUseSSE", 0))
@@ -175,9 +184,9 @@ func readConfig(yamlfile string) bool {
 	CommSSEPort = int(configYAML.GetIntegerByPathWithDefault("/GlowDash/CommSSEPort", 8085))
 	WindInfoPollInterval = int64(configYAML.GetIntegerByPathWithDefault("/GlowDash/WindInfoPollInterval", 3600))
 	DashboardTitle = configYAML.GetStringByPathWithDefault("/GlowDash/DashboardTitle", "GlowDash")
-	DebugLevel = configYAML.GetIntegerByPathWithDefault("/GlowDash/DebugLevel", 0)
-	StaticFilesDirectory = configYAML.GetStringByPathWithDefault("/GlowDash/StaticDirectory", "")
+	StaticFilesDirectory = configYAML.GetStringByPathWithDefault("/GlowDash/StaticDirectory", "static")
 	UserFilesDirectory = configYAML.GetStringByPathWithDefault("/GlowDash/UserDirectory", "")
+	LanguageFilesDirectory = configYAML.GetStringByPathWithDefault("/GlowDash/LanguagesDirectory", "lang")
 	StateConfigDirectory = configYAML.GetStringByPathWithDefault("/GlowDash/StateConfigDirectory", ".")
 	ReadWindInfo, _ = configYAML.GetBoolByPath("/GlowDash/ReadWindInfo")
 	WeatherSource.Provider = configYAML.GetStringByPathWithDefault("/GlowDash/WeatherSource/Provider", "")
@@ -194,6 +203,11 @@ func readConfig(yamlfile string) bool {
 	if !strings.HasSuffix(UserFilesDirectory, "/") {
 		UserFilesDirectory += "/"
 	}
+
+	if LanguageCode != "" {
+		LoadLanguageFile(LanguageFilesDirectory + "/" + LanguageCode + ".json")
+	}
+	PostAction_LanguageLoaded()
 
 	if configYAML.NodeExists("/GlowDash/CommandLibrary") {
 		librarydefs, _ := configYAML.GetArrayByPath("/GlowDash/CommandLibrary")
@@ -272,6 +286,9 @@ func readConfig(yamlfile string) bool {
 
 		if typ == "ScheduleEdit" {
 			p = NewPageScheduleEdit()
+		}
+		if typ == "Console" {
+			p = NewPageConsole()
 		}
 		if typ == "SensorStats" {
 			p = NewPageSensorStats()
@@ -535,6 +552,17 @@ func schedulerRunner() {
 	}
 }
 
+func runGlowdashStart() {
+	code, ok := ProgramLibrary["GlowdashStart"]
+	if ok {
+		relatedPanels := []string{}
+		ExecuteCommands(code, map[string]string{}, &relatedPanels)
+		if DebugLevel > 3 {
+			fmt.Printf("GlowdashStart program executed\n")
+		}
+	}
+}
+
 func main() {
 
 	if len(os.Args) < 2 {
@@ -545,6 +573,8 @@ func main() {
 	configFileName = os.Args[1]
 	StaticFilesDirectory = ""
 	readConfig(configFileName)
+	GlowdashConsole.Init()
+	GlowdashConsole.Write(T("Glowdash started, version: {{version}}", map[string]any{"version": GlowdashVersion}))
 
 	LastWindInfo.RequestTime = time.Date(2000, 1, 1, 8, 00, 00, 100, time.Local)
 	mime.AddExtensionType(".css", "text/css")
@@ -555,6 +585,8 @@ func main() {
 	if DebugLevel > 0 {
 		fmt.Printf("Start server\n")
 	}
+
+	runGlowdashStart()
 	go gracefulShutdown()
 	go schedulerRunner()
 	err := http.ListenAndServe(":"+WebServerPort, &myrouter)

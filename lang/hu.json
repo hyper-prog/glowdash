@@ -39,12 +39,12 @@
   "Name": "Név",
   "Time": "Idő",
   "Last read": "Utolsó olvasás",
-  "Last read success": "Utolsó olvasás sikeres",
+  "Last read succ": "Ut. olv. sik.",
   "Temp": "Hőfok",
   "Hum": "Pára",
-  "Succ Read": "Sikeres olvasás",
+  "Succ Read": "Sikeres olv.",
   "Crc Error": "CRC hiba",
-  "Nonsense data": "Értelmetlen adat",
+  "Nonsense data": "Rossz adat",
   "Num": "Szám",
   "Date/Time": "Dátum/Idő",
   "Duration": "Időtartam",
@@ -112,5 +112,5 @@
   "Until 1 day ago": "1 nappal ezelőttig",
   "Until 2 days ago": "2 nappal ezelőttig",
   "Until 3 days ago": "3 nappal ezelőttig",
-  "%ds ago": "%d másodperce"
+  "%ds ago": "%d mp"
   }

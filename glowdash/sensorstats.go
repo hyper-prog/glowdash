@@ -66,7 +66,7 @@ func (p PageSensorStats) PageHtml_smtherm() string {
 	html := "<table border=\"1\" class=\"stattable\">"
 	html += "<tr><th>" + T("Name") +
 		"</th> <th>" + T("Last read") +
-		"</th> <th>" + T("Last read success") +
+		"</th> <th>" + T("Last read succ") +
 		"</th> <th>" + T("Temp") +
 		"</th> <th>" + T("Hum") +
 		"</th> <th>" + T("Succ Read") +

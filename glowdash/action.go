@@ -136,7 +136,7 @@ func (p PanelAction) DoAction(actionName string, parameters map[string]string) (
 		initVariables["ActionPanel.Title"] = p.title
 		initVariables["ActionPanel.Id"] = p.idStr
 		initVariables["ActionPanel.DeviceType"] = p.deviceType
-		GlowdashConsole.Write(T("Run action \"{{title}}\"", map[string]any{"title": p.title}))
+		GlowdashConsole.Write(T("Run action \"{{title}}\"", map[string]any{"title": p.eventtitle}))
 		ExecuteCommands(p.Commands, initVariables, &(p.RelatedPanels))
 		if len(p.RelatedPanels) > 0 {
 			stateChanged = true
@@ -157,7 +157,7 @@ func (p PanelAction) DoActionFromScheduler(actionName string) []string {
 		initVariables["ActionPanel.Title"] = p.title
 		initVariables["ActionPanel.Id"] = p.idStr
 		initVariables["ActionPanel.DeviceType"] = p.deviceType
-		GlowdashConsole.Write(T("Scheduled run action \"{{title}}\"", map[string]any{"title": p.title}))
+		GlowdashConsole.Write(T("Scheduled run action \"{{title}}\"", map[string]any{"title": p.eventtitle}))
 		ExecuteCommands(p.Commands, initVariables, &(p.RelatedPanels))
 		return p.QueryDevice()
 	}

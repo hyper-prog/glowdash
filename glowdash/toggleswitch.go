@@ -217,7 +217,7 @@ func (p *PanelToggleSwitch) DoAction(actionName string, parameters map[string]st
 			initVariables["ToggleSwitchPanel.ActionName"] = actionName
 			initVariables["RequiredStateText"] = initVariables["Panel.TextualOppositeState"]
 			GlowdashConsole.Write(T("Set toggle switch \"{{title}}\" by custom code \"{{code}}\" to &lt;{{state}}&gt;",
-				map[string]any{"title": p.title, "code": p.customsetcode, "state": T(initVariables["RequiredStateText"])}))
+				map[string]any{"title": p.eventtitle, "code": p.customsetcode, "state": T(initVariables["RequiredStateText"])}))
 			results := ExecuteCommands(code, initVariables, &relatedPanels)
 			if DebugLevel >= 2 {
 				fmt.Printf("Custom set code \"%s\" executed for panel %s, result: %s\n", p.customsetcode, p.title, results["Return"])
@@ -248,7 +248,7 @@ func (p *PanelToggleSwitch) DoAction(actionName string, parameters map[string]st
 				tostr = "false"
 			}
 			GlowdashConsole.Write(T("Set Shelly toggle switch \"{{title}}\" to &lt;{{state}}&gt;",
-				map[string]any{"title": p.title, "state": T(tostr)}))
+				map[string]any{"title": p.eventtitle, "state": T(tostr)}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Switch.Set?id=%d&on=%s", p.deviceIp, p.inDeviceId, tostr)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {
@@ -286,7 +286,7 @@ func (p *PanelToggleSwitch) DoActionFromScheduler(actionName string) []string {
 				initVariables["RequiredStateText"] = "false"
 			}
 			GlowdashConsole.Write(T("Scheduled set toggle switch \"{{title}}\" by custom code \"{{code}}\" to &lt;{{state}}&gt;",
-				map[string]any{"title": p.title, "code": p.customsetcode, "state": T(initVariables["RequiredStateText"])}))
+				map[string]any{"title": p.eventtitle, "code": p.customsetcode, "state": T(initVariables["RequiredStateText"])}))
 			results := ExecuteCommands(code, initVariables, &relatedPanels)
 			if results["Return"] == "error" {
 				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
@@ -301,7 +301,7 @@ func (p *PanelToggleSwitch) DoActionFromScheduler(actionName string) []string {
 	if p.deviceType == "Shelly" && p.deviceIp != "" {
 		if actionName == "on" {
 			GlowdashConsole.Write(T("Scheduled set Shelly toggle switch \"{{title}}\" to &lt;{{sts}}&gt;",
-				map[string]any{"title": p.title, "sts": T("true")}))
+				map[string]any{"title": p.eventtitle, "sts": T("true")}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Switch.Set?id=%d&on=true", p.deviceIp, p.inDeviceId)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {
@@ -313,7 +313,7 @@ func (p *PanelToggleSwitch) DoActionFromScheduler(actionName string) []string {
 		}
 		if actionName == "off" {
 			GlowdashConsole.Write(T("Scheduled set Shelly toggle switch \"{{title}}\" to &lt;{{sts}}&gt;",
-				map[string]any{"title": p.title, "sts": T("false")}))
+				map[string]any{"title": p.eventtitle, "sts": T("false")}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Switch.Set?id=%d&on=false", p.deviceIp, p.inDeviceId)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {

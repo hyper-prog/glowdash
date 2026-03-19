@@ -155,7 +155,7 @@ func (p PanelScript) DoAction(actionName string, parameters map[string]string) (
 				actstr = "Stop"
 			}
 			GlowdashConsole.Write(T("Set Shelly script \"{{title}}\" state to &lt;{{state}}&gt;",
-				map[string]any{"title": p.title, "state": T(actstr)}))
+				map[string]any{"title": p.eventtitle, "state": T(actstr)}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Script.%s?id=%d", p.deviceIp, actstr, p.inDeviceId)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {
@@ -177,7 +177,7 @@ func (p PanelScript) DoActionFromScheduler(actionName string) []string {
 	if p.deviceType == "Shelly" && p.deviceIp != "" && p.scriptName != "" && p.inDeviceId > -1 {
 		if actionName == "start" {
 			GlowdashConsole.Write(T("Scheduled set Shelly script \"{{title}}\" state to &lt;{{state}}&gt;",
-				map[string]any{"title": p.title, "state": T("Start")}))
+				map[string]any{"title": p.eventtitle, "state": T("Start")}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Script.Start?id=%d", p.deviceIp, p.inDeviceId)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {
@@ -189,7 +189,7 @@ func (p PanelScript) DoActionFromScheduler(actionName string) []string {
 		}
 		if actionName == "stop" {
 			GlowdashConsole.Write(T("Scheduled set Shelly script \"{{title}}\" state to &lt;{{state}}&gt;",
-				map[string]any{"title": p.title, "state": T("Stop")}))
+				map[string]any{"title": p.eventtitle, "state": T("Stop")}))
 			execUrl := fmt.Sprintf("http://%s/rpc/Script.Stop?id=%d", p.deviceIp, p.inDeviceId)
 			ro := execJsonHttpQuery(execUrl)
 			if !ro.Success {

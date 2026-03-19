@@ -288,21 +288,21 @@ func (p PanelShading) DoAction(actionName string, parameters map[string]string) 
 	if p.deviceType == "Shelly" && p.deviceIp != "" {
 		if actionName == "up" {
 			GlowdashConsole.Write(T("Set shading \"{{title}}\" to &lt;{{tst}}&gt;",
-				map[string]any{"title": p.title, "tst": T("up")}))
+				map[string]any{"title": p.eventtitle, "tst": T("up")}))
 			p.DoActionCoverUp()
 			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 		if actionName == "down" {
 			GlowdashConsole.Write(T("Set shading \"{{title}}\" to &lt;{{tst}}&gt;",
-				map[string]any{"title": p.title, "tst": T("down")}))
+				map[string]any{"title": p.eventtitle, "tst": T("down")}))
 			p.DoActionCoverDown()
 			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
 		if actionName == "stop" {
 			GlowdashConsole.Write(T("Set shading \"{{title}}\" to &lt;{{tst}}&gt;",
-				map[string]any{"title": p.title, "tst": T("stop")}))
+				map[string]any{"title": p.eventtitle, "tst": T("stop")}))
 			p.DoActionCoverStop()
 			stateChanged = true
 			updatedIds = append(updatedIds, p.QueryDevice()...)
@@ -322,13 +322,13 @@ func (p PanelShading) DoActionFromScheduler(actionName string) []string {
 	if p.deviceType == "Shelly" && p.deviceIp != "" {
 		if actionName == "open" {
 			GlowdashConsole.Write(T("Scheduled set Shelly shading \"{{title}}\" to &lt;{{tst}}&gt;",
-				map[string]any{"title": p.title, "tst": T("open")}))
+				map[string]any{"title": p.eventtitle, "tst": T("open")}))
 			p.DoActionCoverUp()
 			return p.QueryDevice()
 		}
 		if actionName == "close" {
 			GlowdashConsole.Write(T("Scheduled set Shelly shading \"{{title}}\" to &lt;{{tst}}&gt;",
-				map[string]any{"title": p.title, "tst": T("close")}))
+				map[string]any{"title": p.eventtitle, "tst": T("close")}))
 			p.DoActionCoverDown()
 			return p.QueryDevice()
 		}

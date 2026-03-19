@@ -285,7 +285,7 @@ func (p PanelThermostat) DoAction(actionName string, parameters map[string]strin
 				actstr = "off"
 			}
 
-			GlowdashConsole.Write(fmt.Sprintf("Set thermostat \"%s\" to &lt;%s&gt;", p.title, actstr))
+			GlowdashConsole.Write(fmt.Sprintf("Set thermostat \"%s\" to &lt;%s&gt;", p.eventtitle, actstr))
 			execTcpQuery(p.hwDeviceIp, p.hwDevicePort, fmt.Sprintf("cmd:stw;work:%s;", actstr))
 			stateChanged = true
 			time.Sleep(time.Millisecond * 500)
@@ -295,7 +295,7 @@ func (p PanelThermostat) DoAction(actionName string, parameters map[string]strin
 		if strings.HasPrefix(actionName, "tts/") {
 			fv, err := strconv.ParseFloat(actionName[4:], 32)
 			if err == nil {
-				GlowdashConsole.Write(fmt.Sprintf("Set thermostat \"%s\" target temperature to &lt;%.1f&gt;", p.title, fv))
+				GlowdashConsole.Write(fmt.Sprintf("Set thermostat \"%s\" target temperature to &lt;%.1f&gt;", p.eventtitle, fv))
 				execTcpQuery(p.hwDeviceIp, p.hwDevicePort, fmt.Sprintf("cmd:stt;ttemp:%.1f;", fv))
 				stateChanged = true
 				time.Sleep(time.Millisecond * 500)
@@ -310,7 +310,7 @@ func (p PanelThermostat) DoActionFromScheduler(actionName string) []string {
 	if p.deviceType == "smtherm" && p.hwDeviceIp != "" {
 		f, converr := strconv.ParseFloat(actionName, 8)
 		if converr == nil {
-			GlowdashConsole.Write(fmt.Sprintf("Scheduled set thermostat \"%s\" target temperature to &lt;%.1f&gt;", p.title, f))
+			GlowdashConsole.Write(fmt.Sprintf("Scheduled set thermostat \"%s\" target temperature to &lt;%.1f&gt;", p.eventtitle, f))
 			execTcpQuery(p.hwDeviceIp, p.hwDevicePort, fmt.Sprintf("cmd:stt;ttemp:%.1f;", f))
 			time.Sleep(time.Millisecond * 500)
 			return p.QueryDevice()

@@ -40,11 +40,113 @@ GlowDash scripts are used in Action panels, worker functions in switches and the
 | [PrintVariablesConsole](#printvariablesconsole) | Print all variables to the console (standard output)|
 | [PrintVariablesGlowdashConsole](#printvariablesglowdashconsole) | Print all variables to the GlowDash console |
 | [AddOneshotSchedule](#addoneshotschedule) | Add a one-shot schedule |
+| [ModbusTcp](#modbustcp) | Read or write a Modbus TCP register or coil |
+
+
+## Runtime State Variables (state. prefix)
+
+GlowDash scripts are normally stateless: each script execution runs independently
+and local variables do not persist between events.
+However, some use cases require sharing data between different script executions during the program's runtime
+(for example, implementing virtual switches or caching intermediate values).
+
+To support this, GlowDash provides runtime state variables accessible through the state. prefix.
+
+### Overview
+
+Variables whose names start with `state.` refer to a shared, in-memory storage that:
+
+- **Is global to the running GlowDash instance**
+- **Is accessible from all scripts**
+- **Persists between script executions**
+- **Exists only during program runtime (not saved to disk)**
+- **Is cleared when GlowDash restarts**
+
+This allows scripts triggered by different events to exchange data safely without introducing persistent storage.
+
+### Reading and Writing State Variables
+
+State variables are used in the same way as normal variables, but with the state. prefix.
+
+```glowdash
+Set state.myflag true
+
+If state.myflag booleq true
+    ...
+EndIf
+```
+### Add initial values to `state.` variables
+
+At the Glowdash start the `GlowdashStart` library function is automatically started.
+You can set `state.` variables there.
+
+### Intended Use Cases
+
+Runtime state variables are useful for:
+
+- Virtual devices (e.g., software switches)
+- Event coordination between scripts
+- Temporary flags or counters
+- Simple in-memory caching
+- Remembering values between triggers
+
+They are not intended for permanent storage.
+For persistent configuration or long-term data, external storage mechanisms should be used.
+
 
 ## Operators for Expressions
 
+Expressions are used in `If` and `While` conditions. There are two forms:
+- **1-operand expression:** `<operator> <operand>` — operator comes first, followed by a single value or variable.
+- **2-operand expression:** `<operand1> <operator> <operand2>` — value or variable on both sides of the operator.
+
+Single-value (no operator) expressions are also accepted: a variable or literal is evaluated as boolean on its own.
+
+> **Note:** Parentheses and logical chaining (e.g., `and`, `or`) are not supported.
+
+> **Note:** In all commands where an argument is requested, you can use variable substitution with `{{variablename}}`. For example, `If {{color}} eq black`.
+
+### 1-Operand Operators
+
+Syntax: `<operator> <value>`
+
+| Operator     | Meaning |
+|--------------|---------|
+| not          | Negates the boolean value of `<value>` |
+| isEmpty      | True if `<value>` is empty or whitespace-only |
+| isNotEmpty   | True if `<value>` is not empty |
+| isDefined    | True if the variable named `<value>` is defined |
+| isNotDefined | True if the variable named `<value>` is not defined |
+
+**Samples:**
+```glowdash
+If isEmpty {{myvar}}
+    PrintGlowdashConsole myvar is empty
+EndIf
+
+If isNotEmpty {{myvar}}
+    PrintGlowdashConsole myvar has a value
+EndIf
+
+If isDefined state.myflag
+    PrintGlowdashConsole state.myflag is defined
+EndIf
+
+If isNotDefined myvar
+    Set myvar defaultvalue
+EndIf
+
+If not {{myflag}}
+    PrintConsole myflag is falsy
+EndIf
+```
+
+### 2-Operand Operators
+
+Syntax: `<value1> <operator> <value2>`
+
 | Operator | Meaning |
-|----------|--------|
+|----------|---------|
 | ==       | Numerically equal |
 | !=       | Numerically not equal |
 | <        | Numerically less |
@@ -57,16 +159,12 @@ GlowDash scripts are used in Action panels, worker functions in switches and the
 | nin      | String is not in a comma-separated list |
 | booleq   | Compare as boolean |
 
-> **Note:** Expressions in `If` and `While` only support two operands and a single operator. Parentheses and logical chaining (e.g., `and`, `or`) are not supported.
-
-> **Note:** In all commands where an argument is requested, you can use variable substitution with `{{variablename}}`. For example, `If {{color}} eq black`.
-
 ## Command Details (Unified)
 
 ### If
 - **Syntax:** `If <expression>`
 - **Parameters:**
-  - `<expression>`: Logical condition using variables and operators. Only two operands and one operator are supported. Brackets and logical chaining are not allowed.
+  - `<expression>`: Logical condition. Supports 1-operand (`<operator> <value>`), 2-operand (`<value> <operator> <value>`), or single-value boolean forms. Brackets and logical chaining are not allowed.
 - **Description:** Starts a conditional block. If the expression is true, executes the following lines until `Else` or `EndIf`.
 - **Sample:**
 ```glowdash
@@ -79,12 +177,20 @@ EndIf
 If {{color}} eq black
     PrintConsole The color is black
 EndIf
+
+If isEmpty {{myvar}}
+    Set myvar default
+EndIf
+
+If isDefined state.myflag
+    PrintConsole flag is set
+EndIf
 ```
 
 ### While
 - **Syntax:** `While <expression>`
 - **Parameters:**
-  - `<expression>`: Logical condition using variables and operators. Only two operands and one operator are supported. Brackets and logical chaining are not allowed.
+  - `<expression>`: Logical condition. Supports 1-operand (`<operator> <value>`), 2-operand (`<value> <operator> <value>`), or single-value boolean forms. Brackets and logical chaining are not allowed.
 - **Description:** Starts a loop. Executes the following lines while the expression is true, until `EndWhile`.
 - **Sample:**
 ```glowdash
@@ -478,7 +584,42 @@ AddOneshotSchedule tswid001 off {{swofftime}}
 AddOneshotSchedule ac004 run 19:15
 ```
 
-## Predefined Variables
+### ModbusTcp
+- **Syntax:** `ModbusTcp <variable> <host:port> <unitId> <operation> <address>`
+- **Parameters:**
+  - `<variable>`: For read operations: variable name to store the result. For write operations: variable or literal value to write.
+  - `<host:port>`: IP address and port of the Modbus TCP device (e.g., `192.168.1.50:502`).
+  - `<unitId>`: Modbus unit ID (slave address), typically `1`.
+  - `<operation>`: One of `readcoil`, `readinput`, `readregister`, `writecoil`, `writeregister`.
+  - `<address>`: Register or coil address (decimal).
+- **Description:** Communicates with a Modbus TCP device. After execution, `LastModbusTcpCallSuccess` is set to `true` if the operation succeeded, or `false` if it failed.
+
+| Operation       | Description                                              | Result stored in variable |
+|-----------------|----------------------------------------------------------|---------------------------|
+| `readcoil`      | Read a single coil (FC 0x01), result is `true`/`false`  | yes |
+| `readinput`     | Read a single input register (FC 0x04), result is decimal integer | yes |
+| `writecoil`     | Write a single coil (FC 0x05), value from `<variable>`  | no |
+
+- **Sample:**
+```glowdash
+// Read a coil at address 5 from device at 192.168.1.50, unit 1
+ModbusTcp coilstate 192.168.1.50:502 1 readcoil 5
+If not {{LastModbusTcpCallSuccess}}
+    PrintGlowdashConsole Modbus read failed
+EndIf
+PrintGlowdashConsole Coil state: {{coilstate}}
+Return {{coilstate}}
+
+// Read input register at address 200
+ModbusTcp sensorval 192.168.1.50:502 1 readinput 200
+PrintConsole Sensor value: {{sensorval}}
+
+// Write a coil at address 3 with value from variable
+Set relaystate true
+ModbusTcp {{relaystate}} 192.168.1.50:502 1 writecoil 3
+```
+
+## Predefined variables
 
 When a script starts, several variables related to the current date and time are automatically set and available for use. These are:
 

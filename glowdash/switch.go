@@ -374,14 +374,14 @@ func (p *PanelSwitch) RefreshHwStatesInRequiredPanelsSwitch(State int, InputStat
 		if Panels[i].PanelType() == Switch {
 			ps1, ok1 := Panels[i].(*PanelSwitch)
 			if ok1 {
-				rId := ps1.RefreshHwStateIfMatchSwitch(p.panelType, p.deviceIp, p.inDeviceId, "", State, InputState, PowMet, Watt, Volt)
+				rId := ps1.RefreshHwStateIfMatchSwitch(p.panelType, p.deviceIp, p.inDeviceId, "", State, InputState, PowMet, Watt, Volt, p.idStr)
 				if rId != "" {
 					updatedIds = append(updatedIds, rId)
 				}
 			}
 			ps2, ok2 := Panels[i].(*PanelToggleSwitch)
 			if ok2 {
-				rId := ps2.RefreshHwStateIfMatchSwitch(p.panelType, p.deviceIp, p.inDeviceId, "", State, InputState, PowMet, Watt, Volt)
+				rId := ps2.RefreshHwStateIfMatchSwitch(p.panelType, p.deviceIp, p.inDeviceId, "", State, InputState, PowMet, Watt, Volt, p.idStr)
 				if rId != "" {
 					updatedIds = append(updatedIds, rId)
 				}
@@ -391,8 +391,13 @@ func (p *PanelSwitch) RefreshHwStatesInRequiredPanelsSwitch(State int, InputStat
 	return updatedIds
 }
 
-func (p *PanelSwitch) RefreshHwStateIfMatchSwitch(fromPanelType PanelTypes, fromDeviceIp string, fromInDeviceId int, fromScriptName string, State int, InputState int, PowMet bool, Watt float64, Volt float64) string {
+func (p *PanelSwitch) RefreshHwStateIfMatchSwitch(fromPanelType PanelTypes, fromDeviceIp string, fromInDeviceId int,
+	fromScriptName string, State int, InputState int,
+	PowMet bool, Watt float64, Volt float64, pId string) string {
 	if p.panelType == fromPanelType && p.deviceIp == fromDeviceIp && p.inDeviceId == fromInDeviceId {
+		if p.deviceIp == "" && pId != p.idStr {
+			return "" // (Probably) independent device without hw info.
+		}
 		p.state = State
 		p.inputState = InputState
 		p.hasValidInfo = true

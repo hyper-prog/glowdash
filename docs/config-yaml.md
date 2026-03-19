@@ -32,7 +32,7 @@ All configuration options are nested under the `GlowDash` key.
 | WeatherSource           | object  |             | Weather provider settings (see below). |
 | DebugLevel              | int     | 0           | Debug verbosity: 0 (silent), 1, 2, 3, 4... |
 | StaticDirectory         | string  | "static"    | Directory for static files (js, css, images). |
-| UserDirectory           | string  | ""          | Directory for user images. |
+| UserDirectory           | string  | "userstuff" | Directory for user images. |
 | LanguagesDirectory      | string  | "lang"      | Directory of language files |
 | StateConfigDirectory    | string  | "."         | Directory where scheduled tasks are saved. |
 | WebUseSSE               | int     | 0           | 0: disabled, 1: browsers connect to SSE server. |

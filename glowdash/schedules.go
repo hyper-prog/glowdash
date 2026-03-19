@@ -63,6 +63,14 @@ var Days_short = map[int]string{
 	6: "Sun",
 }
 
+var requiredClientTranslationTexts = []string{
+	"Switch On",
+	"Switch Off",
+	"Run",
+	"Open",
+	"Close",
+}
+
 var subActionDisplayText = map[string]string{
 	"on":    "Switch On",
 	"off":   "Switch Off",
@@ -227,7 +235,7 @@ func CheckSchedules() {
 					if schedules[i].oneshot {
 						removeScheduleInLock(i)
 					} else {
-						schedules[i].lastrun = fmt.Sprintf("%d-%d-%d %d:%d", current_time.Year(), current_time.Month(), current_time.Day(),
+						schedules[i].lastrun = fmt.Sprintf("%d-%02d-%02d %02d:%02d", current_time.Year(), current_time.Month(), current_time.Day(),
 							current_time.Hour(), current_time.Minute())
 					}
 				}

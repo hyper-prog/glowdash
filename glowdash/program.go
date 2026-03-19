@@ -208,6 +208,11 @@ func ExecuteCommands(program string, contextVariables map[string]string, related
 			ip++
 			continue
 		}
+		if strings.HasPrefix(cmd, "ModbusTcp ") {
+			Command_ModbusTcp(&ctx, cmd[10:])
+			ip++
+			continue
+		}
 		if cmd == "PrintVariablesConsole" {
 			Command_PrintVariablesConsole(ctx)
 			ip++
@@ -269,6 +274,73 @@ func ResolveVariables(ctx RunContext, str string) string {
 
 func EvalExpressionBool(ctx RunContext, cmdpart string) bool {
 	parts := strings.Split(cmdpart, " ")
+	if len(parts) == 3 {
+		return EvalExpressionBool2op(ctx, parts)
+	}
+	if len(parts) == 2 {
+		return EvalExpressionBool1op(ctx, parts)
+	}
+	if len(parts) == 1 {
+		return EvalExpressionBoolSv(ctx, parts)
+	}
+	return false //not correct expression
+}
+
+func EvalExpressionBoolSv(ctx RunContext, parts []string) bool {
+	v := strings.ToLower(strings.TrimSpace(ResolveVariables(ctx, parts[0])))
+	if v == "1" || v == "t" || v == "true" || v == "yes" || v == "y" || v == "on" || v == "enable" || v == "enabled" {
+		return true
+	}
+	if iv, ok := strconv.Atoi(v); ok == nil && iv > 0 {
+		return true
+	}
+	return false
+}
+
+func EvalExpressionBool1op(ctx RunContext, parts []string) bool {
+	if len(parts) != 2 {
+		return false //not correct expression
+	}
+	op := strings.TrimSpace(parts[0])
+	if op == "not" {
+		return !EvalExpressionBoolSv(ctx, []string{parts[1]})
+	}
+	if op == "isEmpty" {
+		return strings.TrimSpace(ResolveVariables(ctx, parts[1])) == ""
+	}
+	if op == "isNotEmpty" {
+		return strings.TrimSpace(ResolveVariables(ctx, parts[1])) != ""
+	}
+	if op == "isDefined" {
+		vname := strings.TrimSpace(parts[1])
+		if strings.HasPrefix(vname, "state.") {
+			if _, ok := GlowdashStateVariables[vname[6:]]; ok {
+				return true
+			}
+			return false
+		}
+		if _, ok := ctx.variables[vname]; ok {
+			return true
+		}
+		return false
+	}
+	if op == "isNotDefined" {
+		vname := strings.TrimSpace(parts[1])
+		if strings.HasPrefix(vname, "state.") {
+			if _, ok := GlowdashStateVariables[vname[6:]]; !ok {
+				return true
+			}
+			return false
+		}
+		if _, ok := ctx.variables[vname]; !ok {
+			return true
+		}
+		return false
+	}
+	return false
+}
+
+func EvalExpressionBool2op(ctx RunContext, parts []string) bool {
 	if len(parts) != 3 {
 		return false //not correct expression
 	}
@@ -571,6 +643,9 @@ func Command_WaitMs(ctx *RunContext, cmdpart string) {
 
 func Command_Set(ctx *RunContext, cmdpart string) {
 	parts := strings.SplitN(cmdpart, " ", 2)
+	if len(parts) == 1 {
+		SetVariable(ctx, parts[0], "")
+	}
 	if len(parts) == 2 {
 		SetVariable(ctx, parts[0], ResolveVariables(*ctx, parts[1]))
 	}
@@ -705,6 +780,89 @@ func Command_CallHttpStoreJson(ctx *RunContext, cmdpart string) {
 			ctx.variables["LastHttpCallSuccess"] = "false"
 		}
 	}
+}
+
+/* Handler of following commands:
+ModbusTcp <variable> host:port unitId readcoil address
+ModbusTcp <variable> host:port unitId readinput address
+ModbusTcp value host:port unitId writecoil address
+*/
+func Command_ModbusTcp(ctx *RunContext, cmdpart string) {
+	parts := strings.Split(cmdpart, " ")
+	if len(parts) != 5 {
+		ctx.variables["LastModbusTcpCallSuccess"] = "false"
+		return
+	}
+	addressParts := strings.Split(strings.TrimSpace(parts[1]), ":")
+	if len(addressParts) != 2 {
+		ctx.variables["LastModbusTcpCallSuccess"] = "false"
+		return
+	}
+	unitId, err := strconv.Atoi(parts[2])
+	if err != nil {
+		ctx.variables["LastModbusTcpCallSuccess"] = "false"
+		return
+	}
+	modbusAddress, err := strconv.Atoi(parts[4])
+	if err != nil {
+		ctx.variables["LastModbusTcpCallSuccess"] = "false"
+		return
+	}
+
+	modbulsClient, err := Dial(addressParts[0], addressParts[1], byte(unitId), 5*time.Second)
+	if err != nil {
+		ctx.variables["LastModbusTcpCallSuccess"] = "false"
+		if DebugLevel > 0 {
+			fmt.Println("ModbusTCP Error - connecting to Modbus TCP server: ", err)
+		}
+		return
+	}
+	defer modbulsClient.Close()
+
+	if parts[3] == "readcoil" {
+		value, err := modbulsClient.ReadSingleCoil(uint16(modbusAddress))
+		if err != nil {
+			ctx.variables["LastModbusTcpCallSuccess"] = "false"
+			if DebugLevel > 0 {
+				fmt.Println("ModbusTCP Error - reading coil: ", err)
+			}
+			return
+		}
+		ctx.variables[parts[0]] = fmt.Sprintf("%t", value)
+		ctx.variables["LastModbusTcpCallSuccess"] = "true"
+		return
+	}
+	if parts[3] == "readinput" {
+		value, err := modbulsClient.ReadInputRegister(uint16(modbusAddress))
+		if err != nil {
+			ctx.variables["LastModbusTcpCallSuccess"] = "false"
+			if DebugLevel > 0 {
+				fmt.Println("ModbusTCP Error - reading input register: ", err)
+			}
+			return
+		}
+		ctx.variables[parts[0]] = fmt.Sprintf("%d", value)
+		ctx.variables["LastModbusTcpCallSuccess"] = "true"
+		return
+	}
+	if parts[3] == "writecoil" {
+		value := false
+		v := strings.ToLower(strings.TrimSpace(ResolveVariables(*ctx, parts[0])))
+		if v == "1" || v == "t" || v == "true" || v == "yes" || v == "y" || v == "on" || v == "enable" || v == "enabled" {
+			value = true
+		}
+		err := modbulsClient.WriteSingleCoil(uint16(modbusAddress), value)
+		if err != nil {
+			ctx.variables["LastModbusTcpCallSuccess"] = "false"
+			if DebugLevel > 0 {
+				fmt.Println("ModbusTCP Error - writing coil: ", err)
+			}
+			return
+		}
+		ctx.variables["LastModbusTcpCallSuccess"] = "true"
+		return
+	}
+	ctx.variables["LastModbusTcpCallSuccess"] = "false"
 }
 
 func AddBaseVariables(ctx *RunContext) {

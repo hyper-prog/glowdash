@@ -165,6 +165,12 @@ func ProcessScheduleForm(r *http.Request) string {
 
 func (p PageScheduleEdit) PageHtml(withContainer bool, r *http.Request) string {
 	html := ""
+	html += "<script>window.TRANSLATIONS = {"
+	for _, text := range requiredClientTranslationTexts {
+		html += fmt.Sprintf("\"%s\": \"%s\",", text, T(text))
+	}
+	html += "};</script>"
+
 	formmode := ProcessScheduleForm(r)
 	html += "<div class=\"schedule-edit-page\">"
 	html += "<h3>" + p.title + "</h3>"

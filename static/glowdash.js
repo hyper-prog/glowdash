@@ -467,28 +467,32 @@ function initClockPickerBlocks() {
     }
 }
 
+function t(key) {
+  return window.TRANSLATIONS[key] || key;
+}
+
 function fillActionSubselect(main_select_value,subselect_id) {
     if(main_select_value.substr(0,7) == "switch:") {
         document.getElementById(subselect_id).innerHTML =
-            '<option value="on">Switch On</option>'+
-            '<option value="off">Switch Off</option>';
+            '<option value="on">' + t("Switch On") + '</option>'+
+            '<option value="off">' + t("Switch Off") + '</option>';
     }
     if(main_select_value.substr(0,7) == "action:") {
         document.getElementById(subselect_id).innerHTML =
-            '<option value="run">Run</option>';
+            '<option value="run">' + t("Run") + '</option>';
     }
     if(main_select_value.substr(0,8) == "shading:") {
         document.getElementById(subselect_id).innerHTML =
-            '<option value="open">Open</option>'+
-            '<option value="close">Close</option>';
+            '<option value="open">' + t("Open") + '</option>'+
+            '<option value="close">' + t("Close") + '</option>';
     }
     if(main_select_value.substr(0,7) == "script:") {
         document.getElementById(subselect_id).innerHTML =
-            '<option value="start">Start</option>'+
-            '<option value="stop">Stop</option>';
+            '<option value="start">' + t("Start") + '</option>'+
+            '<option value="stop">' + t("Stop") + '</option>';
     }
     if(main_select_value.substr(0,6) == "therm:") {
-        let str;
+        let str = "";
         for(t=5.0;t<=30;t+=0.5) {
             str += "<option value=\"" + t.toString() + "\">" + t.toString() + "</option>";
         }

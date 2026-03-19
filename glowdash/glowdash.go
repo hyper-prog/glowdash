@@ -127,7 +127,7 @@ type PageInterface interface {
 }
 
 var DashboardTitle string = "GlowDash"
-var GlowdashVersion string = "1.0.1"
+var GlowdashVersion string = "1.0.2"
 var LanguageCode string = ""
 var DebugLevel = 0
 var configFileName string = ""
@@ -135,9 +135,9 @@ var ReadWindInfo bool = false
 var WindInfoPollInterval int64 = 3600
 var LastWindInfo WindInfo
 var StaticFilesDirectory string = "static"
-var UserFilesDirectory string
+var UserFilesDirectory string = "userstuff"
 var LanguageFilesDirectory string = "lang"
-var StateConfigDirectory string
+var StateConfigDirectory string = "."
 var WebServerPort string
 var WebUseSSE int = 0
 var WebSSEPort int = 8080
@@ -146,7 +146,7 @@ var CommSSEHost string = ""
 var CommSSEPort int = 8085
 var BackgroudDevQueryNetDialerTimeout time.Duration = time.Duration(1200) * time.Millisecond
 var BackgroudDevQueryNetKeepaliveTimeout time.Duration = time.Duration(1200) * time.Millisecond
-var AssetVer string = "116"
+var AssetVer string = "117"
 var MaxLogLines int = 128
 
 var Panels []PanelInterface
@@ -185,7 +185,7 @@ func readConfig(yamlfile string) bool {
 	WindInfoPollInterval = int64(configYAML.GetIntegerByPathWithDefault("/GlowDash/WindInfoPollInterval", 3600))
 	DashboardTitle = configYAML.GetStringByPathWithDefault("/GlowDash/DashboardTitle", "GlowDash")
 	StaticFilesDirectory = configYAML.GetStringByPathWithDefault("/GlowDash/StaticDirectory", "static")
-	UserFilesDirectory = configYAML.GetStringByPathWithDefault("/GlowDash/UserDirectory", "")
+	UserFilesDirectory = configYAML.GetStringByPathWithDefault("/GlowDash/UserDirectory", "userstuff")
 	LanguageFilesDirectory = configYAML.GetStringByPathWithDefault("/GlowDash/LanguagesDirectory", "lang")
 	StateConfigDirectory = configYAML.GetStringByPathWithDefault("/GlowDash/StateConfigDirectory", ".")
 	ReadWindInfo, _ = configYAML.GetBoolByPath("/GlowDash/ReadWindInfo")

@@ -115,7 +115,7 @@ func (p PanelThermostat) PanelHtml(withContainer bool) string {
 				{{end}}
 
 				{{if .HasValidInfo}}
-					<div class="ctrlline-container mt-s">
+					<div class="ctrlline-container mt-xxs">
 						<p class="text-600 title text-bold body-small-styles">
 							<i class="fa fa-temp"></i> {{.ReferenceTempStr}} C
 							&nbsp;&nbsp;

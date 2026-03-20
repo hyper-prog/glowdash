@@ -387,7 +387,7 @@ body {
   color: var(--color-white);
   border-radius: 0.5em;
   overflow:hidden;
-  padding: 3px;
+  padding: 0;
   font-family: var(--font-family);
   font-style: normal;
   font-weight: 600 !important;
@@ -1768,6 +1768,9 @@ body {
 }
 .ml-xxs {
   margin-left:var(--spacing-xxs)!important
+}
+.mt-z {
+  margin-top:0 !important
 }
 .mt-xs {
   margin-top:var(--spacing-xs)!important

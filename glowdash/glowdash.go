@@ -127,7 +127,7 @@ type PageInterface interface {
 }
 
 var DashboardTitle string = "GlowDash"
-var GlowdashVersion string = "1.0.4"
+var GlowdashVersion string = "1.0.5"
 var LanguageCode string = ""
 var DebugLevel = 0
 var configFileName string = ""
@@ -146,7 +146,7 @@ var CommSSEHost string = ""
 var CommSSEPort int = 8085
 var BackgroudDevQueryNetDialerTimeout time.Duration = time.Duration(1200) * time.Millisecond
 var BackgroudDevQueryNetKeepaliveTimeout time.Duration = time.Duration(1200) * time.Millisecond
-var AssetVer string = "117"
+var AssetVer string = "118"
 var MaxLogLines int = 128
 
 var Panels []PanelInterface

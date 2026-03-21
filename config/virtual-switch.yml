@@ -1,0 +1,48 @@
+GlowDash:
+  DashboardTitle: "GlowDash"       #Show in main title line (You can change to your home name)
+  ReadWindInfo: false              #If true: reads some wind informations and show in title line
+  DebugLevel: 0                    # 0 - silent, 1,2,3,4...
+  UserDirectory: "userstuff"       # Location of user images
+  StateConfigDirectory: "config"   # Location where the scheduled tasks file is saved
+  WebUseSSE: 0                     # 0: disabled, 1: Make the browsers connect to SSE server
+  CommUseSSE: 0                    # 0: disabled, 1: Enable the Glowdash notify SSE server
+  Panels:                          # You can define panels here
+    - Title: Shedule editor
+      PanelType: Launch
+      Thumbnail: schedules.png
+      LaunchTo: schedpage
+
+    - Title: Console
+      PanelType: Launch
+      Thumbnail: console.png
+      LaunchTo: conpage
+
+    - Title: Virtual switch
+      Id: v001
+      PanelType: Switch
+      Thumbnail: lamp01.jpg
+      CustomSetCode: vswset
+      CustomQueryCode: vswget
+
+  Pages:
+    - Title: Scheduled tasks
+      PageType: ScheduleEdit
+      PageName: schedpage
+
+    - Title: Console page
+      PageType: Console
+      PageName: conpage
+
+  CommandLibrary:
+    - Name: GlowdashStart
+      Code: |
+        Set state.myvirtswitch false
+
+    - Name: vswset
+      Code: |
+        Set state.myvirtswitch {{RequiredStateText}}
+        PrintGlowdashConsole virtual switch set to {{RequiredStateText}}
+
+    - Name: vswget
+      Code: |
+        Return {{state.myvirtswitch}}

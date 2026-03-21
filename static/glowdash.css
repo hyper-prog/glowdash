@@ -387,7 +387,7 @@ body {
   color: var(--color-white);
   border-radius: 0.5em;
   overflow:hidden;
-  padding: 0;
+  padding: 3px;
   font-family: var(--font-family);
   font-style: normal;
   font-weight: 600 !important;

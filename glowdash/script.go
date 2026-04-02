@@ -237,6 +237,7 @@ func (p PanelScript) ExposeVariables() map[string]string {
 	m["Panel.PowerInfo"] = "false"
 
 	m["Panel.DeviceIp"] = p.deviceIp
+	m["Panel.TcpPort"] = fmt.Sprintf("%d", p.tcpPort)
 	m["Panel.ScriptName"] = p.scriptName
 	m["Panel.InDeviceId"] = fmt.Sprintf("%d", p.inDeviceId)
 	m["Panel.State"] = fmt.Sprintf("%d", p.state)

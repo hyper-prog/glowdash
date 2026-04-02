@@ -308,6 +308,7 @@ func (p *PanelToggleSwitch) ExposeVariables() map[string]string {
 	m["Panel.PowerInfo"] = pwrinfostr
 
 	m["Panel.DeviceIp"] = p.deviceIp
+	m["Panel.TcpPort"] = fmt.Sprintf("%d", p.tcpPort)
 	m["Panel.InDeviceId"] = fmt.Sprintf("%d", p.inDeviceId)
 	m["Panel.State"] = fmt.Sprintf("%d", p.state)
 	m["Panel.InputState"] = fmt.Sprintf("%d", p.inputState)

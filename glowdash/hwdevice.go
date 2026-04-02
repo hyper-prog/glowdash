@@ -139,9 +139,13 @@ func (p *PanelHwDevBased) InitDeviceManipulator(sy smartyaml.SmartYAML, indexInC
 }
 
 func (p *PanelHwDevBased) LoadHwDevConfig(sy smartyaml.SmartYAML, indexInConfig int) {
-	if p.deviceType == "Shelly" || p.deviceType == "ModbusTCP" {
+	if p.deviceType == "Shelly" || p.deviceType == "ModbusTCP" || p.deviceType == "Custom" {
 		p.deviceIp = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/DeviceIp", indexInConfig), "")
 		p.inDeviceId = sy.GetIntegerByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/InDeviceId", indexInConfig), 0)
+
+		if p.deviceType == "Custom" {
+			p.tcpPort = sy.GetIntegerByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/TcpPort", indexInConfig), 80)
+		}
 
 		if p.deviceType == "Shelly" {
 			p.tcpPort = sy.GetIntegerByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/TcpPort", indexInConfig), 80)

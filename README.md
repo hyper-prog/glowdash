@@ -3,7 +3,7 @@
 GlowDash - The Smart Home Web Dashboard
 ============================================
 
-GlowDash is a [web-based](https://en.wikipedia.org/wiki/World_Wide_Web) dashboard to control [Shelly switches] (https://www.shelly.com/), ModbusTCP based swtiches, shading relays, scripts,
+GlowDash is a [web-based](https://en.wikipedia.org/wiki/World_Wide_Web) dashboard to control [Shelly switches](https://www.shelly.com/), ModbusTCP based swtiches, shading relays, scripts,
 and custom thermostat daemons. **It does not need any cloud access; it uses the local RPC interface** of
 the Shelly [relays](https://en.wikipedia.org/wiki/Relay) to query/set states. It was originally written to allow for more complex control
 over window shading slats than the original Shelly application can.

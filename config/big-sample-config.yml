@@ -154,7 +154,7 @@ GlowDash:
       TitleAlt: Hotwater maker (Gas heater) # Alternate title text which shows when the switch is on (optional)
       EventTitle: Hotwater maker   # Verbose title text which shows in schedule editor (default value is the title value)
       PanelType: ToggleSwitch      # Switch which controls a device with two states (For example electric-gas water heater)
-      DeviceType: Shelly
+      DeviceType: Custom           # Have to be "Custom" to use CustomQueryCode and CustomSetCode
       DeviceIp: 192.168.1.177      # Ip address of shelly relay
       InDeviceId: 0                # Internal Id in the shelly relay
       Thumbnail: boiler.png        # Thumbnail image to the panel (Image in user directory)

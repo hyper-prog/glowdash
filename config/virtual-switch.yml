@@ -19,7 +19,7 @@ GlowDash:
 
     - Title: Virtual switch
       Id: v001
-      PanelType: Switch
+      PanelType: Custom
       Thumbnail: lamp01.jpg
       CustomSetCode: vswset
       CustomQueryCode: vswget

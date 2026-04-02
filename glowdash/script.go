@@ -26,28 +26,29 @@ func NewPanelScript() *PanelScript {
 	return &PanelScript{
 		PanelHwDevBased{
 			PanelBase{
-				idStr:       "",
-				panelType:   Script,
-				title:       "",
-				eventtitle:  "",
-				subPage:     "",
-				thumbImg:    "",
-				deviceType:  "",
-				hide:        false,
-				hasPoweInfo: false,
-				index:       0,
+				idStr:        "",
+				panelType:    Script,
+				title:        "",
+				eventtitle:   "",
+				subPage:      "",
+				thumbImg:     "",
+				deviceType:   "",
+				hide:         false,
+				hasPowerInfo: false,
+				index:        0,
 			},
-			false, "", 0, 0, 0, 0.0, 0.0,
+			DeviceManipulatorInterface(nil), false, "", 0, 0, 0, 0, 0, 0.0, 0.0,
 		},
 		"",
 	}
 }
 
 func (p *PanelScript) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig int) {
+	p.LoadHwDevConfig(sy, indexInConfig)
+	p.InitDeviceManipulator(sy, indexInConfig)
 	if p.deviceType == "Shelly" {
-		p.deviceIp = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/DeviceIp", indexInConfig), "")
-		p.inDeviceId = sy.GetIntegerByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/InDeviceId", indexInConfig), 0)
 		p.scriptName = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/ScriptName", indexInConfig), "")
+		p.inDeviceId = -1
 	}
 }
 
@@ -118,7 +119,7 @@ func (p PanelScript) PanelHtml(withContainer bool) string {
 		ThumbImg:     p.thumbImg,
 		State:        p.state,
 		IpAddress:    p.deviceIp,
-		HasPowerInfo: p.hasPoweInfo,
+		HasPowerInfo: p.hasPowerInfo,
 		HasValidInfo: p.hasValidInfo,
 		NoValidInfo:  !p.hasValidInfo,
 		NoInfoText:   T("No information"),
@@ -145,91 +146,52 @@ func (p PanelScript) IsActionIdMatch(aId string) bool {
 	return false
 }
 
-func (p PanelScript) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
+func (p *PanelScript) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
 	var stateChanged bool = false
 	var updatedIds []string = []string{}
-	if p.deviceType == "Shelly" && p.deviceIp != "" && p.scriptName != "" && p.inDeviceId > -1 {
-		if actionName == "switch" {
-			actstr := "Start"
-			if p.state == 1 {
-				actstr = "Stop"
-			}
-			GlowdashConsole.Write(T("Set Shelly script \"{{title}}\" state to &lt;{{state}}&gt;",
-				map[string]any{"title": p.eventtitle, "state": T(actstr)}))
-			execUrl := fmt.Sprintf("http://%s/rpc/Script.%s?id=%d", p.deviceIp, actstr, p.inDeviceId)
-			ro := execJsonHttpQuery(execUrl)
-			if !ro.Success {
-				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-				p.InvalidateInfo()
-			}
+
+	if actionName == "switch" {
+		actstr := "start"
+		if p.state == 1 {
+			actstr = "stop"
+		}
+		hr := p.deviceHandler.ScriptTo(p, p.scriptName, actstr, "action")
+		if hr.ok {
 			stateChanged = true
 			time.Sleep(time.Millisecond * 500)
 			updatedIds = append(updatedIds, p.QueryDevice()...)
 		}
-		if actionName == "update" {
-			updatedIds = append(updatedIds, p.QueryDevice()...)
-		}
 	}
+
+	if actionName == "update" {
+		updatedIds = append(updatedIds, p.QueryDevice()...)
+	}
+
 	return "ok", updatedIds, stateChanged
 }
 
-func (p PanelScript) DoActionFromScheduler(actionName string) []string {
-	if p.deviceType == "Shelly" && p.deviceIp != "" && p.scriptName != "" && p.inDeviceId > -1 {
-		if actionName == "start" {
-			GlowdashConsole.Write(T("Scheduled set Shelly script \"{{title}}\" state to &lt;{{state}}&gt;",
-				map[string]any{"title": p.eventtitle, "state": T("Start")}))
-			execUrl := fmt.Sprintf("http://%s/rpc/Script.Start?id=%d", p.deviceIp, p.inDeviceId)
-			ro := execJsonHttpQuery(execUrl)
-			if !ro.Success {
-				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-				p.InvalidateInfo()
-			}
-			time.Sleep(time.Millisecond * 500)
-			return p.QueryDevice()
-		}
-		if actionName == "stop" {
-			GlowdashConsole.Write(T("Scheduled set Shelly script \"{{title}}\" state to &lt;{{state}}&gt;",
-				map[string]any{"title": p.eventtitle, "state": T("Stop")}))
-			execUrl := fmt.Sprintf("http://%s/rpc/Script.Stop?id=%d", p.deviceIp, p.inDeviceId)
-			ro := execJsonHttpQuery(execUrl)
-			if !ro.Success {
-				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-				p.InvalidateInfo()
-			}
-			time.Sleep(time.Millisecond * 500)
-			return p.QueryDevice()
-		}
+func (p *PanelScript) DoActionFromScheduler(actionName string) []string {
+
+	if actionName == "start" {
+		p.deviceHandler.ScriptTo(p, p.scriptName, "start", "scheduler")
+		time.Sleep(time.Millisecond * 500)
+		return p.QueryDevice()
 	}
+	if actionName == "stop" {
+		p.deviceHandler.ScriptTo(p, p.scriptName, "stop", "scheduler")
+		time.Sleep(time.Millisecond * 500)
+		return p.QueryDevice()
+	}
+
 	return []string{}
 }
 
 func (p *PanelScript) QueryDevice() []string {
 	var updatedIds []string = []string{}
 
-	if p.deviceType == "Shelly" && p.deviceIp != "" && p.scriptName != "" {
-		execUrl := fmt.Sprintf("http://%s/rpc/Script.List", p.deviceIp)
-
-		jhq := execJsonHttpQuery(execUrl)
-		if !jhq.Success {
-			p.InvalidateInfo()
-			return []string{p.idStr}
-		}
-		scriptcount := jhq.SmartJSON.GetCountDescendantsByPath("/scripts")
-		for i := 0; i < scriptcount; i++ {
-			sn := jhq.SmartJSON.GetStringByPathWithDefault(fmt.Sprintf("/scripts/[%d]/name", i), "")
-			if sn == p.scriptName {
-				Panels[p.Index()].SetHwDeviceId(int(jhq.SmartJSON.GetFloat64ByPathWithDefault(fmt.Sprintf("/scripts/[%d]/id", i), -1.0)))
-				run, _ := jhq.SmartJSON.GetBoolByPath(fmt.Sprintf("/scripts/[%d]/running", i))
-				var state int
-				if run {
-					state = 1
-				} else {
-					state = 0
-				}
-				updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredScriptPanels(state)...)
-				break
-			}
-		}
+	qr := p.deviceHandler.QueryScript(p, p.scriptName, "query")
+	if qr.ok {
+		updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredScriptPanels(qr.state)...)
 	}
 	return updatedIds
 }

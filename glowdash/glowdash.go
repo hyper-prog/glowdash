@@ -42,16 +42,16 @@ const (
 )
 
 type PanelBase struct {
-	idStr       string
-	panelType   PanelTypes
-	title       string
-	eventtitle  string
-	subPage     string
-	thumbImg    string
-	deviceType  string
-	hide        bool
-	hasPoweInfo bool
-	index       int
+	idStr        string
+	panelType    PanelTypes
+	title        string
+	eventtitle   string
+	subPage      string
+	thumbImg     string
+	deviceType   string
+	hide         bool
+	hasPowerInfo bool
+	index        int
 }
 
 type PanelInterface interface {
@@ -127,7 +127,7 @@ type PageInterface interface {
 }
 
 var DashboardTitle string = "GlowDash"
-var GlowdashVersion string = "1.0.5"
+var GlowdashVersion string = "1.1.0"
 var LanguageCode string = ""
 var DebugLevel = 0
 var configFileName string = ""

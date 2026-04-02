@@ -35,16 +35,16 @@ type PanelSensors struct {
 func NewPanelSensors() *PanelSensors {
 	return &PanelSensors{
 		PanelBase{
-			idStr:       "",
-			panelType:   Sensors,
-			title:       "",
-			eventtitle:  "",
-			subPage:     "",
-			thumbImg:    "",
-			deviceType:  "",
-			hide:        false,
-			hasPoweInfo: false,
-			index:       0,
+			idStr:        "",
+			panelType:    Sensors,
+			title:        "",
+			eventtitle:   "",
+			subPage:      "",
+			thumbImg:     "",
+			deviceType:   "",
+			hide:         false,
+			hasPowerInfo: false,
+			index:        0,
 		},
 		false, "", 0, []SensorData{},
 	}

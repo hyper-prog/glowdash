@@ -11,7 +11,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"strconv"
 	"time"
 
 	"github.com/hyper-prog/smartyaml"
@@ -19,40 +18,31 @@ import (
 
 type PanelSwitch struct {
 	PanelHwDevBased
-
-	customquerycode string
-	customsetcode   string
 }
 
 func NewPanelSwitch() *PanelSwitch {
 	return &PanelSwitch{
 		PanelHwDevBased{
 			PanelBase{
-				idStr:       "",
-				panelType:   Switch,
-				title:       "",
-				eventtitle:  "",
-				subPage:     "",
-				thumbImg:    "",
-				deviceType:  "",
-				hide:        false,
-				hasPoweInfo: false,
-				index:       0,
+				idStr:        "",
+				panelType:    Switch,
+				title:        "",
+				eventtitle:   "",
+				subPage:      "",
+				thumbImg:     "",
+				deviceType:   "",
+				hide:         false,
+				hasPowerInfo: false,
+				index:        0,
 			},
-			false, "", 0, 0, 0, 0.0, 0.0,
+			DeviceManipulatorInterface(nil), false, "", 0, 0, 0, 0, 0, 0.0, 0.0,
 		},
-		"", "",
 	}
 }
 
 func (p *PanelSwitch) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig int) {
-	p.customquerycode = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/CustomQueryCode", indexInConfig), "")
-	p.customsetcode = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/CustomSetCode", indexInConfig), "")
-
-	if p.deviceType == "Shelly" {
-		p.deviceIp = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/DeviceIp", indexInConfig), "")
-		p.inDeviceId = sy.GetIntegerByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/InDeviceId", indexInConfig), 0)
-	}
+	p.LoadHwDevConfig(sy, indexInConfig)
+	p.InitDeviceManipulator(sy, indexInConfig)
 }
 
 func (p PanelSwitch) PanelHtml(withContainer bool) string {
@@ -130,7 +120,7 @@ func (p PanelSwitch) PanelHtml(withContainer bool) string {
 		State:        p.state,
 		InputState:   p.inputState,
 		IpAddress:    p.deviceIp,
-		HasPowerInfo: p.hasPoweInfo,
+		HasPowerInfo: p.hasPowerInfo,
 		HasValidInfo: p.hasValidInfo,
 		NoValidInfo:  !p.hasValidInfo,
 		Watt:         fmt.Sprintf("%.1f", p.watt),
@@ -158,210 +148,56 @@ func (p PanelSwitch) IsActionIdMatch(aId string) bool {
 	return false
 }
 
-func (p PanelSwitch) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
+func (p *PanelSwitch) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
 	var stateChanged bool = false
 	var updatedIds []string = []string{}
 
-	if actionName == "switch" && p.customsetcode != "" {
-		code, ok := ProgramLibrary[p.customsetcode]
-		if ok {
-			relatedPanels := []string{}
-			initVariables := p.ExposeVariables()
-			initVariables["SwitchPanel.Title"] = p.title
-			initVariables["SwitchPanel.Id"] = p.idStr
-			initVariables["SwitchPanel.DeviceType"] = p.deviceType
-			initVariables["SwitchPanel.ActionName"] = actionName
-			initVariables["RequiredStateText"] = initVariables["Panel.TextualOppositeState"]
-			GlowdashConsole.Write(T("Set switch \"{{title}}\" by custom code \"{{code}}\" to &lt;{{state}}&gt;",
-				map[string]any{"title": p.eventtitle, "code": p.customsetcode, "state": T(initVariables["RequiredStateText"])}))
-			results := ExecuteCommands(code, initVariables, &relatedPanels)
-			if DebugLevel >= 2 {
-				fmt.Printf("Custom set code \"%s\" executed for panel %s, result: %s\n", p.customsetcode, p.title, results["Return"])
-			}
-			if results["Return"] == "error" {
-				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-				p.InvalidateInfo()
-			}
-			stateChanged = true
-			time.Sleep(time.Millisecond * 200)
-			updatedIds = append(updatedIds, p.QueryDevice()...)
+	if actionName == "switch" {
+		toState := true
+		if p.state == 1 {
+			toState = false
 		}
+		r := p.deviceHandler.SwitchTo(p, toState, "swaction")
+		if r.ok {
+			stateChanged = true
+			updatedIds = r.updIds
+		}
+		time.Sleep(time.Millisecond * 200)
+		updatedIds = append(updatedIds, p.QueryDevice()...)
 		return "ok", updatedIds, stateChanged
 	}
 
-	if actionName == "update" && p.customquerycode != "" {
-		_, ok := ProgramLibrary[p.customquerycode]
-		if ok {
-			updatedIds = append(updatedIds, p.QueryDevice()...)
-		}
+	if actionName == "update" {
+		updatedIds = append(updatedIds, p.QueryDevice()...)
 		return "ok", updatedIds, stateChanged
-	}
-
-	if p.deviceType == "Shelly" && p.deviceIp != "" {
-		if actionName == "switch" {
-			tostr := "true"
-			if p.state == 1 {
-				tostr = "false"
-			}
-			GlowdashConsole.Write(T("Set Shelly switch \"{{title}}\" to &lt;{{state}}&gt;",
-				map[string]any{"title": p.eventtitle, "state": T(tostr)}))
-			execUrl := fmt.Sprintf("http://%s/rpc/Switch.Set?id=%d&on=%s", p.deviceIp, p.inDeviceId, tostr)
-			ro := execJsonHttpQuery(execUrl)
-			if !ro.Success {
-				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-				p.InvalidateInfo()
-			}
-			stateChanged = true
-			time.Sleep(time.Millisecond * 200)
-			updatedIds = append(updatedIds, p.QueryDevice()...)
-		}
-		if actionName == "update" {
-			updatedIds = append(updatedIds, p.QueryDevice()...)
-		}
 	}
 
 	return "ok", updatedIds, stateChanged
 }
 
-func (p PanelSwitch) DoActionFromScheduler(actionName string) []string {
-
-	if (actionName == "on" || actionName == "off") && p.customsetcode != "" {
-		code, ok := ProgramLibrary[p.customsetcode]
-		if ok {
-			relatedPanels := []string{}
-			initVariables := p.ExposeVariables()
-			initVariables["SwitchPanel.Title"] = p.title
-			initVariables["SwitchPanel.Id"] = p.idStr
-			initVariables["SwitchPanel.DeviceType"] = p.deviceType
-			initVariables["SwitchPanel.ActionName"] = actionName
-			if actionName == "on" {
-				initVariables["RequiredStateText"] = "true"
-			}
-			if actionName == "off" {
-				initVariables["RequiredStateText"] = "false"
-			}
-			GlowdashConsole.Write(T("Scheduled set switch \"{{title}}\" by custom code \"{{code}}\" to &lt;{{state}}&gt;",
-				map[string]any{"title": p.eventtitle, "code": p.customsetcode, "state": T(initVariables["RequiredStateText"])}))
-			results := ExecuteCommands(code, initVariables, &relatedPanels)
-			if results["Return"] == "error" {
-				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-				p.InvalidateInfo()
-			}
-			time.Sleep(time.Millisecond * 200)
+func (p *PanelSwitch) DoActionFromScheduler(actionName string) []string {
+	if actionName == "on" || actionName == "off" {
+		toState := false
+		if actionName == "on" {
+			toState = true
 		}
+		p.deviceHandler.SwitchTo(p, toState, "swscheduler")
+		time.Sleep(time.Millisecond * 200)
 		return p.QueryDevice()
 	}
-
-	if p.deviceType == "Shelly" && p.deviceIp != "" {
-		if actionName == "on" {
-			GlowdashConsole.Write(T("Scheduled set Shelly switch \"{{title}}\" to &lt;{{sts}}&gt;",
-				map[string]any{"title": p.eventtitle, "sts": T("true")}))
-			execUrl := fmt.Sprintf("http://%s/rpc/Switch.Set?id=%d&on=true", p.deviceIp, p.inDeviceId)
-			ro := execJsonHttpQuery(execUrl)
-			if !ro.Success {
-				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-				p.InvalidateInfo()
-			}
-			time.Sleep(time.Millisecond * 200)
-			return p.QueryDevice()
-		}
-		if actionName == "off" {
-			GlowdashConsole.Write(T("Scheduled set Shelly switch \"{{title}}\" to &lt;{{sts}}&gt;",
-				map[string]any{"title": p.eventtitle, "sts": T("false")}))
-			execUrl := fmt.Sprintf("http://%s/rpc/Switch.Set?id=%d&on=false", p.deviceIp, p.inDeviceId)
-			ro := execJsonHttpQuery(execUrl)
-			if !ro.Success {
-				GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-				p.InvalidateInfo()
-			}
-			time.Sleep(time.Millisecond * 200)
-			return p.QueryDevice()
-		}
-	}
-
 	return []string{}
 }
 
-func (p PanelSwitch) QueryDevice() []string {
+func (p *PanelSwitch) QueryDevice() []string {
 	var updatedIds []string = []string{}
-
-	if p.customquerycode != "" {
-		code, ok := ProgramLibrary[p.customquerycode]
-		if ok {
-			initVariables := p.ExposeVariables()
-			initVariables["SwitchPanel.Title"] = p.title
-			initVariables["SwitchPanel.Id"] = p.idStr
-			initVariables["SwitchPanel.DeviceType"] = p.deviceType
-			initVariables["SwitchPanel.ActionName"] = "update"
-
-			resInt := 0
-			results := ExecuteCommands(code, initVariables, &updatedIds)
-			if DebugLevel >= 2 {
-				fmt.Printf("Custom query code \"%s\" executed for panel %s, result: %s\n", p.customquerycode, p.title, results["Return"])
-			}
-			if results["Return"] == "error" {
-				p.InvalidateInfo()
-				return []string{p.idStr}
-			}
-			if results["Return"] == "true" {
-				resInt = 1
-			}
-
-			inputstate := 0
-			if inputstatestr, istrok := results["Return.InputState"]; istrok {
-				if isv, iserr := strconv.Atoi(inputstatestr); iserr == nil {
-					inputstate = isv
-				}
-			}
-			updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredPanelsSwitch(resInt, inputstate, false, 0.0, 0.0)...)
-		}
-		return updatedIds
+	queryResult := p.deviceHandler.QuerySwitch(p, "query")
+	if !queryResult.ok {
+		return []string{p.idStr}
 	}
 
-	if p.deviceType == "Shelly" && p.deviceIp != "" {
-		execUrl := fmt.Sprintf("http://%s/rpc/Switch.GetStatus?id=%d", p.deviceIp, p.inDeviceId)
-		jhq := execJsonHttpQuery(execUrl)
-		if !jhq.Success {
-			p.InvalidateInfo()
-			return []string{p.idStr}
-		}
-		bstate := jhq.SmartJSON.GetBoolByPathWithDefault("/output", false)
-
-		var state int
-		var inputstate int
-		var powerMeasured bool = false
-		var apower float64 = 0.0
-		var voltage float64 = 0.0
-		if bstate {
-			state = 1
-		} else {
-			state = 0
-		}
-
-		if jhq.SmartJSON.NodeExists("/apower") && jhq.SmartJSON.NodeExists("/voltage") {
-			str1 := ""
-			str2 := ""
-			apower, str1 = jhq.SmartJSON.GetFloat64ByPath("/apower")
-			voltage, str2 = jhq.SmartJSON.GetFloat64ByPath("/voltage")
-			if str1 == "float64" && str2 == "float64" && apower >= 0.0 && voltage >= 0.0 {
-				powerMeasured = true
-			}
-		}
-
-		execUrl = fmt.Sprintf("http://%s/rpc/Input.GetStatus?id=%d", p.deviceIp, p.inDeviceId)
-		jhq2 := execJsonHttpQuery(execUrl)
-		if !jhq2.Success {
-			p.InvalidateInfo()
-			return []string{p.idStr}
-		}
-		istate := jhq2.SmartJSON.GetBoolByPathWithDefault("/state", false)
-		if istate {
-			inputstate = 1
-		} else {
-			inputstate = 0
-		}
-		updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredPanelsSwitch(state, inputstate, powerMeasured, apower, voltage)...)
-	}
+	updatedIds = append(updatedIds,
+		p.RefreshHwStatesInRequiredPanelsSwitch(queryResult.state, queryResult.inputstate,
+			queryResult.powerMeasured, queryResult.apower, queryResult.voltage)...)
 
 	return updatedIds
 }
@@ -401,7 +237,7 @@ func (p *PanelSwitch) RefreshHwStateIfMatchSwitch(fromPanelType PanelTypes, from
 		p.state = State
 		p.inputState = InputState
 		p.hasValidInfo = true
-		p.hasPoweInfo = PowMet
+		p.hasPowerInfo = PowMet
 		p.watt = Watt
 		p.volt = Volt
 		return p.idStr
@@ -420,7 +256,7 @@ func (p PanelSwitch) ExposeVariables() map[string]string {
 	m["Panel.Index"] = fmt.Sprintf("%d", p.index)
 
 	pwrinfostr := "false"
-	if p.hasPoweInfo {
+	if p.hasPowerInfo {
 		pwrinfostr = "true"
 	}
 	m["Panel.PowerInfo"] = pwrinfostr

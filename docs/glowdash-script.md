@@ -41,6 +41,7 @@ GlowDash scripts are used in Action panels, worker functions in switches and the
 | [PrintVariablesGlowdashConsole](#printvariablesglowdashconsole) | Print all variables to the GlowDash console |
 | [AddOneshotSchedule](#addoneshotschedule) | Add a one-shot schedule |
 | [ModbusTcp](#modbustcp) | Read or write a Modbus TCP register or coil |
+| [ShellyRelay](#shellyrelay) | Read or write Shelly devices (relay/cover) |
 
 
 ## Runtime State Variables (state. prefix)
@@ -617,6 +618,50 @@ PrintConsole Sensor value: {{sensorval}}
 // Write a coil at address 3 with value from variable
 Set relaystate true
 ModbusTcp {{relaystate}} 192.168.1.50:502 1 writecoil 3
+```
+
+### ShellyRelay
+- **Syntax:**
+  - `ShellyRelay <variable> <host[:port]> readrelay <inDeviceId>`
+  - `ShellyRelay <variable> <host[:port]> readcover <inDeviceId>`
+  - `ShellyRelay <value> <host[:port]> setrelay <inDeviceId>`
+  - `ShellyRelay <action> <host[:port]> setcover <inDeviceId>`
+- **Parameters:**
+  - `<variable>`: For read operations, variable name to store result.
+  - `<value>`: For `setrelay`, boolean-like value (`true`, `false`, `1`, `0`, `on`, `off`, etc.).
+  - `<action>`: For `setcover`, command string passed to the Shelly cover action handler.
+  - `<host[:port]>`: Device IP/host, optional port. If port is omitted, default is `80`.
+  - `<operation>`: One of `readrelay`, `setrelay`, `readcover`, `setcover`.
+  - `<inDeviceId>`: Shelly channel/index (for example `0`, `1`, ...).
+- **Description:** Communicates with a Shelly device relay or cover endpoint. After execution, `LastShellyRelayCallSuccess` is set to `true` if the operation succeeded, or `false` if it failed.
+
+| Operation     | Description | Variables set |
+|---------------|-------------|---------------|
+| `readrelay`   | Reads relay status and input state | `<variable>` (`true`/`false`), `<variable>.StateInt` (`0`/`1`), `<variable>.StateBool` (`true`/`false`), `<variable>.InputState` (`true`/`false`) |
+| `setrelay`    | Sets relay on/off from `<value>` | no operation-specific output variable |
+| `readcover`   | Reads cover position and named state | `<variable>` (position integer), `<variable>.Position`, `<variable>.NamedState` |
+| `setcover`    | Sends a cover action command from `<action>` | no operation-specific output variable |
+
+- **Sample:**
+```glowdash
+// Read relay state from channel 0
+ShellyRelay relayState 192.168.1.22 readrelay 0
+If not {{LastShellyRelayCallSuccess}}
+    PrintGlowdashConsole Shelly relay read failed
+    Return error
+EndIf
+PrintGlowdashConsole Relay state: {{relayState}} (input={{relayState.InputState}})
+
+// Set relay on
+Set desiredState true
+ShellyRelay {{desiredState}} 192.168.1.22 setrelay 0
+
+// Read cover status
+ShellyRelay coverPos 192.168.1.23 readcover 1
+PrintConsole Cover position: {{coverPos}} ({{coverPos.NamedState}})
+
+// Control cover
+ShellyRelay open 192.168.1.23 setcover 1
 ```
 
 ## Predefined variables

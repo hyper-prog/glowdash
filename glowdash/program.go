@@ -213,6 +213,11 @@ func ExecuteCommands(program string, contextVariables map[string]string, related
 			ip++
 			continue
 		}
+		if strings.HasPrefix(cmd, "ShellyRelay ") {
+			Command_ShellyRelay(&ctx, cmd[12:])
+			ip++
+			continue
+		}
 		if cmd == "PrintVariablesConsole" {
 			Command_PrintVariablesConsole(ctx)
 			ip++
@@ -783,12 +788,110 @@ func Command_CallHttpStoreJson(ctx *RunContext, cmdpart string) {
 }
 
 /* Handler of following commands:
-ModbusTcp <variable> host:port unitId readcoil address
-ModbusTcp <variable> host:port unitId readinput address
-ModbusTcp value host:port unitId writecoil address
-*/
+*	ShellyRelay <variable> host[:port] readrelay inDeviceId
+*	ShellyRelay <variable> host[:port] readcover inDeviceId
+*	ShellyRelay value host[:port] setrelay inDeviceId
+*	ShellyRelay value host[:port] setcover inDeviceId */
+func Command_ShellyRelay(ctx *RunContext, cmdpart string) {
+	parts := strings.Split(ResolveVariables(*ctx, cmdpart), " ")
+	if len(parts) != 4 {
+		ctx.variables["LastShellyRelayCallSuccess"] = "false"
+		return
+	}
+
+	devhw := HwDevTrunk{
+		hasValidInfo: false,
+		hasPowerInfo: false,
+		deviceIp:     "",
+		inDeviceId:   0,
+		tcpPort:      80,
+		unitId:       1,
+		state:        0,
+		inputState:   0,
+		watt:         0.0,
+		volt:         0.0,
+	}
+
+	addressParts := strings.Split(strings.TrimSpace(parts[1]), ":")
+	if len(addressParts) != 1 && len(addressParts) != 2 {
+		ctx.variables["LastShellyRelayCallSuccess"] = "false"
+		return
+	}
+
+	inDeviceId, err := strconv.Atoi(parts[3])
+	if err != nil {
+		ctx.variables["LastShellyRelayCallSuccess"] = "false"
+		return
+	}
+	devhw.inDeviceId = inDeviceId
+
+	devhw.deviceIp = addressParts[0]
+	if len(addressParts) == 2 {
+		port, err := strconv.Atoi(addressParts[1])
+		if err == nil {
+			devhw.tcpPort = port
+		}
+	}
+
+	deviceHandler := newShellyDevice()
+
+	if parts[2] == "readrelay" {
+		r := deviceHandler.QuerySwitch(&devhw, "program")
+		if !r.ok {
+			ctx.variables["LastShellyRelayCallSuccess"] = "false"
+			return
+		}
+		ctx.variables[parts[0]] = fmt.Sprintf("%t", r.state == 1)
+		ctx.variables[parts[0]+".StateInt"] = fmt.Sprintf("%d", r.state)
+		ctx.variables[parts[0]+".StateBool"] = fmt.Sprintf("%t", r.state == 1)
+		ctx.variables[parts[0]+".InputState"] = fmt.Sprintf("%t", r.inputstate == 1)
+		ctx.variables["LastShellyRelayCallSuccess"] = "true"
+		return
+	}
+	if parts[2] == "setrelay" {
+		value := false
+		v := strings.ToLower(strings.TrimSpace(ResolveVariables(*ctx, parts[0])))
+		if v == "1" || v == "t" || v == "true" || v == "yes" || v == "y" || v == "on" || v == "enable" || v == "enabled" {
+			value = true
+		}
+		r := deviceHandler.SwitchTo(&devhw, value, "program")
+		if !r.ok {
+			ctx.variables["LastShellyRelayCallSuccess"] = "false"
+			return
+		}
+		ctx.variables["LastShellyRelayCallSuccess"] = "true"
+		return
+	}
+	if parts[2] == "readcover" {
+		r := deviceHandler.QueryShader(&devhw, true, "program")
+		if !r.ok {
+			ctx.variables["LastShellyRelayCallSuccess"] = "false"
+			return
+		}
+		ctx.variables[parts[0]] = fmt.Sprintf("%d", int(r.position))
+		ctx.variables[parts[0]+".Position"] = fmt.Sprintf("%d", int(r.position))
+		ctx.variables[parts[0]+".NamedState"] = fmt.Sprintf("%s", r.namedState)
+		ctx.variables["LastShellyRelayCallSuccess"] = "true"
+		return
+	}
+	if parts[2] == "setcover" {
+		r := deviceHandler.PerformThis(&devhw, parts[0], "program")
+		if !r.ok {
+			ctx.variables["LastShellyRelayCallSuccess"] = "false"
+			return
+		}
+		ctx.variables["LastShellyRelayCallSuccess"] = "true"
+		return
+	}
+	ctx.variables["LastShellyRelayCallSuccess"] = "false"
+}
+
+/* Handler of following commands:
+*	ModbusTcp <variable> host:port unitId readcoil address
+*	ModbusTcp <variable> host:port unitId readinput address
+*	ModbusTcp value host:port unitId writecoil address */
 func Command_ModbusTcp(ctx *RunContext, cmdpart string) {
-	parts := strings.Split(cmdpart, " ")
+	parts := strings.Split(ResolveVariables(*ctx, cmdpart), " ")
 	if len(parts) != 5 {
 		ctx.variables["LastModbusTcpCallSuccess"] = "false"
 		return

@@ -28,26 +28,26 @@ func NewPanelShading() *PanelShading {
 	return &PanelShading{
 		PanelHwDevBased{
 			PanelBase{
-				idStr:       "",
-				panelType:   Shading,
-				title:       "",
-				eventtitle:  "",
-				subPage:     "",
-				thumbImg:    "",
-				deviceType:  "",
-				hide:        false,
-				hasPoweInfo: false,
-				index:       0,
+				idStr:        "",
+				panelType:    Shading,
+				title:        "",
+				eventtitle:   "",
+				subPage:      "",
+				thumbImg:     "",
+				deviceType:   "",
+				hide:         false,
+				hasPowerInfo: false,
+				index:        0,
 			},
-			false, "", 0, 0, 0, 0.0, 0.0,
+			DeviceManipulatorInterface(nil), false, "", 0, 0, 0, 0, 0, 0.0, 0.0,
 		}, "unknown", false, false,
 	}
 }
 
 func (p *PanelShading) LoadCustomConfig(sy smartyaml.SmartYAML, indexInConfig int) {
+	p.LoadHwDevConfig(sy, indexInConfig)
+	p.InitDeviceManipulator(sy, indexInConfig)
 	if p.deviceType == "Shelly" {
-		p.deviceIp = sy.GetStringByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/DeviceIp", indexInConfig), "")
-		p.inDeviceId = sy.GetIntegerByPathWithDefault(fmt.Sprintf("/GlowDash/Panels/[%d]/InDeviceId", indexInConfig), 0)
 		p.disablePosIndicator, _ = sy.GetBoolByPath(fmt.Sprintf("/GlowDash/Panels/[%d]/DisablePosIndicator", indexInConfig))
 		p.enablePowerIndicator, _ = sy.GetBoolByPath(fmt.Sprintf("/GlowDash/Panels/[%d]/EnablePowerIndicator", indexInConfig))
 	}
@@ -171,7 +171,7 @@ func (p PanelShading) PanelHtml(withContainer bool) string {
 		State:        p.state,
 		StateInv:     100 - p.state,
 		IpAddress:    p.deviceIp,
-		HasPowerInfo: p.hasPoweInfo && p.enablePowerIndicator,
+		HasPowerInfo: p.hasPowerInfo && p.enablePowerIndicator,
 		PosIndicator: !p.disablePosIndicator,
 		NamedState:   p.coverNamedState,
 		MoveState:    moveState,
@@ -217,29 +217,27 @@ func (p PanelShading) IsActionIdMatch(aId string) bool {
 	return false
 }
 
-func (p PanelShading) WaitUntilStateIsEqual(state string, waitMillisec int) {
-	qstr := state
-	for qstr == state {
-		jhq := execJsonHttpQuery(fmt.Sprintf("http://%s/rpc/Cover.GetStatus?id=%d", p.deviceIp, p.inDeviceId))
-		if !jhq.Success {
-			p.InvalidateInfo()
+func (p *PanelShading) WaitUntilStateIsEqual(state string, waitMillisec int) {
+	qr := ShaderQueryResult{}
+	qr.namedState = state
+	for qr.namedState == state {
+		qr = p.deviceHandler.QueryShader(p, false, "wait")
+		if !qr.ok {
 			return
 		}
-		qstr = jhq.SmartJSON.GetStringByPathWithDefault("/state", "")
 		time.Sleep(time.Millisecond * time.Duration(waitMillisec))
 	}
 }
 
-func (p PanelShading) WaitUntilStateIsMoving(waitMillisec int, maxWaitMillisec int) {
-	qstr := "opening"
+func (p *PanelShading) WaitUntilStateIsMoving(waitMillisec int, maxWaitMillisec int) {
+	qr := ShaderQueryResult{}
+	qr.namedState = "opening"
 	allWait := 0
-	for qstr == "opening" || qstr == "closing" {
-		jhq := execJsonHttpQuery(fmt.Sprintf("http://%s/rpc/Cover.GetStatus?id=%d", p.deviceIp, p.inDeviceId))
-		if !jhq.Success {
-			p.InvalidateInfo()
+	for qr.namedState == "opening" || qr.namedState == "closing" {
+		qr = p.deviceHandler.QueryShader(p, false, "wait")
+		if !qr.ok {
 			return
 		}
-		qstr = jhq.SmartJSON.GetStringByPathWithDefault("/state", "")
 		time.Sleep(time.Millisecond * time.Duration(waitMillisec))
 		allWait += waitMillisec
 		if allWait >= maxWaitMillisec {
@@ -248,123 +246,60 @@ func (p PanelShading) WaitUntilStateIsMoving(waitMillisec int, maxWaitMillisec i
 	}
 }
 
-func (p PanelShading) DoActionCoverUp() {
-	execUrl := fmt.Sprintf("http://%s/rpc/Cover.Open?id=%d", p.deviceIp, p.inDeviceId)
-	ro := execJsonHttpQuery(execUrl)
-	if !ro.Success {
-		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-		p.InvalidateInfo()
-		return
-	}
-	time.Sleep(time.Millisecond * 500) //Wait a little time to let the device do the operation
-}
-
-func (p PanelShading) DoActionCoverDown() {
-	execUrl := fmt.Sprintf("http://%s/rpc/Cover.Close?id=%d", p.deviceIp, p.inDeviceId)
-	ro := execJsonHttpQuery(execUrl)
-	if !ro.Success {
-		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-		p.InvalidateInfo()
-		return
-	}
-	time.Sleep(time.Millisecond * 500) //Wait a little time to let the device do the operation
-}
-
-func (p PanelShading) DoActionCoverStop() {
-	execUrl := fmt.Sprintf("http://%s/rpc/Cover.Stop?id=%d", p.deviceIp, p.inDeviceId)
-	ro := execJsonHttpQuery(execUrl)
-	if !ro.Success {
-		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
-		p.InvalidateInfo()
-		return
-	}
-	time.Sleep(time.Millisecond * 200) //Wait a little time to let the device do the operation
-}
-
-func (p PanelShading) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
+func (p *PanelShading) DoAction(actionName string, parameters map[string]string) (string, []string, bool) {
 	var stateChanged bool = false
 	var updatedIds []string = []string{}
 
-	if p.deviceType == "Shelly" && p.deviceIp != "" {
-		if actionName == "up" {
-			GlowdashConsole.Write(T("Set shading \"{{title}}\" to &lt;{{tst}}&gt;",
-				map[string]any{"title": p.eventtitle, "tst": T("up")}))
-			p.DoActionCoverUp()
-			stateChanged = true
-			updatedIds = append(updatedIds, p.QueryDevice()...)
-		}
-		if actionName == "down" {
-			GlowdashConsole.Write(T("Set shading \"{{title}}\" to &lt;{{tst}}&gt;",
-				map[string]any{"title": p.eventtitle, "tst": T("down")}))
-			p.DoActionCoverDown()
-			stateChanged = true
-			updatedIds = append(updatedIds, p.QueryDevice()...)
-		}
-		if actionName == "stop" {
-			GlowdashConsole.Write(T("Set shading \"{{title}}\" to &lt;{{tst}}&gt;",
-				map[string]any{"title": p.eventtitle, "tst": T("stop")}))
-			p.DoActionCoverStop()
-			stateChanged = true
-			updatedIds = append(updatedIds, p.QueryDevice()...)
-		}
-		if actionName == "update" {
-			updatedIds = append(updatedIds, p.QueryDevice()...)
-		}
-		if actionName == "movupdate" {
-			p.WaitUntilStateIsMoving(1000, 2000)
-			updatedIds = append(updatedIds, p.QueryDevice()...)
-		}
+	if actionName == "up" {
+		r := p.deviceHandler.PerformThis(p, "up", "action")
+		stateChanged = true
+		updatedIds = r.updIds
+		updatedIds = append(updatedIds, p.QueryDevice()...)
 	}
+	if actionName == "down" {
+		r := p.deviceHandler.PerformThis(p, "down", "action")
+		stateChanged = true
+		updatedIds = r.updIds
+		updatedIds = append(updatedIds, p.QueryDevice()...)
+	}
+	if actionName == "stop" {
+		r := p.deviceHandler.PerformThis(p, "stop", "action")
+		stateChanged = true
+		updatedIds = r.updIds
+		updatedIds = append(updatedIds, p.QueryDevice()...)
+	}
+	if actionName == "update" {
+		updatedIds = append(updatedIds, p.QueryDevice()...)
+	}
+	if actionName == "movupdate" {
+		p.WaitUntilStateIsMoving(1000, 2000)
+		updatedIds = append(updatedIds, p.QueryDevice()...)
+	}
+
 	return "ok", updatedIds, stateChanged
 }
 
-func (p PanelShading) DoActionFromScheduler(actionName string) []string {
-	if p.deviceType == "Shelly" && p.deviceIp != "" {
-		if actionName == "open" {
-			GlowdashConsole.Write(T("Scheduled set Shelly shading \"{{title}}\" to &lt;{{tst}}&gt;",
-				map[string]any{"title": p.eventtitle, "tst": T("open")}))
-			p.DoActionCoverUp()
-			return p.QueryDevice()
-		}
-		if actionName == "close" {
-			GlowdashConsole.Write(T("Scheduled set Shelly shading \"{{title}}\" to &lt;{{tst}}&gt;",
-				map[string]any{"title": p.eventtitle, "tst": T("close")}))
-			p.DoActionCoverDown()
-			return p.QueryDevice()
-		}
+func (p *PanelShading) DoActionFromScheduler(actionName string) []string {
+	if actionName == "open" {
+		p.deviceHandler.PerformThis(p, "up", "scheduler")
+		return p.QueryDevice()
+	}
+	if actionName == "close" {
+		p.deviceHandler.PerformThis(p, "down", "scheduler")
+		return p.QueryDevice()
 	}
 	return []string{}
 }
 
-func (p PanelShading) QueryDevice() []string {
+func (p *PanelShading) QueryDevice() []string {
 	var updatedIds []string = []string{}
 
-	if p.deviceType == "Shelly" && p.deviceIp != "" {
-		execUrl := fmt.Sprintf("http://%s/rpc/Cover.GetStatus?id=%d", p.deviceIp, p.inDeviceId)
-		jhq := execJsonHttpQuery(execUrl)
-		if !jhq.Success {
-			p.InvalidateInfo()
-			return []string{p.idStr}
-		}
-		current_pos := jhq.SmartJSON.GetFloat64ByPathWithDefault("/current_pos", 0.0)
-		current_ns := jhq.SmartJSON.GetStringByPathWithDefault("/state", "")
-
-		var powerMeasured bool = false
-		var apower float64 = 0.0
-		var voltage float64 = 0.0
-
-		if jhq.SmartJSON.NodeExists("/apower") && jhq.SmartJSON.NodeExists("/voltage") {
-			str1 := ""
-			str2 := ""
-			apower, str1 = jhq.SmartJSON.GetFloat64ByPath("/apower")
-			voltage, str2 = jhq.SmartJSON.GetFloat64ByPath("/voltage")
-			if str1 == "float64" && str2 == "float64" && apower >= 0.0 && voltage >= 0.0 {
-				powerMeasured = true
-			}
-		}
-
-		updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredPanelsCover(int(current_pos), current_ns, powerMeasured, apower, voltage)...)
+	qr := p.deviceHandler.QueryShader(p, true, "query")
+	if !qr.ok {
+		return []string{p.idStr}
 	}
+
+	updatedIds = append(updatedIds, p.RefreshHwStatesInRequiredPanelsCover(int(qr.position), qr.namedState, qr.powerMeasured, qr.apower, qr.voltage)...)
 	return updatedIds
 }
 
@@ -391,7 +326,7 @@ func (p *PanelShading) RefreshHwStateIfMatchCover(fromPanelType PanelTypes, from
 		p.state = State
 		p.coverNamedState = coverNamedState
 		p.hasValidInfo = true
-		p.hasPoweInfo = PowMet
+		p.hasPowerInfo = PowMet
 		p.watt = Watt
 		p.volt = Volt
 		return p.idStr
@@ -410,7 +345,7 @@ func (p PanelShading) ExposeVariables() map[string]string {
 	m["Panel.Index"] = fmt.Sprintf("%d", p.index)
 
 	pwrinfostr := "false"
-	if p.hasPoweInfo {
+	if p.hasPowerInfo {
 		pwrinfostr = "true"
 	}
 	m["Panel.PowerInfo"] = pwrinfostr

@@ -27,16 +27,16 @@ type PanelAction struct {
 func NewPanelAction() *PanelAction {
 	return &PanelAction{
 		PanelBase{
-			idStr:       "",
-			panelType:   Action,
-			title:       "",
-			eventtitle:  "",
-			subPage:     "",
-			thumbImg:    "",
-			deviceType:  "",
-			hide:        false,
-			hasPoweInfo: false,
-			index:       0,
+			idStr:        "",
+			panelType:    Action,
+			title:        "",
+			eventtitle:   "",
+			subPage:      "",
+			thumbImg:     "",
+			deviceType:   "",
+			hide:         false,
+			hasPowerInfo: false,
+			index:        0,
 		},
 		"", []string{},
 	}

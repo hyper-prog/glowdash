@@ -26,16 +26,16 @@ type PanelScheduleShortcut struct {
 func NewPanelScheduleShortcut() *PanelScheduleShortcut {
 	return &PanelScheduleShortcut{
 		PanelBase{
-			idStr:       "",
-			panelType:   ScheduleShortcut,
-			title:       "",
-			eventtitle:  "",
-			subPage:     "",
-			thumbImg:    "",
-			deviceType:  "",
-			hide:        false,
-			hasPoweInfo: false,
-			index:       0,
+			idStr:        "",
+			panelType:    ScheduleShortcut,
+			title:        "",
+			eventtitle:   "",
+			subPage:      "",
+			thumbImg:     "",
+			deviceType:   "",
+			hide:         false,
+			hasPowerInfo: false,
+			index:        0,
 		},
 		"",
 	}

@@ -111,12 +111,14 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `Id` (string, optional): Optional unique identifier for the panel (required for scheduled tasks or advanced features).
   - `Title` (string): The title displayed on the panel.
   - `EventTitle` (string, optional): Verbose title used in the schedule editor (defaults to `Title`).
-  - `DeviceType` (string): The type of device (e.g., Shelly).
+  - `DeviceType` (string): The type of device. Accepted values: `Shelly`, `ModbusTCP`, `Custom`.
   - `DeviceIp` (string): The IP address of the device.
   - `InDeviceId` (int): Internal ID of the device (e.g., relay number).
+  - `TcpPort` (int, optional): TCP port (Modbus default: `502`, Shelly default: `80`).
+  - `UnitId` (int, optional): Modbus unit identifier when `DeviceType: ModbusTCP` (default: `1`).
   - `Thumbnail` (string): The image displayed for the panel (from the user directory).
-  - `CustomQueryCode` (string, optional): Custom code to query the state of the device (must be defined in CommandLibrary).
-  - `CustomSetCode` (string, optional): Custom code to set the state of the device (must be defined in CommandLibrary).
+  - `CustomQueryCode` (string, optional): Custom code to query the state of the device (must be defined in CommandLibrary). Works only when `DeviceType: Custom`.
+  - `CustomSetCode` (string, optional): Custom code to set the state of the device (must be defined in CommandLibrary). Works only when `DeviceType: Custom`.
   - `SubPage` (string, optional): Name of the subpage where this panel is shown.
   - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
@@ -143,7 +145,7 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `PanelType: Shading`: Controls a shading device (e.g., Shelly cover or dual cover).
   - `Id` (string, optional): Optional unique identifier for the panel (required for scheduled tasks or advanced features).
   - `Title` (string): The title displayed on the panel.
-  - `DeviceType` (string): The type of device (e.g., Shelly).
+  - `DeviceType` (string): The type of device. Accepted values: `Shelly`, `ModbusTCP`, `Custom`.
   - `DeviceIp` (string): The IP address of the device.
   - `InDeviceId` (int): Internal ID of the device (e.g., cover number).
   - `Thumbnail` (string): The image displayed for the panel (from the user directory).
@@ -174,7 +176,7 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `Id` (string, optional): Optional unique identifier for the panel (required for scheduled tasks or advanced features).
   - `Title` (string): The title displayed on the panel.
   - `EventTitle` (string, optional): Verbose title used in the schedule editor (defaults to `Title`).
-  - `DeviceType` (string, optional): The type of device (optional, e.g., Shelly).
+  - `DeviceType` (string, optional): The type of device. Accepted values: `Shelly`, `ModbusTCP`, `Custom`.
   - `Thumbnail` (string): The image displayed for the panel (from the user directory).
   - `Commands` (string, GlowDash script): The script to execute when the panel is activated.
   - `CommandFile` (string, optional): Path to an external file containing the script to execute (overrides `Commands` if provided).
@@ -320,15 +322,17 @@ Each panel type accepts a different set of properties. Below, each panel type is
   - `Title` (string): The title displayed on the panel.
   - `TitleAlt` (string, optional): Alternate title text displayed when the switch is on (optional).
   - `EventTitle` (string, optional): Verbose title used in the schedule editor (defaults to `Title`).
-  - `DeviceType` (string): The type of device (e.g., Shelly).
+  - `DeviceType` (string): The type of device. Accepted values: `Shelly`, `ModbusTCP`, `Custom`.
   - `DeviceIp` (string): The IP address of the device.
   - `InDeviceId` (int): Internal ID of the device (e.g., relay number).
+  - `TcpPort` (int, optional):  TCP port (Modbus default: `502`, Shelly default: `80`).
+  - `UnitId` (int, optional): Modbus unit identifier when `DeviceType: ModbusTCP` (default: `1`).
   - `Thumbnail` (string): The image displayed for the panel (from the user directory).
   - `ThumbnailAlt` (string, optional): Alternate image displayed when the switch is on (optional).
   - `Badge` (string, optional): Badge pictogram displayed when the switch is off (optional).
   - `BadgeAlt` (string, optional): Badge pictogram displayed when the switch is on (optional).
-  - `CustomQueryCode` (string, optional): Custom code to query the state of the device (must be defined in CommandLibrary).
-  - `CustomSetCode` (string, optional): Custom code to set the state of the device (must be defined in CommandLibrary).
+  - `CustomQueryCode` (string, optional): Custom code to query the state of the device (must be defined in CommandLibrary). Works only when `DeviceType: Custom`.
+  - `CustomSetCode` (string, optional): Custom code to set the state of the device (must be defined in CommandLibrary). Works only when `DeviceType: Custom`.
   - `SubPage` (string, optional): Name of the subpage where this panel is shown.
   - `Hide` (string, optional): If set to `yes`, this panel is hidden.
 - **Sample:**
@@ -338,7 +342,7 @@ Each panel type accepts a different set of properties. Below, each panel type is
   TitleAlt: Hotwater maker (Gas heater)
   EventTitle: Hotwater maker
   PanelType: ToggleSwitch
-  DeviceType: Shelly
+  DeviceType: Custom
   DeviceIp: 192.168.1.177
   InDeviceId: 0
   Thumbnail: boiler.png
@@ -384,7 +388,7 @@ Each panel type accepts a different set of properties. Below, each panel type is
 **Properties:**
   - `PanelType: Script`: Identifies this panel as a script runner.
   - `Title` (string): The title displayed on the panel.
-  - `DeviceType` (string): The type of device (e.g., Shelly).
+  - `DeviceType` (string): The type of device. Accepted values: `Shelly`.
   - `DeviceIp` (string): The IP address of the device.
   - `ScriptName` (string): The name of the script to run on the device.
   - `Thumbnail` (string): The image displayed for the panel (from the user directory).

@@ -53,9 +53,10 @@ const (
 )
 
 type Client struct {
-	conn   net.Conn
-	tid    uint16
-	unitID byte
+	conn      net.Conn
+	tid       uint16
+	unitID    byte
+	connected bool
 }
 
 // WriteSingleRegister writes a single holding register (16-bit) at the given address.
@@ -139,13 +140,14 @@ func Dial(addr string, port string, unitID byte, timeout time.Duration) (*Client
 	if err != nil {
 		return nil, err
 	}
-	return &Client{conn: conn, tid: 1, unitID: unitID}, nil
+	return &Client{conn: conn, tid: 1, unitID: unitID, connected: true}, nil
 }
 
 func (c *Client) Close() error {
 	if c.conn == nil {
 		return nil
 	}
+	c.connected = false
 	return c.conn.Close()
 }
 
@@ -158,7 +160,7 @@ func (c *Client) nextTID() uint16 {
 }
 
 func (c *Client) sendRequest(function byte, pduData []byte) ([]byte, error) {
-	if c.conn == nil {
+	if c.conn == nil || !c.connected {
 		return nil, errors.New("Not connected")
 	}
 

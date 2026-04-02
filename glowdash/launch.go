@@ -26,15 +26,15 @@ type PanelLaunch struct {
 func NewPanelLaunch() *PanelLaunch {
 	return &PanelLaunch{
 		PanelBase{
-			idStr:       "",
-			panelType:   Launch,
-			title:       "",
-			eventtitle:  "",
-			subPage:     "",
-			thumbImg:    "",
-			deviceType:  "",
-			hasPoweInfo: false,
-			index:       0,
+			idStr:        "",
+			panelType:    Launch,
+			title:        "",
+			eventtitle:   "",
+			subPage:      "",
+			thumbImg:     "",
+			deviceType:   "",
+			hasPowerInfo: false,
+			index:        0,
 		},
 		"Launch", "", "fa-launch",
 	}

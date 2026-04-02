@@ -25,15 +25,15 @@ type PanelGroup struct {
 func NewPanelGroup() *PanelGroup {
 	return &PanelGroup{
 		PanelBase{
-			idStr:       "",
-			panelType:   Group,
-			title:       "",
-			eventtitle:  "",
-			subPage:     "",
-			thumbImg:    "",
-			deviceType:  "",
-			hasPoweInfo: false,
-			index:       0,
+			idStr:        "",
+			panelType:    Group,
+			title:        "",
+			eventtitle:   "",
+			subPage:      "",
+			thumbImg:     "",
+			deviceType:   "",
+			hasPowerInfo: false,
+			index:        0,
 		},
 		"Group", "",
 	}

@@ -75,6 +75,8 @@ func (d DeviceTypeCustom) SwitchTo(p DeviceHardwareInterface, toState bool, from
 	code, ok := ProgramLibrary[d.customsetcode]
 	if !ok {
 		sr.ok = false
+		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
+		p.InvalidateInfo()
 		return sr
 	}
 
@@ -83,8 +85,10 @@ func (d DeviceTypeCustom) SwitchTo(p DeviceHardwareInterface, toState bool, from
 		fmt.Printf("Custom set code \"%s\" executed for panel %s, result: %s\n", d.customsetcode, p.Title(), results["Return"])
 	}
 	if results["Return"] == "error" {
+		sr.ok = false
 		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 		p.InvalidateInfo()
+		return sr
 	}
 
 	sr.state = 0
@@ -110,6 +114,7 @@ func (d DeviceTypeCustom) QuerySwitch(p DeviceHardwareInterface, from string) Sw
 	code, ok := ProgramLibrary[d.customquerycode]
 	if !ok {
 		qr.ok = false
+		p.InvalidateInfo()
 		return qr
 	}
 
@@ -133,8 +138,8 @@ func (d DeviceTypeCustom) QuerySwitch(p DeviceHardwareInterface, from string) Sw
 		fmt.Printf("Custom query code \"%s\" executed for panel %s, result: %s\n", d.customquerycode, p.EventTitle(), results["Return"])
 	}
 	if results["Return"] == "error" {
-		p.InvalidateInfo()
 		qr.ok = false
+		p.InvalidateInfo()
 		return qr
 	}
 	if results["Return"] == "true" {

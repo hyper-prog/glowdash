@@ -77,12 +77,15 @@ func (d DeviceTypeCustom) SwitchTo(p DeviceHardwareInterface, toState bool, from
 		sr.ok = false
 		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 		p.InvalidateInfo()
+		if DebugLevel >= 1 {
+			fmt.Printf("Not found custom set code \"%s\" for panel \"%s\"\n", d.customsetcode, p.EventTitle())
+		}
 		return sr
 	}
 
 	results := ExecuteCommands(code, initVariables, &relatedPanels)
 	if DebugLevel >= 2 {
-		fmt.Printf("Custom set code \"%s\" executed for panel %s, result: %s\n", d.customsetcode, p.Title(), results["Return"])
+		fmt.Printf("Custom set code \"%s\" executed for panel \"%s\", result: %s\n", d.customsetcode, p.EventTitle(), results["Return"])
 	}
 	if results["Return"] == "error" {
 		sr.ok = false
@@ -115,6 +118,9 @@ func (d DeviceTypeCustom) QuerySwitch(p DeviceHardwareInterface, from string) Sw
 	if !ok {
 		qr.ok = false
 		p.InvalidateInfo()
+		if DebugLevel >= 1 {
+			fmt.Printf("Not found custom query code \"%s\" for panel \"%s\"\n", d.customquerycode, p.EventTitle())
+		}
 		return qr
 	}
 
@@ -135,7 +141,7 @@ func (d DeviceTypeCustom) QuerySwitch(p DeviceHardwareInterface, from string) Sw
 
 	results := ExecuteCommands(code, initVariables, &relatedPanels)
 	if DebugLevel >= 2 {
-		fmt.Printf("Custom query code \"%s\" executed for panel %s, result: %s\n", d.customquerycode, p.EventTitle(), results["Return"])
+		fmt.Printf("Custom query code \"%s\" executed for panel \"%s\", result: %s\n", d.customquerycode, p.EventTitle(), results["Return"])
 	}
 	if results["Return"] == "error" {
 		qr.ok = false

@@ -43,6 +43,9 @@ func (d DeviceTypeShelly) SwitchTo(p DeviceHardwareInterface, toState bool, from
 	if p.DeviceIp() == "" {
 		p.InvalidateInfo()
 		sr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error: The Shelly device has empty IP address (panel %s)\n", p.EventTitle())
+		}
 		return sr
 	}
 
@@ -96,6 +99,9 @@ func (d DeviceTypeShelly) PerformThis(p DeviceHardwareInterface, fnc string, fro
 	if p.DeviceIp() == "" {
 		p.InvalidateInfo()
 		pr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error: The Shelly device has empty IP address (panel %s)\n", p.EventTitle())
+		}
 		return pr
 	}
 
@@ -193,6 +199,9 @@ func (d DeviceTypeShelly) ScriptTo(p DeviceHardwareInterface, scriptName string,
 	if p.DeviceIp() == "" || scriptName == "" || p.InDeviceId() < 0 {
 		p.InvalidateInfo()
 		pr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error: The Shelly device has missing configuration data (panel \"%s\")\n", p.EventTitle())
+		}
 		return pr
 	}
 
@@ -211,6 +220,9 @@ func (d DeviceTypeShelly) ScriptTo(p DeviceHardwareInterface, scriptName string,
 		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 		p.InvalidateInfo()
 		pr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error when executing http call on panel \"%s\"\n", p.EventTitle())
+		}
 		return pr
 	}
 
@@ -231,6 +243,9 @@ func (d DeviceTypeShelly) QuerySwitch(p DeviceHardwareInterface, from string) Sw
 	if p.DeviceIp() == "" {
 		p.InvalidateInfo()
 		qr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error: The Shelly device has empty IP address (panel \"%s\")\n", p.EventTitle())
+		}
 		return qr
 	}
 
@@ -239,6 +254,9 @@ func (d DeviceTypeShelly) QuerySwitch(p DeviceHardwareInterface, from string) Sw
 	if !jhq.Success {
 		p.InvalidateInfo()
 		qr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error when executing http call on panel \"%s\" (1)\n", p.EventTitle())
+		}
 		return qr
 	}
 
@@ -264,6 +282,9 @@ func (d DeviceTypeShelly) QuerySwitch(p DeviceHardwareInterface, from string) Sw
 	if !jhq2.Success {
 		p.InvalidateInfo()
 		qr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error when executing http call on panel \"%s\" (2)\n", p.EventTitle())
+		}
 		return qr
 	}
 	istate := jhq2.SmartJSON.GetBoolByPathWithDefault("/state", false)
@@ -289,6 +310,9 @@ func (d DeviceTypeShelly) QueryShader(p DeviceHardwareInterface, queryExtInfo bo
 	if p.DeviceIp() == "" {
 		p.InvalidateInfo()
 		qr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error: The Shelly device has empty IP address (panel \"%s\")\n", p.EventTitle())
+		}
 		return qr
 	}
 
@@ -297,6 +321,9 @@ func (d DeviceTypeShelly) QueryShader(p DeviceHardwareInterface, queryExtInfo bo
 	if !jhq.Success {
 		p.InvalidateInfo()
 		qr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error when executing http call on panel \"%s\" (3)\n", p.EventTitle())
+		}
 		return qr
 	}
 
@@ -325,6 +352,9 @@ func (d DeviceTypeShelly) QueryScript(p DeviceHardwareInterface, scriptName stri
 	if p.DeviceIp() == "" || scriptName == "" {
 		p.InvalidateInfo()
 		sr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error: The Shelly device has missing configuration data (panel \"%s\")\n", p.EventTitle())
+		}
 		return sr
 	}
 
@@ -333,6 +363,9 @@ func (d DeviceTypeShelly) QueryScript(p DeviceHardwareInterface, scriptName stri
 	if !jhq.Success {
 		p.InvalidateInfo()
 		sr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error when executing http call on panel \"%s\" (4)\n", p.EventTitle())
+		}
 		return sr
 	}
 	scriptcount := jhq.SmartJSON.GetCountDescendantsByPath("/scripts")
@@ -352,5 +385,8 @@ func (d DeviceTypeShelly) QueryScript(p DeviceHardwareInterface, scriptName stri
 	}
 	p.InvalidateInfo()
 	sr.ok = false
+	if DebugLevel >= 1 {
+		fmt.Printf("Error: Cannot find script name on panel's device \"%s\"\n", p.EventTitle())
+	}
 	return sr
 }

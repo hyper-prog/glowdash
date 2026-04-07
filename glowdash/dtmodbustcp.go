@@ -31,6 +31,9 @@ func (d DeviceTypeModbusTCP) SwitchTo(p DeviceHardwareInterface, toState bool, f
 	if p.DeviceIp() == "" {
 		p.InvalidateInfo()
 		sr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error: The modbus TCP device has empty IP address (panel \"%s\")\n", p.EventTitle())
+		}
 		return sr
 	}
 
@@ -61,6 +64,9 @@ func (d DeviceTypeModbusTCP) SwitchTo(p DeviceHardwareInterface, toState bool, f
 		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 		p.InvalidateInfo()
 		sr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error while executing modbus TCP command on panel: \"%s\" (1)\n", p.EventTitle())
+		}
 		return sr
 	}
 	defer modbulsClient.Close()
@@ -70,6 +76,9 @@ func (d DeviceTypeModbusTCP) SwitchTo(p DeviceHardwareInterface, toState bool, f
 		GlowdashConsole.Write(T("ERROR: The last operation failed to complete"))
 		p.InvalidateInfo()
 		sr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error while executing modbus TCP command on panel: \"%s\" (2)\n", p.EventTitle())
+		}
 		return sr
 	}
 	sr.ok = true
@@ -90,6 +99,9 @@ func (d DeviceTypeModbusTCP) QuerySwitch(p DeviceHardwareInterface, from string)
 	if p.DeviceIp() == "" {
 		p.InvalidateInfo()
 		qr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error: The modbus TCP device has empty IP address (panel \"%s\")\n", p.EventTitle())
+		}
 		return qr
 	}
 
@@ -97,6 +109,9 @@ func (d DeviceTypeModbusTCP) QuerySwitch(p DeviceHardwareInterface, from string)
 	if err != nil {
 		p.InvalidateInfo()
 		qr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error while executing modbus TCP command on panel: \"%s\" (1)\n", p.EventTitle())
+		}
 		return qr
 	}
 	defer modbulsClient.Close()
@@ -105,6 +120,9 @@ func (d DeviceTypeModbusTCP) QuerySwitch(p DeviceHardwareInterface, from string)
 	if err2 != nil {
 		p.InvalidateInfo()
 		qr.ok = false
+		if DebugLevel >= 1 {
+			fmt.Printf("Error while executing modbus TCP command on panel: \"%s\" (2)\n", p.EventTitle())
+		}
 		return qr
 	}
 	if coil {

@@ -127,7 +127,7 @@ type PageInterface interface {
 }
 
 var DashboardTitle string = "GlowDash"
-var GlowdashVersion string = "1.1.2"
+var GlowdashVersion string = "1.1.3"
 var LanguageCode string = ""
 var DebugLevel = 0
 var configFileName string = ""

@@ -131,6 +131,14 @@ Each panel type accepts a different set of properties. Below, each panel type is
   DeviceIp: 192.168.1.101
   InDeviceId: 0
   Thumbnail: facadelight.jpg
+
+- Title: Room light
+  PanelType: Switch
+  DeviceType: ModbusTCP
+  UnitId: 1
+  DeviceIp: 192.168.1.102
+  InDeviceId: 2
+  Thumbnail: lamp01.jpg
 ```
 
 ---
